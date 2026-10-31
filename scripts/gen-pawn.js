@@ -1,17 +1,24 @@
 const fs = require('fs');
 const zlib = require('zlib');
 
-function inPawn(nx, ny) {
-  // base
-  if (nx >= 0.305 && nx <= 0.695 && ny >= 0.781 && ny <= 0.844) return true;
-  // stem
-  if (nx >= 0.441 && nx <= 0.559 && ny >= 0.586 && ny <= 0.781) return true;
-  // body circle
-  if ((nx-0.5)**2 + (ny-0.449)**2 <= 0.137**2) return true;
-  // neck
-  if (nx >= 0.461 && nx <= 0.539 && ny >= 0.293 && ny <= 0.371) return true;
-  // head circle
-  if ((nx-0.5)**2 + (ny-0.234)**2 <= 0.090**2) return true;
+function inTri(px, py, ax, ay, bx, by, cx, cy) {
+  const d1 = (px - bx) * (ay - by) + (ax - bx) * (py - by);
+  const d2 = (px - cx) * (ay - cy) + (ax - cx) * (py - cy);
+  const d3 = (px - ax) * (by - ay) + (bx - ax) * (py - ay);
+  const hasNeg = (d1 < 0) || (d2 < 0) || (d3 < 0);
+  const hasPos = (d1 > 0) || (d2 > 0) || (d3 > 0);
+  return !(hasNeg && hasPos);
+}
+
+function inTop(nx, ny) {
+  // haste knob
+  if (nx >= 0.477 && nx <= 0.523 && ny >= 0.188 && ny <= 0.211) return true;
+  // haste stem
+  if (nx >= 0.488 && nx <= 0.512 && ny >= 0.211 && ny <= 0.348) return true;
+  // corpo (cone): triangle (0.305,0.352)-(0.695,0.352)-(0.5,0.758)
+  if (inTri(nx, ny, 0.305, 0.352, 0.695, 0.352, 0.5, 0.758)) return true;
+  // ponta
+  if (inTri(nx, ny, 0.480, 0.758, 0.520, 0.758, 0.5, 0.836)) return true;
   return false;
 }
 
@@ -24,7 +31,7 @@ function makePng(width, height) {
       const i = rowStart + 1 + x * 4;
       const nx = (x + 0.5) / width;
       const ny = (y + 0.5) / height;
-      if (inPawn(nx, ny)) {
+      if (inTop(nx, ny)) {
         raw[i]=255; raw[i+1]=255; raw[i+2]=255; raw[i+3]=255;
       } else {
         raw[i]=0; raw[i+1]=0; raw[i+2]=0; raw[i+3]=255;
