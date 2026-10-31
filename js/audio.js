@@ -151,10 +151,13 @@ export async function loadStem(index, file) {
   document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: Lendo...`;
   try {
     const buf = await file.arrayBuffer();
-    const decoded = await state.audioCtx.decodeAudioData(buf);
-    state.stemBuffers[index] = decoded;
-    document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: ${file.name.slice(0, 14)}`;
-    if (state.isPlaying && state.sourceMode === 'upload') startStems();
+    state.audioCtx.decodeAudioData(buf, (decoded) => {
+      state.stemBuffers[index] = decoded;
+      document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: ${file.name.slice(0, 14)}`;
+      if (state.isPlaying && state.sourceMode === 'upload') startStems();
+    }, () => {
+      document.getElementById(`label${index}`).textContent = 'Erro ao carregar';
+    });
   } catch (e) {
     document.getElementById(`label${index}`).textContent = 'Erro ao carregar';
   }
@@ -359,8 +362,7 @@ export function captureAndPlaySubconsciousMemory() {
       try {
         const blob = new Blob(chunks);
         const arr = await blob.arrayBuffer();
-        try {
-          const buffer = await state.audioCtx.decodeAudioData(arr);
+        state.audioCtx.decodeAudioData(arr, (buffer) => {
           const reverse = Math.random() > 0.4;
           if (reverse) {
             for (let c = 0; c < buffer.numberOfChannels; c++) {
@@ -380,7 +382,7 @@ export function captureAndPlaySubconsciousMemory() {
           if (status) status.textContent = reverse
             ? 'Memory Catcher: Eco reverso projetado no sonho.'
             : 'Memory Catcher: Fragmento desacelerado projetado.';
-        } catch (e) {}
+        }, () => {});
       } catch (e) {}
     };
     recorder.start();
