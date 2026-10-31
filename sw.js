@@ -1,4 +1,4 @@
-const CACHE = 'pasiv-v4';
+const CACHE = 'pasiv-v5';
 const ASSETS = [
   './',
   './index.html',
@@ -14,7 +14,8 @@ const ASSETS = [
   './js/power.js',
   './manifest.webmanifest',
   './assets/icons/icon-192.png',
-  './assets/icons/icon-512.png'
+  './assets/icons/icon-512.png',
+  './assets/pawn.svg'
 ];
 
 self.addEventListener('install', (e) => {
