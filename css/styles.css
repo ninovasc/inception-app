@@ -64,6 +64,7 @@ header {
   justify-content: space-between;
   align-items: baseline;
   border-bottom: 1px solid var(--border);
+  padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: 12px;
   position: relative;
 }
