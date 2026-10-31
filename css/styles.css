@@ -23,8 +23,31 @@ html, body {
 
 body {
   padding: 24px 20px;
+  padding-top: calc(24px + env(safe-area-inset-top, 0px));
   display: flex;
   justify-content: center;
+}
+
+/* Bloqueio de orientação paisagem */
+.landscape-block {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #000;
+  color: #fff;
+  z-index: 9999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  text-align: center;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+@media (orientation: landscape) {
+  .landscape-block { display: flex; }
+  .app-shell { display: none; }
 }
 
 .app-shell {

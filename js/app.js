@@ -67,6 +67,13 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+// Try to lock orientation to portrait (PWA)
+try {
+  if (screen.orientation && screen.orientation.lock) {
+    screen.orientation.lock('portrait').catch(() => {});
+  }
+} catch (e) {}
+
 // Initial seed
 seed.generateFullSeed();
 
