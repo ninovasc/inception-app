@@ -299,30 +299,30 @@ export function triggerKick(withPiafCue) {
   const now = state.audioCtx.currentTime;
 
   if (withPiafCue) {
-    // Fanfarra grave lembrando "Non, je ne regrette rien" (Piaf), uma oitava abaixo
-    [196.0, 220.0, 246.94, 261.63].forEach((nFreq, idx) => {
+    // Fanfarra GRAVE lembrando "Non, je ne regrette rien" (Piaf), duas oitavas abaixo
+    [98.0, 110.0, 123.47, 130.81].forEach((nFreq, idx) => {
       const o = state.audioCtx.createOscillator();
       const f = state.audioCtx.createBiquadFilter();
       const g = state.audioCtx.createGain();
-      o.type = 'sawtooth';
+      o.type = 'triangle';
       f.type = 'lowpass';
-      f.frequency.value = 900;
-      o.frequency.setValueAtTime(nFreq, now + idx * 0.16);
-      g.gain.setValueAtTime(0.12, now + idx * 0.16);
-      g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.16 + 0.16);
+      f.frequency.value = 400;
+      o.frequency.setValueAtTime(nFreq, now + idx * 0.18);
+      g.gain.setValueAtTime(0.18, now + idx * 0.18);
+      g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.18 + 0.18);
       o.connect(f);
       f.connect(g);
       g.connect(state.masterFilter);
-      o.start(now + idx * 0.16);
-      o.stop(now + idx * 0.16 + 0.18);
+      o.start(now + idx * 0.18);
+      o.stop(now + idx * 0.18 + 0.20);
     });
     // drone grave sustentado (lembrança do motivo)
     const drone = state.audioCtx.createOscillator();
     const dg = state.audioCtx.createGain();
-    drone.type = 'triangle';
-    drone.frequency.setValueAtTime(98.0, now);
+    drone.type = 'sine';
+    drone.frequency.setValueAtTime(49.0, now);
     dg.gain.setValueAtTime(0.001, now);
-    dg.gain.linearRampToValueAtTime(0.10, now + 0.1);
+    dg.gain.linearRampToValueAtTime(0.14, now + 0.1);
     dg.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
     drone.connect(dg);
     dg.connect(state.masterFilter);
@@ -341,7 +341,7 @@ export function triggerKick(withPiafCue) {
     flt.frequency.setValueAtTime(180, now + 0.55);
     flt.frequency.exponentialRampToValueAtTime(2000, now + 0.95);
     g.gain.setValueAtTime(0.01, now + 0.55);
-    g.gain.linearRampToValueAtTime(0.28, now + 0.75);
+    g.gain.linearRampToValueAtTime(0.45, now + 0.75);
     g.gain.exponentialRampToValueAtTime(0.001, now + 3.1);
     osc.connect(flt);
     flt.connect(g);
