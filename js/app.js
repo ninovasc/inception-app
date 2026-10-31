@@ -7,6 +7,7 @@ import * as seed from './seed.js';
 import * as ui from './ui.js';
 import './power.js';
 import * as yt from './youtube.js';
+import * as cap from './capture.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -52,7 +53,10 @@ Object.assign(window, {
   stopYouTube: yt.stopYouTube,
   setYouTubeRate: yt.setYouTubeRate,
   loadYouTube: yt.loadYouTube,
-  setYouTubeVolume: yt.setYouTubeVolume
+  setYouTubeVolume: yt.setYouTubeVolume,
+  startCapture: cap.startCapture,
+  stopCapture: cap.stopCapture,
+  setCaptureVolume: cap.setCaptureVolume
 });
 
 // Wire X/Y pad

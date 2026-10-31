@@ -84,17 +84,24 @@ export function setSourceMode(mode) {
   const btnYt = document.getElementById('btnYt');
   if (btnYt) btnYt.classList.toggle('active', mode === 'youtube');
   if (btnYt) btnYt.setAttribute('aria-pressed', mode === 'youtube' ? 'true' : 'false');
+  const btnCap = document.getElementById('btnCap');
+  if (btnCap) btnCap.classList.toggle('active', mode === 'capture');
+  if (btnCap) btnCap.setAttribute('aria-pressed', mode === 'capture' ? 'true' : 'false');
   document.getElementById('synthBox').style.display = mode === 'synth' ? 'flex' : 'none';
   document.getElementById('uploadBox').style.display = mode === 'upload' ? 'flex' : 'none';
   const ytBox = document.getElementById('ytBox');
   if (ytBox) ytBox.style.display = mode === 'youtube' ? 'flex' : 'none';
+  const capBox = document.getElementById('capBox');
+  if (capBox) capBox.style.display = mode === 'capture' ? 'flex' : 'none';
 
   if (state.isPlaying) {
     stopStems(); stopSynth();
     if (window.stopYouTube) window.stopYouTube();
+    if (window.stopCapture) window.stopCapture();
     if (mode === 'synth') startSynth();
     else if (mode === 'upload') startStems();
     else if (mode === 'youtube') { if (window.startYouTube) window.startYouTube(); }
+    else if (mode === 'capture') { if (window.startCapture) window.startCapture(); }
   }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
@@ -216,6 +223,7 @@ export function toggleMasterPlay() {
     if (state.sourceMode === 'synth') startSynth();
     else if (state.sourceMode === 'upload') startStems();
     else if (state.sourceMode === 'youtube') { if (window.startYouTube) window.startYouTube(); }
+    else if (state.sourceMode === 'capture') { if (window.startCapture) window.startCapture(); }
 
     btn.classList.add('active');
     btn.setAttribute('aria-pressed', 'true');
@@ -232,6 +240,7 @@ export function toggleMasterPlay() {
     stopStems();
     stopSynth();
     if (window.stopYouTube) window.stopYouTube();
+    if (window.stopCapture) window.stopCapture();
     stopDeprivationHeartbeat();
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');

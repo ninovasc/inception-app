@@ -2,7 +2,7 @@ import { state } from './state.js';
 
 // Pure encode: stateObj -> seed string
 export function encodeState(s) {
-  const mod = s.sourceMode === 'synth' ? 'S' : (s.sourceMode === 'youtube' ? 'Y' : 'U');
+  const mod = s.sourceMode === 'synth' ? 'S' : (s.sourceMode === 'youtube' ? 'Y' : (s.sourceMode === 'capture' ? 'C' : 'U'));
   const syn = s.currentSynthType;
   const lvl = s.currentLevel;
   const xyX = Math.round(s.xyState.x * 100);
@@ -40,7 +40,7 @@ export function decodeState(str) {
       tokens[key] = data;
     });
     const out = {};
-    if (tokens.MOD) out.sourceMode = tokens.MOD === 'S' ? 'synth' : (tokens.MOD === 'Y' ? 'youtube' : 'upload');
+    if (tokens.MOD) out.sourceMode = tokens.MOD === 'S' ? 'synth' : (tokens.MOD === 'Y' ? 'youtube' : (tokens.MOD === 'C' ? 'capture' : 'upload'));
     if (tokens.SYN !== undefined) out.currentSynthType = parseInt(tokens.SYN, 10);
     if (tokens.LVL !== undefined) out.currentLevel = parseInt(tokens.LVL, 10);
     if (tokens.XY) {
