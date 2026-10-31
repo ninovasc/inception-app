@@ -11,7 +11,6 @@
       --muted: #666666;
       --accent: #ffffff;
       --border: #222222;
-      --active-border: #888888;
     }
 
     * {
@@ -103,7 +102,6 @@
       font-family: monospace;
     }
 
-    /* Área X/Y Pad */
     #xyPad {
       width: 100%;
       height: 130px;
@@ -135,7 +133,6 @@
       font-family: monospace;
     }
 
-    /* Sliders Minimalistas */
     .slider-group {
       display: flex;
       flex-direction: column;
@@ -236,7 +233,6 @@
       <div id="topStatus" class="status-mini">PARADO</div>
     </header>
 
-    <!-- MENU PRINCIPAL -->
     <div class="menu-section">
       <div class="menu-title">Estado do Sonho</div>
       <button class="menu-item" id="masterPlayBtn" onclick="toggleMasterPlay()">
@@ -249,7 +245,6 @@
       </button>
     </div>
 
-    <!-- NÍVEIS -->
     <div class="menu-section">
       <div class="menu-title">Arquitetura de Níveis</div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
@@ -262,7 +257,6 @@
       </div>
     </div>
 
-    <!-- ÁREA X/Y PAD -->
     <div class="menu-section">
       <div class="menu-title" style="display:flex; justify-content:space-between;">
         <span>X/Y Pad (Toque Livre)</span>
@@ -274,7 +268,6 @@
       </div>
     </div>
 
-    <!-- FONTE SONORA: SINTETIZADOR VS UPLOAD DE 3 CAMADAS -->
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('sourcePanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span>Fonte Sonora & 3 Camadas</span>
@@ -282,7 +275,7 @@
       </div>
       <div id="sourcePanel" class="hidden-panel open">
         <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.8rem;">Sintetizador Zimmer</button>
+          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.8rem;">Sintetizador</button>
           <button class="menu-item" id="btnUpload" onclick="setSourceMode('upload')" style="flex:1; justify-content:center; font-size:0.8rem;">Meus 3 MP3</button>
         </div>
 
@@ -291,60 +284,57 @@
         </div>
 
         <div id="uploadBox" style="display: none; flex-direction: column; gap: 6px;">
-          <!-- Camada 1 -->
           <label class="file-btn" for="file0"><span id="label0">Camada 1: [Selecionar MP3]</span><span>📁</span></label>
           <input type="file" id="file0" accept="*" onchange="loadStem(0, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 1</span><span id="volVal0">90%</span></div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. 1</span><span id="volVal0">90%</span></div>
           <input type="range" min="0" max="1" step="0.05" value="0.9" oninput="setVolume(0, this.value)"></div>
 
-          <!-- Camada 2 -->
           <label class="file-btn" for="file1"><span id="label1">Camada 2: [Selecionar MP3]</span><span>📁</span></label>
           <input type="file" id="file1" accept="*" onchange="loadStem(1, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 2</span><span id="volVal1">30%</span></div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. 2</span><span id="volVal1">30%</span></div>
           <input type="range" min="0" max="1" step="0.05" value="0.3" oninput="setVolume(1, this.value)"></div>
 
-          <!-- Camada 3 -->
           <label class="file-btn" for="file2"><span id="label2">Camada 3: [Selecionar MP3]</span><span>📁</span></label>
           <input type="file" id="file2" accept="*" onchange="loadStem(2, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 3</span><span id="volVal2">30%</span></div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. 3</span><span id="volVal2">30%</span></div>
           <input type="range" min="0" max="1" step="0.05" value="0.3" oninput="setVolume(2, this.value)"></div>
         </div>
       </div>
     </div>
 
-    <!-- SENSORES REAIS (MICROFONE & GIROSCÓPIO) -->
+    <!-- SENSORES (MIC, GIROSCÓPIO E GPS) -->
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('sensorPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span>Sensores Reais (iOS / Android)</span>
         <span style="color:#fff;">▼</span>
       </div>
       <div id="sensorPanel" class="hidden-panel">
-        <div style="display: flex; gap: 6px;">
-          <button class="menu-item" id="btnMic" onclick="toggleMic()" style="flex:1; justify-content:center; font-size:0.8rem;">Microfone: OFF</button>
-          <button class="menu-item" id="btnMotion" onclick="toggleMotion()" style="flex:1; justify-content:center; font-size:0.8rem;">Giroscópio: OFF</button>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="menu-item" id="btnMic" onclick="toggleMic()" style="flex:1; justify-content:center; font-size:0.75rem;">Mic: OFF</button>
+          <button class="menu-item" id="btnMotion" onclick="toggleMotion()" style="flex:1; justify-content:center; font-size:0.75rem;">Giro: OFF</button>
+          <button class="menu-item" id="btnGps" onclick="activateGPS()" style="flex:1; justify-content:center; font-size:0.75rem;">GPS: OFF</button>
         </div>
-        <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;">Use fones de ouvido ao ligar o microfone.</div>
+        <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus">Toque para ativar os sensores.</div>
       </div>
     </div>
 
-    <!-- PARÂMETROS & HASH SEED -->
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('dspPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span>Parâmetros & Seed</span>
         <span style="color:#fff;">▼</span>
       </div>
       <div id="dspPanel" class="hidden-panel">
-        <div class="slider-group"><div class="slider-header"><span>Velocidade Temporal</span><span id="valSpeed">1.00x</span></div>
+        <div class="slider-group"><div class="slider-header"><span>Velocidade</span><span id="valSpeed">1.00x</span></div>
         <input type="range" id="sliderSpeed" min="0.25" max="1.4" step="0.01" value="1.00" oninput="updateFromSliders()"></div>
-        <div class="slider-group"><div class="slider-header"><span>Filtro Subaquático</span><span id="valFilter">18000 Hz</span></div>
+        <div class="slider-group"><div class="slider-header"><span>Filtro</span><span id="valFilter">18000 Hz</span></div>
         <input type="range" id="sliderFilter" min="160" max="18000" step="50" value="18000" oninput="updateFromSliders()"></div>
-        <div class="slider-group"><div class="slider-header"><span>Eco (Delay)</span><span id="valDelay">12%</span></div>
+        <div class="slider-group"><div class="slider-header"><span>Eco</span><span id="valDelay">12%</span></div>
         <input type="range" id="sliderDelay" min="0" max="0.85" step="0.02" value="0.12" oninput="updateFromSliders()"></div>
         <div class="slider-group"><div class="slider-header"><span>Reverb</span><span id="valReverb">30%</span></div>
         <input type="range" id="sliderReverb" min="0" max="1" step="0.02" value="0.30" oninput="updateFromSliders()"></div>
 
         <div style="margin-top: 6px;">
-          <div class="menu-title" style="margin-bottom:4px;">Seed (Hash de Estado)</div>
+          <div class="menu-title" style="margin-bottom:4px;">Seed (Hash)</div>
           <div class="seed-box">
             <input type="text" id="seedInput" placeholder="SPD1.00-FLT18000...">
             <button onclick="applySeed()">Carregar</button>
@@ -366,7 +356,7 @@
 
     let audioCtx = null;
     let isPlaying = false;
-    let sourceMode = 'synth'; // 'synth' | 'upload'
+    let sourceMode = 'synth';
     
     let masterFilter, delayNode, feedbackGain, convolverNode, reverbGain, dryGain, compressor;
     
@@ -636,7 +626,7 @@
     window.addEventListener('pointermove', (e) => { if (isDragging) handleXYMove(e.clientX, e.clientY); });
     window.addEventListener('pointerup', () => { isDragging = false; });
 
-    // SENSORES REAIS
+    // SENSORES
     async function toggleMic() {
       initAudio();
       const btn = document.getElementById('btnMic');
@@ -650,12 +640,12 @@
           micGain.connect(masterFilter);
           isMicOn = true;
           btn.classList.add('active');
-          btn.textContent = 'Microfone: ATIVO';
+          btn.textContent = 'Mic: ATIVO';
         } catch(e) { alert('Erro ao acessar microfone.'); }
       } else {
         isMicOn = false;
         btn.classList.remove('active');
-        btn.textContent = 'Microfone: OFF';
+        btn.textContent = 'Mic: OFF';
       }
     }
 
@@ -680,12 +670,39 @@
         });
         isMotionOn = true;
         btn.classList.add('active');
-        btn.textContent = 'Giroscópio: ATIVO';
+        btn.textContent = 'Giro: ATIVO';
       } else {
         isMotionOn = false;
         btn.classList.remove('active');
-        btn.textContent = 'Giroscópio: OFF';
+        btn.textContent = 'Giro: OFF';
       }
+    }
+
+    function activateGPS() {
+      initAudio();
+      const btn = document.getElementById('btnGps');
+      document.getElementById('sensorStatus').textContent = 'Buscando GPS...';
+      
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          btn.classList.add('active');
+          btn.textContent = 'GPS: ATIVO';
+          try {
+            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current=rain,is_day`);
+            const data = await res.json();
+            if (data.current.rain > 0) selectLevel(1); // Chuva
+            else if (data.current.is_day === 0) selectLevel(2); // Hotel / Noite
+            else selectLevel(0); // Realidade
+            document.getElementById('sensorStatus').textContent = 'GPS Sincronizado com o clima local!';
+          } catch(e) {
+            document.getElementById('sensorStatus').textContent = 'GPS obtido, mas sem clima.';
+          }
+        },
+        () => {
+          document.getElementById('sensorStatus').textContent = 'GPS negado nos Ajustes do iPhone.';
+        },
+        { timeout: 10000 }
+      );
     }
 
     function togglePanel(id) {
@@ -720,3 +737,4 @@
   </script>
 </body>
 </html>
+
