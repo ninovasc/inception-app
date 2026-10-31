@@ -299,22 +299,43 @@ export function triggerKick(withPiafCue) {
   const now = state.audioCtx.currentTime;
 
   if (withPiafCue) {
-    // Fanfarra GRAVE lembrando "Non, je ne regrette rien" (Piaf), duas oitavas abaixo
-    [98.0, 110.0, 123.47, 130.81].forEach((nFreq, idx) => {
+    // Melodia de "Non, je ne regrette rien" (Piaf) em registro grave
+    // G - A - B - C, com ritmo marchado (última nota sustentada)
+    const notes = [
+      { f: 98.0,  t: 0.00, dur: 0.13 },
+      { f: 110.0, t: 0.15, dur: 0.13 },
+      { f: 123.47,t: 0.30, dur: 0.13 },
+      { f: 130.81,t: 0.45, dur: 0.30 }
+    ];
+    notes.forEach(n => {
       const o = state.audioCtx.createOscillator();
       const f = state.audioCtx.createBiquadFilter();
       const g = state.audioCtx.createGain();
-      o.type = 'triangle';
+      // sawtooth com filtro para timbre metálico grave
+      o.type = 'sawtooth';
       f.type = 'lowpass';
-      f.frequency.value = 400;
-      o.frequency.setValueAtTime(nFreq, now + idx * 0.18);
-      g.gain.setValueAtTime(0.18, now + idx * 0.18);
-      g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.18 + 0.18);
+      f.frequency.value = 600;
+      f.Q.value = 1.2;
+      o.frequency.setValueAtTime(n.f, now + n.t);
+      // leve vibrato na última nota
+      if (n.dur > 0.2) {
+        const lfo = state.audioCtx.createOscillator();
+        const lfoGain = state.audioCtx.createGain();
+        lfo.frequency.value = 5.5;
+        lfoGain.gain.value = n.f * 0.012;
+        lfo.connect(lfoGain);
+        lfoGain.connect(o.frequency);
+        lfo.start(now + n.t);
+        lfo.stop(now + n.t + n.dur + 0.05);
+      }
+      g.gain.setValueAtTime(0.001, now + n.t);
+      g.gain.linearRampToValueAtTime(0.20, now + n.t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.dur);
       o.connect(f);
       f.connect(g);
       g.connect(state.masterFilter);
-      o.start(now + idx * 0.18);
-      o.stop(now + idx * 0.18 + 0.20);
+      o.start(now + n.t);
+      o.stop(now + n.t + n.dur + 0.05);
     });
     // drone grave sustentado (lembrança do motivo)
     const drone = state.audioCtx.createOscillator();
@@ -322,12 +343,12 @@ export function triggerKick(withPiafCue) {
     drone.type = 'sine';
     drone.frequency.setValueAtTime(49.0, now);
     dg.gain.setValueAtTime(0.001, now);
-    dg.gain.linearRampToValueAtTime(0.14, now + 0.1);
-    dg.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+    dg.gain.linearRampToValueAtTime(0.16, now + 0.1);
+    dg.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
     drone.connect(dg);
     dg.connect(state.masterFilter);
     drone.start(now);
-    drone.stop(now + 0.75);
+    drone.stop(now + 0.95);
   }
 
   [55, 110, 164.81].forEach(freq => {
