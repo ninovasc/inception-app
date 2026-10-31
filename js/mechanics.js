@@ -1,11 +1,18 @@
 import { state } from './state.js';
 
 export async function toggleMemoryCatcher() {
+  const btn = document.getElementById('btnMemCatcher');
+  const sub = document.getElementById('subMemCatcher');
+
+  if (typeof MediaRecorder === 'undefined') {
+    setSensorStatus('Memory Catcher não suportado neste navegador.');
+    if (btn) btn.setAttribute('aria-disabled', 'true');
+    return;
+  }
+
   const audio = await import('./audio.js');
   const sensors = await import('./sensors.js');
   audio.initAudio();
-  const btn = document.getElementById('btnMemCatcher');
-  const sub = document.getElementById('subMemCatcher');
 
   if (!state.isMemCatcherOn) {
     if (!state.isMicOn) await sensors.toggleMic();

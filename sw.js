@@ -1,4 +1,4 @@
-const CACHE = 'pasiv-v14';
+const CACHE = 'pasiv-v15';
 const ASSETS = [
   './',
   './index.html',
@@ -15,7 +15,8 @@ const ASSETS = [
   './manifest.webmanifest',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
-  './assets/pawn.svg'
+  './assets/pawn.svg',
+  './offline.html'
 ];
 
 self.addEventListener('install', (e) => {
@@ -33,10 +34,18 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
   e.respondWith(
-    caches.match(e.request).then((cached) => cached || fetch(e.request).then((res) => {
-      const copy = res.clone();
-      caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
-      return res;
-    }).catch(() => cached))
+    caches.match(e.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(e.request).then((res) => {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+        return res;
+      }).catch(() => {
+        if (e.request.mode === 'navigate') {
+          return caches.match('./offline.html');
+        }
+        return cached;
+      });
+    })
   );
 });
