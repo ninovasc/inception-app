@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v1.9.0</div>
+        <div class="version">v1.10.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -102,26 +102,26 @@
           </div>
 
           <div class="slider-group">
-            <div class="slider-header"><span>Volume do Sintetizador</span><span id="volValSynth">80%</span></div>
-            <input type="range" id="volSynth" min="0" max="1" step="0.05" value="0.80" oninput="setSynthVolume(this.value)">
+            <div class="slider-header"><span>Volume do Sintetizador</span><span id="volValSynth">20%</span></div>
+            <input type="range" id="volSynth" min="0" max="1" step="0.05" value="0.20" oninput="setSynthVolume(this.value)">
           </div>
         </div>
 
         <div id="uploadBox" style="display: none; flex-direction: column; gap: 6px;">
           <label class="file-btn" for="file0"><span id="label0">Camada 1: [Selecionar MP3]</span><span>📁</span></label>
           <input type="file" id="file0" accept="*" onchange="loadStem(0, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 1</span><span id="volVal0">90%</span></div>
-          <input type="range" id="vol0" min="0" max="1" step="0.05" value="0.90" oninput="setVolume(0, this.value)"></div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 1</span><span id="volVal0">20%</span></div>
+          <input type="range" id="vol0" min="0" max="1" step="0.05" value="0.20" oninput="setVolume(0, this.value)"></div>
 
           <label class="file-btn" for="file1"><span id="label1">Camada 2: [Selecionar MP3]</span><span>📁</span></label>
           <input type="file" id="file1" accept="*" onchange="loadStem(1, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 2</span><span id="volVal1">30%</span></div>
-          <input type="range" id="vol1" min="0" max="1" step="0.05" value="0.30" oninput="setVolume(1, this.value)"></div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 2</span><span id="volVal1">20%</span></div>
+          <input type="range" id="vol1" min="0" max="1" step="0.05" value="0.20" oninput="setVolume(1, this.value)"></div>
 
           <label class="file-btn" for="file2"><span id="label2">Camada 3: [Selecionar MP3]</span><span>📁</span></label>
           <input type="file" id="file2" accept="*" onchange="loadStem(2, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 3</span><span id="volVal2">30%</span></div>
-          <input type="range" id="vol2" min="0" max="1" step="0.05" value="0.30" oninput="setVolume(2, this.value)"></div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 3</span><span id="volVal2">20%</span></div>
+          <input type="range" id="vol2" min="0" max="1" step="0.05" value="0.20" oninput="setVolume(2, this.value)"></div>
         </div>
       </div>
     </div>
