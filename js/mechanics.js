@@ -81,9 +81,14 @@ export async function toggleSpatial3D() {
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         const res = await DeviceOrientationEvent.requestPermission();
         if (res !== 'granted') {
+          setSensorStatus('Permissão de orientação negada. Áudio 3D indisponível neste dispositivo.');
           if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
           return;
         }
+      } else if (typeof DeviceOrientationEvent === 'undefined') {
+        setSensorStatus('Orientação não suportada neste dispositivo.');
+        if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+        return;
       }
       state.baseCompassAlpha = null;
       window.addEventListener('deviceorientation', (await import('./sensors.js')).orientationHandler);

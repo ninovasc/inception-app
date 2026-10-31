@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v1.7.0</div>
+        <div class="version">v1.9.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -42,7 +42,7 @@
         <span>Iniciar Sonho</span>
         <span class="sub" id="playSub">OFF</span>
       </button>
-      <button class="menu-item" onclick="triggerKick(true)">
+      <button class="menu-item" onclick="triggerKick(true)" aria-label="Disparar O Chute">
         <span>O Chute (Piaf + BRAAAM)</span>
         <span class="sub">Queda Livre</span>
       </button>
@@ -78,8 +78,8 @@
       </div>
       <div id="sourcePanel" class="hidden-panel open">
         <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.8rem;">Sintetizadores</button>
-          <button class="menu-item" id="btnUpload" onclick="setSourceMode('upload')" style="flex:1; justify-content:center; font-size:0.8rem;">Meus 3 MP3</button>
+          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.8rem;" aria-label="Modo sintetizadores" aria-pressed="true">Sintetizadores</button>
+          <button class="menu-item" id="btnUpload" onclick="setSourceMode('upload')" style="flex:1; justify-content:center; font-size:0.8rem;" aria-label="Modo meus MP3" aria-pressed="false">Meus 3 MP3</button>
         </div>
 
         <div id="synthBox" style="display: flex; flex-direction: column; gap: 6px;">
@@ -133,9 +133,9 @@
       </div>
       <div id="sensorPanel" class="hidden-panel open">
         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-          <button class="menu-item" id="btnMic" onclick="toggleMic()" style="flex:1; justify-content:center; font-size:0.75rem;">Mic: OFF</button>
-          <button class="menu-item" id="btnMotion" onclick="toggleMotion()" style="flex:1; justify-content:center; font-size:0.75rem;">Giro: OFF</button>
-          <button class="menu-item" id="btnGps" onclick="toggleGPS()" style="flex:1; justify-content:center; font-size:0.75rem;">GPS: OFF</button>
+          <button class="menu-item" id="btnMic" onclick="toggleMic()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Microfone" aria-pressed="false">Mic: OFF</button>
+          <button class="menu-item" id="btnMotion" onclick="toggleMotion()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Giroscópio" aria-pressed="false">Giro: OFF</button>
+          <button class="menu-item" id="btnGps" onclick="toggleGPS()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="GPS" aria-pressed="false">GPS: OFF</button>
         </div>
         <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus">Toque em um sensor para ligar ou desligar.</div>
       </div>
