@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PASIV Engine">
+  <title>INCEPTION // PASIV Audio Engine</title>
+  <style>
+    :root {
+      --bg: #07080c;
+      --panel: #11141d;
+      --panel-light: #191e2b;
+      --border: #283044;
+      --gold: #d4af37;
+      --gold-glow: rgba(212, 175, 55, 0.35);
+      --cyan: #38bdf8;
+      --danger: #ef4444;
+      --success: #22c55e;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      background: radial-gradient(circle at top, #141926 0%, var(--bg) 70%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 540px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      padding-bottom: 40px;
+    }
+
+    header {
+      text-align: center;
+      padding: 12px 10px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .brand-tag {
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      color: var(--gold);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 4px 0;
+      font-size: 1.55rem;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .status-bar {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .badge.active {
+      border-color: var(--gold);
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.12);
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+    }
+
+    .card-title {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--gold);
+      margin: 0 0 12px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 700;
+    }
+
+    /* Visualizador Totem + Ondas */
+    .visualizer-wrap {
+      position: relative;
+      height: 170px;
+      background: #050609;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #1e2434;
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hud-overlay {
+      position: absolute;
+      top: 10px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      font-size: 0.74rem;
+      font-family: monospace;
+      color: var(--muted);
+    }
+
+    .hud-level {
+      color: var(--gold);
+      font-weight: bold;
+    }
+
+    /* Botões Principais */
+    .btn-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .btn-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    button {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: var(--panel-light);
+      color: var(--text);
+      padding: 12px 10px;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button.primary {
+      background: var(--gold);
+      color: #050608;
+      border-color: var(--gold);
+      box-shadow: 0 0 18px var(--gold-glow);
+    }
+
+    button.active {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    button.kick-btn {
+      background: linear-gradient(135deg, #991b1b, #dc2626);
+      border-color: #f87171;
+      color: #fff;
+    }
+
+    /* Seletor de Fonte Sonora */
+    .mode-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .stem-item {
+      background: var(--panel-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+    }
+
+    .stem-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .stem-status {
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    input[type="file"] {
+      width: 100%;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    /* Sliders */
+    .slider-row {
+      margin-bottom: 12px;
+    }
+
+    .slider-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .slider-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      margin-bottom: 5px;
+      color: #cbd5e1;
+    }
+
+    .slider-val {
+      font-family: monospace;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    .log-box {
+      font-family: monospace;
+      font-size: 0.74rem;
+      color: var(--muted);
+      background: #06080d;
+      border: 1px solid #1c2233;
+      padding: 10px;
+      border-radius: 8px;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    <header>
+      <div class="brand-tag">Dispositivo Somnacin // PASIV</div>
+      <h1>Inception Audio</h1>
+      <div class="status-bar">
+        <span id="badgeAudio" class="badge">Áudio: Parado</span>
+        <span id="badgeMic" class="badge">Mic: Off</span>
+        <span id="badgeMotion" class="badge">Movimento: Off</span>
+        <span id="badgeGps" class="badge">Clima/GPS: Off</span>
+      </div>
+    </header>
+
+    <!-- Visualizador Giroscópico + Espectro -->
+    <div class="card">
+      <div class="visualizer-wrap">
+        <div class="hud-overlay">
+          <span>ESTADO: <strong id="hudState" class="hud-level">REALIDADE (1.00x)</strong></span>
+          <span id="hudClock">00:00:00</span>
+        </div>
+        <canvas id="totemCanvas"></canvas>
+      </div>
+
+      <div class="btn-grid" style="margin-top: 12px;">
+        <button id="btnMasterPlay" class="primary">Iniciar Sonho</button>
+        <button id="btnKick" class="kick-btn">O Chute (BRAAAM)</button>
+      </div>
+    </div>
+
+    <!-- Fonte Sonora: Sintetizador Zimmer vs Upload de Músicas -->
+    <div class="card">
+      <div class="card-title">
+        <span>1. Fonte Musical Reativa</span>
+        <span id="sourceModeLabel" style="color: var(--muted); font-size: 0.7rem;">Modo Sintetizador</span>
+      </div>
+
+      <div class="mode-switch">
+        <button id="btnModeSynth" class="active" onclick="setSourceMode('synth')">Sintetizador Zimmer</button>
+        <button id="btnModeUpload" onclick="setSourceMode('upload')">Minhas Músicas (MP3)</button>
+      </div>
+
+      <div id="synthInfo" class="log-box">
+        Gerador procedural ativo: Drones graves, acordes de tensão e percussão reativa gerados automaticamente em tempo real sem precisar de arquivos.
+      </div>
+
+      <div id="uploadContainer" style="display: none;">
+        <div class="stem-item">
+          <div class="stem-header">
+            <span>Camada 1: Base / Melodia Principal</span>
+            <span id="stemStatus0" class="stem-status">Aguardando arquivo...</span>
+          </div>
+          <input type="file" accept="audio/*" onchange="loadStemFile(0, this.files[0])">
+        </div>
+
+        <div class="stem-item">
+          <div class="stem-header">
+            <span>Camada 2: Tensão (Sobe com barulho/Mic)</span>
+            <span id="stemStatus1" class="stem-status">Opcional</span>
+          </div>
+          <input type="file" accept="audio/*" onchange="loadStemFile(1, this.files[0])">
+        </div>
+
+        <div class="stem-item">
+          <div class="stem-header">
+            <span>Camada 3: Ação/Percussão (Sobe ao andar)</span>
+            <span id="stemStatus2" class="stem-status">Opcional</span>
+          </div>
+          <input type="file" accept="audio/*" onchange="loadStemFile(2, this.files[0])">
+        </div>
+      </div>
+    </div>
+
+    <!-- Sensores Físicos do iPhone / Android -->
+    <div class="card">
+      <div class="card-title">
+        <span>2. Sensores do Mundo Real (iOS/Android)</span>
+      </div>
+      <div class="btn-grid-3">
+        <button id="btnMic" onclick="toggleMic()">Microfone</button>
+        <button id="btnMotion" onclick="toggleMotionIOS()">Movimento</button>
+        <button id="btnGps" onclick="activateWeatherGPS()">Clima/GPS</button>
+      </div>
+      <div id="sensorLog" class="log-box" style="margin-top: 10px;">
+        Dica: Use fones de ouvido antes de ativar o Microfone. Toque nos botões acima para autorizar sensores no Safari (HTTPS).
+      </div>
+    </div>
+
+    <!-- Níveis de Sonho (Presets Rápidos) -->
+    <div class="card">
+      <div class="card-title">
+        <span>3. Níveis de Profundidade do Sonho</span>
+      </div>
+      <div class="btn-grid-3" style="grid-template-columns: repeat(4, 1fr);">
+        <button onclick="applyDreamLevel('REALIDADE', 1.0, 18000, 0.12, 0.0)">Realidade</button>
+        <button onclick="applyDreamLevel('NÍVEL 1: CHUVA', 0.78, 2400, 0.38, 0.45)">Nível 1</button>
+        <button onclick="applyDreamLevel('NÍVEL 2: HOTEL', 0.60, 1100, 0.58, 0.15)">Nível 2</button>
+        <button onclick="applyDreamLevel('LIMBO', 0.36, 480, 0.80, 0.65)">Limbo</button>
+      </div>
+    </div>
+
+    <!-- Processamento DSP e Simuladores Manuais -->
+    <div class="card">
+      <div class="card-title">
+        <span>4. Dilatação Temporal & Simulador de Sensores</span>
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Velocidade do Tempo (Pitch / Time Stretch)</span>
+          <span id="valSpeed" class="slider-val">1.00x</span>
+        </div>
+        <input type="range" id="sliderSpeed" min="0.25" max="1.40" step="0.01" value="1.00">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Filtro de Imersão Subconsciente (Low-Pass)</span>
+          <span id="valFilter" class="slider-val">18000 Hz</span>
+        </div>
+        <input type="range" id="sliderFilter" min="180" max="18000" step="50" value="18000">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Eco do Subconsciente (Delay Feedback)</span>
+          <span id="valDelay" class="slider-val">12%</span>
+        </div>
+        <input type="range" id="sliderDelay" min="0" max="0.88" step="0.02" value="0.12">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Chuva / Textura Atmosférica</span>
+          <span id="valRain" class="slider-val">0%</span>
+        </div>
+        <input type="range" id="sliderRain" min="0" max="0.80" step="0.02" value="0.0">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Simulador de Movimento (Camada de Ação)</span>
+          <span id="valMotionSim" class="slider-val">20%</span>
+        </div>
+        <input type="range" id="sliderMotionSim" min="0" max="1" step="0.02" value="0.20">
+      </div>
+
+      <div class="slider-row">
+        <div class="slider-label">
+          <span>Simulador de Ruído Ambiente (Camada de Tensão)</span>
+          <span id="valEnvSim" class="slider-val">30%</span>
+        </div>
+        <input type="range" id="sliderEnvSim" min="0" max="1" step="0.02" value="0.30">
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ==========================================
+    // ESTADO GLOBAL DO MOTOR PASIV
+    // ==========================================
+    let audioCtx = null;
+    let isPlaying = false;
+    let sourceMode = 'synth'; // 'synth' | 'upload'
+
+    // Nós Master DSP
+    let masterFilter = null;
+    let delayNode = null;
+    let feedbackGain = null;
+    let masterCompressor = null;
+    let analyserNode = null;
+
+    // Camadas (Stems de Upload)
+    const stemBuffers = [null, null, null];
+    const stemSources = [null, null, null];
+    const stemGains = [null, null, null];
+
+    // Sintetizador Procedural Hans Zimmer
+    let synthNodes = [];
+    let synthTensionGain = null;
+    let synthActionGain = null;
+    let rainGainNode = null;
+    let pulseInterval = null;
+
+    // Sensores
+    let micStream = null;
+    let micSource = null;
+    let micAnalyser = null;
+    let isMicOn = false;
+    let isMotionOn = false;
+    let motionIntensity = 0.2;
+    let envNoiseIntensity = 0.3;
+
+    // ==========================================
+    // INICIALIZAÇÃO DO WEB AUDIO API
+    // ==========================================
+    function initAudioContext() {
+      if (audioCtx) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return;
+      }
+
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioContextClass();
+
+      // Filtro Low-pass principal (efeito subaquático/sonho profundo)
+      masterFilter = audioCtx.createBiquadFilter();
+      masterFilter.type = 'lowpass';
+      masterFilter.frequency.value = parseFloat(document.getElementById('sliderFilter').value);
+      masterFilter.Q.value = 1.2;
+
+      // Delay / Eco Espacial
+      delayNode = audioCtx.createDelay(5.0);
+      delayNode.delayTime.value = 0.42;
+
+      feedbackGain = audioCtx.createGain();
+      feedbackGain.gain.value = parseFloat(document.getElementById('sliderDelay').value);
+
+      // Compressor Master para evitar clipagem
+      masterCompressor = audioCtx.createDynamicsCompressor();
+      masterCompressor.threshold.value = -14;
+      masterCompressor.ratio.value = 6;
+
+      // Analisador para o Canvas
+      analyserNode = audioCtx.createAnalyser();
+      analyserNode.fftSize = 256;
+
+      // Ganho das 3 camadas de música
+      for (let i = 0; i < 3; i++) {
+        stemGains[i] = audioCtx.createGain();
+        stemGains[i].gain.value = i === 0 ? 0.9 : 0.3;
+        stemGains[i].connect(masterFilter);
+      }
+
+      // Gerador de Chuva (Pink/White Noise Filtrado)
+      setupRainGenerator();
+
+      // Roteamento do Loop de Eco
+      masterFilter.connect(delayNode);
+      delayNode.connect(feedbackGain);
+      feedbackGain.connect(delayNode);
+
+      // Saída para o Compressor -> Analisador -> Alto-falantes/Fones
+      masterFilter.connect(masterCompressor);
+      delayNode.connect(masterCompressor);
+      masterCompressor.connect(analyserNode);
+      analyserNode.connect(audioCtx.destination);
+    }
+
+    function setupRainGenerator() {
+      const bufferSize = audioCtx.sampleRate * 2;
+      const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0;
+      for (let i = 0; i < bufferSize; i++) {
+        const white = Math.random() * 2 - 1;
+        b0 = 0.99886 * b0 + white * 0.0555179;
+        b1 = 0.99332 * b1 + white * 0.0750759;
+        b2 = 0.96900 * b2 + white * 0.1538520;
+        b3 = 0.86650 * b3 + white * 0.3104856;
+        b4 = 0.55000 * b4 + white * 0.5329522;
+        b5 = -0.7616 * b5 - white * 0.0168980;
+        output[i] = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + white * 0.5362) * 0.04;
+        b6 = white * 0.115926;
+      }
+
+      const whiteNoise = audioCtx.createBufferSource();
+      whiteNoise.buffer = noiseBuffer;
+      whiteNoise.loop = true;
+
+      const rainFilter = audioCtx.createBiquadFilter();
+      rainFilter.type = 'bandpass';
+      rainFilter.frequency.value = 1200;
+
+      rainGainNode = audioCtx.createGain();
+      rainGainNode.gain.value = parseFloat(document.getElementById('sliderRain').value);
+
+      whiteNoise.connect(rainFilter);
+      rainFilter.connect(rainGainNode);
+      rainGainNode.connect(masterCompressor);
+      whiteNoise.start(0);
+    }
+
+    // ==========================================
+    // SINTETIZADOR PROCEDURAL HANS ZIMMER
+    // ==========================================
+    function startZimmerSynth() {
+      stopZimmerSynth();
+      const speed = parseFloat(document.getElementById('sliderSpeed').value);
+
+      // Camada 1: Drone Subgrave (D1 + D2 + A2)
+      const baseFreqs = [36.71, 73.42, 110.0];
+      baseFreqs.forEach((f, idx) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = idx === 0 ? 'sine' : 'sawtooth';
+        osc.frequency.value = f * speed;
+        gain.gain.value = idx === 0 ? 0.35 : 0.12;
+        osc.connect(gain);
+        gain.connect(masterFilter);
+        osc.start();
+        synthNodes.push({ osc, baseFreq: f });
+      });
+
+      // Camada 2: Acorde de Tensão (controlado pelo ruído ambiente / microfone)
+      synthTensionGain = audioCtx.createGain();
+      synthTensionGain.gain.value = envNoiseIntensity * 0.25;
+      synthTensionGain.connect(masterFilter);
+
+      [146.83, 174.61, 220.0].forEach((f) => {
+        const osc = audioCtx.createOscillator();
+        osc.type = 'triangle';
+        osc.frequency.value = f * speed;
+        osc.connect(synthTensionGain);
+        osc.start();
+        synthNodes.push({ osc, baseFreq: f });
+      });
+
+      // Camada 3: Pulso Rítmico de Ação (controlado pelo acelerômetro)
+      synthActionGain = audioCtx.createGain();
+      synthActionGain.gain.value = motionIntensity * 0.45;
+      synthActionGain.connect(masterFilter);
+
+      pulseInterval = setInterval(() => {
+        if (!isPlaying || sourceMode !== 'synth') return;
+        const now = audioCtx.currentTime;
+        const pulseOsc = audioCtx.createOscillator();
+        const pulseEnv = audioCtx.createGain();
+        const currSpeed = parseFloat(document.getElementById('sliderSpeed').value);
+
+        pulseOsc.type = 'sine';
+        pulseOsc.frequency.setValueAtTime(95 * currSpeed, now);
+        pulseOsc.frequency.exponentialRampToValueAtTime(32, now + 0.18);
+
+        pulseEnv.gain.setValueAtTime(0.6, now);
+        pulseEnv.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+
+        pulseOsc.connect(pulseEnv);
+        pulseEnv.connect(synthActionGain);
+        pulseOsc.start(now);
+        pulseOsc.stop(now + 0.24);
+      }, 550);
+    }
+
+    function stopZimmerSynth() {
+      synthNodes.forEach(item => {
+        try { item.osc.stop(); } catch (e) {}
+      });
+      synthNodes = [];
+      if (pulseInterval) {
+        clearInterval(pulseInterval);
+        pulseInterval = null;
+      }
+    }
+
+    // ==========================================
+    // UPLOAD E REPRODUÇÃO DE MÚSICAS (STEMS)
+    // ==========================================
+    async function loadStemFile(index, file) {
+      if (!file) return;
+      initAudioContext();
+
+      const statusEl = document.getElementById(`stemStatus${index}`);
+      statusEl.textContent = 'Decodificando...';
+      statusEl.style.color = '#38bdf8';
+
+      try {
+        const arrayBuffer = await file.arrayBuffer();
+        const decoded = await audioCtx.decodeAudioData(arrayBuffer);
+        stemBuffers[index] = decoded;
+        statusEl.textContent = `Pronto (${file.name.slice(0, 18)})`;
+        statusEl.style.color = '#22c55e';
+
+        if (isPlaying && sourceMode === 'upload') {
+          startUploadedStems();
+        }
+      } catch (err) {
+        statusEl.textContent = 'Erro no formato de áudio';
+        statusEl.style.color = '#ef4444';
+      }
+    }
+
+    function startUploadedStems() {
+      stopUploadedStems();
+      const speed = parseFloat(document.getElementById('sliderSpeed').value);
+
+      for (let i = 0; i < 3; i++) {
+        if (stemBuffers[i]) {
+          const src = audioCtx.createBufferSource();
+          src.buffer = stemBuffers[i];
+          src.loop = true;
+          src.playbackRate.value = speed;
+          src.connect(stemGains[i]);
+          src.start(0);
+          stemSources[i] = src;
+        }
+      }
+    }
+
+    function stopUploadedStems() {
+      for (let i = 0; i < 3; i++) {
+        if (stemSources[i]) {
+          try { stemSources[i].stop(); } catch (e) {}
+          stemSources[i] = null;
+        }
+      }
+    }
+
+    function setSourceMode(mode) {
+      sourceMode = mode;
+      document.getElementById('btnModeSynth').classList.toggle('active', mode === 'synth');
+      document.getElementById('btnModeUpload').classList.toggle('active', mode === 'upload');
+      document.getElementById('synthInfo').style.display = mode === 'synth' ? 'block' : 'none';
+      document.getElementById('uploadContainer').style.display = mode === 'upload' ? 'block' : 'none';
+      document.getElementById('sourceModeLabel').textContent = mode === 'synth' ? 'Modo Sintetizador' : 'Modo Upload MP3';
+
+      if (isPlaying) {
+        if (mode === 'synth') {
+          stopUploadedStems();
+          startZimmerSynth();
+        } else {
+          stopZimmerSynth();
+          startUploadedStems();
+        }
+      }
+    }
+
+    // ==========================================
+    // BOTÃO PLAY MASTER E "O CHUTE (BRAAAM)"
+    // ==========================================
+    document.getElementById('btnMasterPlay').addEventListener('click', () => {
+      initAudioContext();
+      const btn = document.getElementById('btnMasterPlay');
+      const badge = document.getElementById('badgeAudio');
+
+      if (!isPlaying) {
+        if (sourceMode === 'upload' && !stemBuffers[0] && !stemBuffers[1] && !stemBuffers[2]) {
+          logSensor('Carregue pelo menos 1 música na Camada 1 ou use o modo Sintetizador Zimmer.');
+          return;
+        }
+
+        isPlaying = true;
+        if (sourceMode === 'synth') startZimmerSynth();
+        else startUploadedStems();
+
+        btn.textContent = 'Pausar Sonho';
+        badge.textContent = 'Áudio: Ativo';
+        badge.classList.add('active');
+      } else {
+        isPlaying = false;
+        stopZimmerSynth();
+        stopUploadedStems();
+
+        btn.textContent = 'Iniciar Sonho';
+        badge.textContent = 'Áudio: Parado';
+        badge.classList.remove('active');
+      }
+    });
+
+    // Trompa de Hans Zimmer + Queda Livre no Tempo + Retorno à Realidade
+    document.getElementById('btnKick').addEventListener('click', () => {
+      initAudioContext();
+      const now = audioCtx.currentTime;
+
+      // Dispara a Trompa BRAAAM
+      [55, 110, 110.8, 164.81].forEach((freq) => {
+        const osc = audioCtx.createOscillator();
+        const brassFilter = audioCtx.createBiquadFilter();
+        const brassGain = audioCtx.createGain();
+
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.linearRampToValueAtTime(freq * 0.96, now + 2.4);
+
+        brassFilter.type = 'lowpass';
+        brassFilter.frequency.setValueAtTime(220, now);
+        brassFilter.frequency.exponentialRampToValueAtTime(2400, now + 0.35);
+        brassFilter.frequency.exponentialRampToValueAtTime(400, now + 2.5);
+
+        brassGain.gain.setValueAtTime(0.01, now);
+        brassGain.gain.linearRampToValueAtTime(0.32, now + 0.15);
+        brassGain.gain.exponentialRampToValueAtTime(0.001, now + 2.6);
+
+        osc.connect(brassFilter);
+        brassFilter.connect(brassGain);
+        brassGain.connect(masterCompressor);
+
+        osc.start(now);
+        osc.stop(now + 2.65);
+      });
+
+      // Mergulha brevemente no Limbo e puxa de volta para a Realidade
+      applyDreamLevel('O CHUTE (QUEDA LIVRE)', 0.28, 350, 0.85, 0.5);
+      logSensor('O CHUTE INICIADO: Dilatação temporal extrema -> Retornando para a Realidade em 2.5s...');
+
+      setTimeout(() => {
+        applyDreamLevel('REALIDADE', 1.00, 18000, 0.12, 0.0);
+        logSensor('Você acordou na Realidade (1.00x).');
+      }, 2600);
+    });
+
+    // ==========================================
+    // SENSORES REAIS: MICROFONE, MOVIMENTO (iOS) E GPS
+    // ==========================================
+    async function toggleMic() {
+      initAudioContext();
+      const btn = document.getElementById('btnMic');
+      const badge = document.getElementById('badgeMic');
+
+      if (!isMicOn) {
+        try {
+          micStream = await navigator.mediaDevices.getUserMedia({
+            audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false }
+          });
+          micSource = audioCtx.createMediaStreamSource(micStream);
+          micAnalyser = audioCtx.createAnalyser();
+          micAnalyser.fftSize = 128;
+
+          const micGain = audioCtx.createGain();
+          micGain.gain.value = 0.65;
+
+          micSource.connect(micAnalyser);
+          micSource.connect(micGain);
+          micGain.connect(masterFilter); // Injeta o som ambiente dentro do filtro e delay do sonho
+
+          isMicOn = true;
+          btn.classList.add('active');
+          badge.textContent = 'Mic: Ativo';
+          badge.classList.add('active');
+          logSensor('Microfone ativo! Sua voz e o ambiente agora fazem parte do sonho.');
+        } catch (err) {
+          logSensor('Erro ao ativar Microfone: Verifique permissões do Safari e se está em HTTPS.');
+        }
+      } else {
+        if (micStream) micStream.getTracks().forEach(t => t.stop());
+        isMicOn = false;
+        btn.classList.remove('active');
+        badge.textContent = 'Mic: Off';
+        badge.classList.remove('active');
+        logSensor('Microfone desativado.');
+      }
+    }
+
+    async function toggleMotionIOS() {
+      initAudioContext();
+      const btn = document.getElementById('btnMotion');
+      const badge = document.getElementById('badgeMotion');
+
+      if (isMotionOn) {
+        isMotionOn = false;
+        btn.classList.remove('active');
+        badge.textContent = 'Movimento: Off';
+        badge.classList.remove('active');
+        logSensor('Sensor de movimento desativado.');
+        return;
+      }
+
+      try {
+        // Exigência obrigatória do Safari iOS 13+ dentro do clique do usuário
+        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+          const permissionState = await DeviceMotionEvent.requestPermission();
+          if (permissionState !== 'granted') {
+            logSensor('Permissão de movimento negada pelo iOS. Feche a aba do Safari e tente novamente.');
+            return;
+          }
+        }
+
+        window.addEventListener('devicemotion', handleDeviceMotion);
+        isMotionOn = true;
+        btn.classList.add('active');
+        badge.textContent = 'Movimento: Ativo';
+        badge.classList.add('active');
+        logSensor('Acelerômetro ativo! Caminhe ou movimente o celular para alterar a velocidade e a camada de ação.');
+      } catch (err) {
+        logSensor('Erro no Acelerômetro: Abra via link HTTPS direto no Safari (' + err.message + ').');
+      }
+    }
+
+    function handleDeviceMotion(event) {
+      if (!isMotionOn) return;
+      const acc = event.accelerationIncludingGravity;
+      if (!acc) return;
+
+      const totalForce = Math.sqrt((acc.x || 0) ** 2 + (acc.y || 0) ** 2 + (acc.z || 0) ** 2);
+      const delta = Math.abs(totalForce - 9.81); // Desconta a gravidade da Terra
+      const normalized = Math.min(1, delta / 10);
+
+      // Suavização exponencial
+      motionIntensity = motionIntensity * 0.85 + normalized * 0.15;
+      document.getElementById('sliderMotionSim').value = motionIntensity.toFixed(2);
+      document.getElementById('valMotionSim').textContent = Math.round(motionIntensity * 100) + '%';
+
+      // Ajusta automaticamente a velocidade da música conforme o movimento
+      const targetSpeed = 0.55 + motionIntensity * 0.65;
+      setPlaybackSpeed(targetSpeed);
+      updateLayerMix();
+    }
+
+    function activateWeatherGPS() {
+      initAudioContext();
+      const btn = document.getElementById('btnGps');
+      const badge = document.getElementById('badgeGps');
+
+      if (!('geolocation' in navigator)) {
+        logSensor('Geolocalização não suportada neste navegador.');
+        return;
+      }
+
+      logSensor('Solicitando localização GPS ao iOS...');
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          const lat = pos.coords.latitude.toFixed(3);
+          const lon = pos.coords.longitude.toFixed(3);
+          btn.classList.add('active');
+          badge.textContent = 'GPS: Ativo';
+          badge.classList.add('active');
+
+          try {
+            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,is_day,rain,wind_speed_10m`;
+            const res = await fetch(url);
+            const data = await res.json();
+            const curr = data.current;
+
+            const isNight = curr.is_day === 0;
+            const isRaining = curr.rain > 0;
+
+            if (isRaining) {
+              applyDreamLevel('NÍVEL 1: CHUVA REAL', 0.75, 2100, 0.45, 0.55);
+            } else if (isNight) {
+              applyDreamLevel('SONHO NOTURNO', 0.62, 1200, 0.55, 0.15);
+            } else {
+              applyDreamLevel('DIA ENSOLARADO', 0.95, 12000, 0.22, 0.0);
+            }
+
+            logSensor(`Clima sincronizado (${curr.temperature_2m}°C, Vento ${curr.wind_speed_10m}km/h) -> Áudio adaptado à sua localização!`);
+          } catch (e) {
+            logSensor(`GPS obtido (${lat}, ${lon}), mas sem conexão com a API de clima.`);
+          }
+        },
+        (err) => {
+          if (err.code === 1) {
+            logSensor('GPS bloqueado no iOS: Vá em Ajustes > Privacidade > Serviços de Localização > Sites do Safari.');
+          } else {
+            logSensor('Erro ao obter GPS: ' + err.message);
+          }
+        },
+        { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+      );
+    }
+
+    // ==========================================
+    // CONTROLES DE PARÂMETROS E PRESETS
+    // ==========================================
+    function applyDreamLevel(name, speed, filterFreq, delayVal, rainVal) {
+      initAudioContext();
+      document.getElementById('hudState').textContent = `${name} (${speed.toFixed(2)}x)`;
+
+      document.getElementById('sliderSpeed').value = speed;
+      document.getElementById('sliderFilter').value = filterFreq;
+      document.getElementById('sliderDelay').value = delayVal;
+      document.getElementById('sliderRain').value = rainVal;
+
+      setPlaybackSpeed(speed);
+      setFilterFreq(filterFreq);
+      setDelayFeedback(delayVal);
+      setRainLevel(rainVal);
+    }
+
+    function setPlaybackSpeed(val) {
+      document.getElementById('valSpeed').textContent = val.toFixed(2) + 'x';
+      if (!audioCtx) return;
+
+      stemSources.forEach(src => {
+        if (src) src.playbackRate.setTargetAtTime(val, audioCtx.currentTime, 0.15);
+      });
+
+      synthNodes.forEach(item => {
+        item.osc.frequency.setTargetAtTime(item.baseFreq * val, audioCtx.currentTime, 0.15);
+      });
+    }
+
+    function setFilterFreq(val) {
+      document.getElementById('valFilter').textContent = Math.round(val) + ' Hz';
+      if (masterFilter && audioCtx) {
+        masterFilter.frequency.setTargetAtTime(val, audioCtx.currentTime, 0.15);
+      }
+    }
+
+    function setDelayFeedback(val) {
+      document.getElementById('valDelay').textContent = Math.round(val * 100) + '%';
+      if (feedbackGain && audioCtx) {
+        feedbackGain.gain.setTargetAtTime(val, audioCtx.currentTime, 0.15);
+      }
+    }
+
+    function setRainLevel(val) {
+      document.getElementById('valRain').textContent = Math.round(val * 100) + '%';
+      if (rainGainNode && audioCtx) {
+        rainGainNode.gain.setTargetAtTime(val, audioCtx.currentTime, 0.15);
+      }
+    }
+
+    function updateLayerMix() {
+      if (!audioCtx) return;
+      if (stemGains[1]) stemGains[1].gain.setTargetAtTime(envNoiseIntensity, audioCtx.currentTime, 0.2);
+      if (stemGains[2]) stemGains[2].gain.setTargetAtTime(motionIntensity, audioCtx.currentTime, 0.2);
+      if (synthTensionGain) synthTensionGain.gain.setTargetAtTime(envNoiseIntensity * 0.35, audioCtx.currentTime, 0.2);
+      if (synthActionGain) synthActionGain.gain.setTargetAtTime(motionIntensity * 0.55, audioCtx.currentTime, 0.2);
+    }
+
+    // Eventos dos Sliders
+    document.getElementById('sliderSpeed').addEventListener('input', (e) => setPlaybackSpeed(parseFloat(e.target.value)));
+    document.getElementById('sliderFilter').addEventListener('input', (e) => setFilterFreq(parseFloat(e.target.value)));
+    document.getElementById('sliderDelay').addEventListener('input', (e) => setDelayFeedback(parseFloat(e.target.value)));
+    document.getElementById('sliderRain').addEventListener('input', (e) => setRainLevel(parseFloat(e.target.value)));
+
+    document.getElementById('sliderMotionSim').addEventListener('input', (e) => {
+      motionIntensity = parseFloat(e.target.value);
+      document.getElementById('valMotionSim').textContent = Math.round(motionIntensity * 100) + '%';
+      updateLayerMix();
+    });
+
+    document.getElementById('sliderEnvSim').addEventListener('input', (e) => {
+      envNoiseIntensity = parseFloat(e.target.value);
+      document.getElementById('valEnvSim').textContent = Math.round(envNoiseIntensity * 100) + '%';
+      updateLayerMix();
+    });
+
+    function logSensor(msg) {
+      document.getElementById('sensorLog').textContent = msg;
+    }
+
+    // ==========================================
+    // VISUALIZADOR DO TOTEM + ONDAS DE SONHO
+    // ==========================================
+    const canvas = document.getElementById('totemCanvas');
+    const ctx = canvas.getContext('2d');
+    let totemAngle = 0;
+
+    function resizeCanvas() {
+      canvas.width = canvas.clientWidth * window.devicePixelRatio;
+      canvas.height = canvas.clientHeight * window.devicePixelRatio;
+      ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function renderLoop() {
+      requestAnimationFrame(renderLoop);
+
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      ctx.fillStyle = '#050609';
+      ctx.fillRect(0, 0, w, h);
+
+      // Relógio dilatado no HUD
+      const now = new Date();
+      document.getElementById('hudClock').textContent = now.toTimeString().split(' ')[0];
+
+      // Se o microfone estiver ativo, lê o volume do ambiente para modular a Camada 2
+      if (isMicOn && micAnalyser) {
+        const micData = new Uint8Array(micAnalyser.frequencyBinCount);
+        micAnalyser.getByteFrequencyData(micData);
+        const avg = micData.reduce((a, b) => a + b, 0) / micData.length;
+        envNoiseIntensity = Math.min(1, avg / 90);
+        document.getElementById('sliderEnvSim').value = envNoiseIntensity.toFixed(2);
+        document.getElementById('valEnvSim').textContent = Math.round(envNoiseIntensity * 100) + '%';
+        updateLayerMix();
+      }
+
+      const speed = parseFloat(document.getElementById('sliderSpeed').value);
+      totemAngle += 0.04 * speed;
+
+      // Desenha anéis concêntricos do Totem
+      const cx = w / 2;
+      const cy = h / 2 + 8;
+      const wobble = (1 - speed) * 14 * Math.sin(totemAngle * 1.5);
+
+      ctx.save();
+      ctx.translate(cx + wobble, cy);
+
+      for (let r = 18; r <= 54; r += 18) {
+        ctx.beginPath();
+        ctx.strokeStyle = r === 36 ? 'rgba(212, 175, 55, 0.65)' : 'rgba(56, 189, 248, 0.25)';
+        ctx.lineWidth = 1.5;
+        ctx.ellipse(0, 0, r, r * 0.42, Math.sin(totemAngle) * 0.25, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+      ctx.restore();
+
+      // Desenha forma de onda real do áudio
+      if (analyserNode && isPlaying) {
+        const bufferLen = analyserNode.frequencyBinCount;
+        const dataArray = new Uint8Array(bufferLen);
+        analyserNode.getByteTimeDomainData(dataArray);
+
+        ctx.beginPath();
+        ctx.lineWidth = 2;
+        ctx.strokeStyle = '#d4af37';
+
+        const slice = w / bufferLen;
+        let x = 0;
+        for (let i = 0; i < bufferLen; i++) {
+          const v = dataArray[i] / 128.0;
+          const y = (v * h) / 2;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+          x += slice;
+        }
+        ctx.stroke();
+      }
+    }
+    renderLoop();
+  </script>
+</body>
+</html>
