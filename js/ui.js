@@ -1,5 +1,10 @@
 import { state } from './state.js';
 
+export function toggleHelp() {
+  const m = document.getElementById('helpModal');
+  if (m) m.classList.toggle('open');
+}
+
 export function togglePanel(id) {
   const el = document.getElementById(id);
   if (el) el.classList.toggle('open');

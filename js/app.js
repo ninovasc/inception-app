@@ -45,7 +45,8 @@ Object.assign(window, {
   copySeed: seed.copySeed,
   applySeed: seed.applySeed,
   togglePanel: ui.togglePanel,
-  handleXYMove: ui.handleXYMove
+  handleXYMove: ui.handleXYMove,
+  toggleHelp: ui.toggleHelp
 });
 
 // Wire X/Y pad

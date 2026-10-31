@@ -26,8 +26,14 @@
 <body>
   <div class="app-shell">
     <header>
-      <div class="logo">PASIV Engine</div>
-      <div id="topStatus" class="status-mini">PARADO</div>
+      <div class="logo-wrap">
+        <div class="logo">PASIV Engine</div>
+        <div class="version">v1.3.0</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <div id="topStatus" class="status-mini">PARADO</div>
+        <button class="help-btn" onclick="toggleHelp()" aria-label="Ajuda">?</button>
+      </div>
     </header>
 
     <div class="menu-section">
@@ -192,6 +198,51 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div id="helpModal" class="help-modal" onclick="if(event.target===this)toggleHelp()">
+    <div class="help-card">
+      <button class="help-close" onclick="toggleHelp()" aria-label="Fechar">&times;</button>
+      <h2>PASIV Engine</h2>
+      <p>Motor de áudio psicoacústico inspirado nos níveis de sonho de <em>Inception</em>. Crie paisagens sonoras, use sensores do celular e compartilhe configurações via Seed.</p>
+
+      <h3>Níveis de sonho</h3>
+      <p>6 níveis (Realidade → Lúcido) ajustam velocidade, filtro, eco e reverb de uma vez.</p>
+
+      <h3>Fontes sonoras</h3>
+      <ul>
+        <li><strong>5 sintetizadores</strong>: Zimmer Ambient, Brass Drone, Sub Limbo, Glass Choir, Binaural Pulse.</li>
+        <li><strong>3 camadas MP3</strong>: envie seus próprios arquivos, com volume individual.</li>
+      </ul>
+
+      <h3>X/Y Pad</h3>
+      <p>Toque e arraste: eixo X controla velocidade, eixo Y o filtro subaquático.</p>
+
+      <h3>O Chute (Kick)</h3>
+      <p>Dispara uma fanfarra de metais + BRAAAM grave e desce ao Limbo.</p>
+
+      <h3>Sensores reais</h3>
+      <ul>
+        <li><strong>Mic</strong>: entrada de áudio e detecção de silêncio.</li>
+        <li><strong>Giro</strong>: modula a velocidade e detecta queda livre (Auto-Kick).</li>
+        <li><strong>GPS</strong>: sincroniza o nível com o clima (chuva/noite/dia).</li>
+      </ul>
+
+      <h3>Mecânicas psicoacústicas</h3>
+      <ul>
+        <li><strong>Memory Catcher</strong>: grava ecos do ambiente e os projeta (às vezes invertidos).</li>
+        <li><strong>Auto-Kick</strong>: dispara O Chute ao detectar queda livre.</li>
+        <li><strong>Áudio 3D</strong>: pan estéreo controlado pela bússola.</li>
+        <li><strong>Timer Lúcido</strong>: descida progressiva até o Limbo com despertar ao fim.</li>
+        <li><strong>Privação Sensorial</strong>: após 15s de silêncio com o celular virado, entra em modo batimento.</li>
+      </ul>
+
+      <h3>Seed</h3>
+      <p>Serializa todo o estado em uma string. Use <em>Copiar</em> para compartilhar e <em>Carregar</em> para restaurar.</p>
+
+      <h3>Instalação (PWA)</h3>
+      <p>No iOS/Android: "Adicionar à Tela de Início" para usar como app, com ícone e splash do pião (totem).</p>
     </div>
   </div>
 
