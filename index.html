@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>INCEPTION // PASIV</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --text: #f5f5f5;
+      --muted: #666666;
+      --accent: #ffffff;
+      --border: #222222;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 20px;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    .app-shell {
+      width: 100%;
+      max-width: 440px;
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      padding-bottom: 50px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 300;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .status-mini {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: monospace;
+    }
+
+    /* Estilo Minimalista de Menus / Listas */
+    .menu-section {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .menu-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .menu-item {
+      font-size: 1.25rem;
+      font-weight: 400;
+      color: var(--text);
+      background: none;
+      border: none;
+      text-align: left;
+      padding: 8px 0;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      transition: color 0.2s;
+    }
+
+    .menu-item:hover, .menu-item.active {
+      color: var(--accent);
+      padding-left: 6px;
+    }
+
+    .menu-item span.sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+      font-family: monospace;
+    }
+
+    /* Área X/Y Pad (Passar o dedo) */
+    #xyPad {
+      width: 100%;
+      height: 140px;
+      background: #080808;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      position: relative;
+      touch-action: none;
+      cursor: crosshair;
+      overflow: hidden;
+    }
+
+    .xy-cursor {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      transition: border-color 0.1s;
+    }
+
+    .xy-label {
+      position: absolute;
+      bottom: 8px;
+      left: 10px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      font-family: monospace;
+    }
+
+    /* Sliders Minimalistas */
+    .slider-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .slider-header {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+      color: #aaa;
+    }
+
+    .slider-header span:last-child {
+      font-family: monospace;
+      color: #fff;
+    }
+
+    input[type="range"] {
+      width: 100%;
+      appearance: none;
+      height: 2px;
+      background: #333;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 12px;
+      height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    /* Input de Seed / Arquivos */
+    input[type="file"] {
+      display: none;
+    }
+
+    .file-btn {
+      font-size: 0.95rem;
+      color: #bbb;
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      padding: 10px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .file-btn:hover {
+      border-color: #555;
+      color: #fff;
+    }
+
+    .seed-box {
+      display: flex;
+      gap: 8px;
+    }
+
+    .seed-box input {
+      flex: 1;
+      background: #0a0a0a;
+      border: 1px solid var(--border);
+      color: #fff;
+      padding: 8px 12px;
+      font-family: monospace;
+      font-size: 0.8rem;
+      border-radius: 6px;
+    }
+
+    .seed-box button {
+      background: #222;
+      color: #fff;
+      border: none;
+      padding: 0 14px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .hidden-panel {
+      display: none;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    .hidden-panel.open {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-shell">
+    <header>
+      <div class="logo">PASIV Engine</div>
+      <div id="topStatus" class="status-mini">PARADO</div>
+    </header>
+
+    <!-- MENU PRINCIPAL MINIMALISTA -->
+    <div class="menu-section">
+      <div class="menu-title">Estado do Sonho</div>
+      <button class="menu-item" id="masterPlayBtn" onclick="toggleMasterPlay()">
+        <span>Iniciar Sonho</span>
+        <span class="sub" id="playSub">OFF</span>
+      </button>
+      <button class="menu-item" onclick="triggerKick()">
+        <span>O Chute (BRAAAM)</span>
+        <span class="sub">Queda Livre</span>
+      </button>
+    </div>
+
+    <!-- 6 NÍVEIS -->
+    <div class="menu-section">
+      <div class="menu-title">Níveis de Profundidade</div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+        <button class="menu-item active" id="lvl0" onclick="selectLevel(0)" style="font-size: 0.95rem;">0. Realidade</button>
+        <button class="menu-item" id="lvl1" onclick="selectLevel(1)" style="font-size: 0.95rem;">1. Chuva</button>
+        <button class="menu-item" id="lvl2" onclick="selectLevel(2)" style="font-size: 0.95rem;">2. Hotel</button>
+        <button class="menu-item" id="lvl3" onclick="selectLevel(3)" style="font-size: 0.95rem;">3. Fortaleza</button>
+        <button class="menu-item" id="lvl4" onclick="selectLevel(4)" style="font-size: 0.95rem;">4. Limbo</button>
+        <button class="menu-item" id="lvl5" onclick="selectLevel(5)" style="font-size: 0.95rem;">5. Lúcido</button>
+      </div>
+    </div>
+
+    <!-- ÁREA X/Y PAD (PASSAR O DEDO) -->
+    <div class="menu-section">
+      <div class="menu-title" style="display:flex; justify-content:space-between;">
+        <span>X/Y Pad (Toque Livre)</span>
+        <span style="color:#fff;" id="xyCoords">X: 50% | Y: 50%</span>
+      </div>
+      <div id="xyDescr" style="font-size:0.75rem; color:var(--muted); margin-bottom:6px;">Deslize o dedo para modular Velocidade e Filtro simultaneamente</div>
+      <div id="xyPad">
+        <div class="xy-cursor" id="xyCursor" style="left:50%; top:50%;"></div>
+        <div class="xy-label">Eixo X: Velocidade | Eixo Y: Filtro Subaquático</div>
+      </div>
+    </div>
+
+    <!-- AS 3 MÚSICAS / STEMS + MIXER DE VOLUMES -->
+    <div class="menu-section">
+      <div class="menu-title" onclick="togglePanel('uploadPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span>Fontes & Volumes (3 Camadas)</span>
+        <span style="color:#fff;">▼</span>
+      </div>
+      <div id="uploadPanel" class="hidden-panel open">
+        <!-- Camada 1 -->
+        <label class="file-btn" for="file0">
+          <span id="label0">Camada 1: [Selecionar MP3]</span>
+          <span style="font-size:0.75rem; color:var(--muted)">📁</span>
+        </label>
+        <input type="file" id="file0" accept="*" onchange="loadStem(0, this.files[0])">
+        <div class="slider-group" style="padding-left:4px;">
+          <div class="slider-header"><span>Volume Camada 1</span><span id="volVal0">90%</span></div>
+          <input type="range" id="vol0" min="0" max="1" step="0.05" value="0.9" oninput="setVolume(0, this.value)">
+        </div>
+
+        <!-- Camada 2 -->
+        <label class="file-btn" for="file1">
+          <span id="label1">Camada 2: [Selecionar MP3]</span>
+          <span style="font-size:0.75rem; color:var(--muted)">📁</span>
+        </label>
+        <input type="file" id="file1" accept="*" onchange="loadStem(1, this.files[0])">
+        <div class="slider-group" style="padding-left:4px;">
+          <div class="slider-header"><span>Volume Camada 2</span><span id="volVal1">30%</span></div>
+          <input type="range" id="vol1" min="0" max="1" step="0.05" value="0.3" oninput="setVolume(1, this.value)">
+        </div>
+
+        <!-- Camada 3 -->
+        <label class="file-btn" for="file2">
+          <span id="label2">Camada 3: [Selecionar MP3]</span>
+          <span style="font-size:0.75rem; color:var(--muted)">📁</span>
+        </label>
+        <input type="file" id="file2" accept="*" onchange="loadStem(2, this.files[0])">
+        <div class="slider-group" style="padding-left:4px;">
+          <div class="slider-header"><span>Volume Camada 3</span><span id="volVal2">30%</span></div>
+          <input type="range" id="vol2" min="0" max="1" step="0.05" value="0.3" oninput="setVolume(2, this.value)">
+        </div>
+      </div>
+    </div>
+
+    <!-- CONFIGURAÇÕES AVANÇADAS & SEED -->
+    <div class="menu-section">
+      <div class="menu-title" onclick="togglePanel('dspPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span>Parâmetros & Hash/Seed</span>
+        <span style="color:#fff;">▼</span>
+      </div>
+      <div id="dspPanel" class="hidden-panel">
+        <div class="slider-group">
+          <div class="slider-header"><span>Velocidade Temporal</span><span id="valSpeed">1.00x</span></div>
+          <input type="range" id="sliderSpeed" min="0.25" max="1.4" step="0.01" value="1.00" oninput="updateFromSliders()">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header"><span>Filtro Subaquático</span><span id="valFilter">18000 Hz</span></div>
+          <input type="range" id="sliderFilter" min="160" max="18000" step="50" value="18000" oninput="updateFromSliders()">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header"><span>Eco (Delay)</span><span id="valDelay">12%</span></div>
+          <input type="range" id="sliderDelay" min="0" max="0.85" step="0.02" value="0.12" oninput="updateFromSliders()">
+        </div>
+        <div class="slider-group">
+          <div class="slider-header"><span>Reverb</span><span id="valReverb">30%</span></div>
+          <input type="range" id="sliderReverb" min="0" max="1" step="0.02" value="0.30" oninput="updateFromSliders()">
+        </div>
+
+        <div style="margin-top: 10px;">
+          <div class="menu-title" style="margin-bottom:6px;">Seed de Configuração (Hash)</div>
+          <div class="seed-box">
+            <input type="text" id="seedInput" placeholder="Ex: SPD100-FLT18000-DLY12...">
+            <button onclick="applySeed()">Carregar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const LEVELS = [
+      { name: 'Realidade', speed: 1.00, filter: 18000, delay: 0.12, reverb: 0.30 },
+      { name: 'Chuva', speed: 0.80, filter: 2400, delay: 0.35, reverb: 0.45 },
+      { name: 'Hotel', speed: 0.62, filter: 1100, delay: 0.55, reverb: 0.70 },
+      { name: 'Fortaleza', speed: 0.46, filter: 680, delay: 0.70, reverb: 0.85 },
+      { name: 'Limbo', speed: 0.30, filter: 340, delay: 0.84, reverb: 0.95 },
+      { name: 'Lúcido', speed: 1.18, filter: 16000, delay: 0.28, reverb: 0.30 }
+    ];
+
+    let audioCtx = null;
+    let isPlaying = false;
+    let masterFilter, delayNode, feedbackGain, convolverNode, reverbGain, dryGain, compressor;
+    
+    const stemBuffers = [null, null, null];
+    const stemSources = [null, null, null];
+    const stemGains = [null, null, null];
+
+    function initAudio() {
+      if (audioCtx) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        return;
+      }
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      audioCtx = new AudioCtx();
+
+      masterFilter = audioCtx.createBiquadFilter();
+      masterFilter.type = 'lowpass';
+      masterFilter.frequency.value = 18000;
+
+      delayNode = audioCtx.createDelay(5.0);
+      delayNode.delayTime.value = 0.45;
+      feedbackGain = audioCtx.createGain();
+      feedbackGain.gain.value = 0.12;
+
+      convolverNode = audioCtx.createConvolver();
+      convolverNode.buffer = createImpulse(3.5, 2.5);
+      reverbGain = audioCtx.createGain();
+      reverbGain.gain.value = 0.30;
+
+      dryGain = audioCtx.createGain();
+      dryGain.gain.value = 0.90;
+
+      compressor = audioCtx.createDynamicsCompressor();
+      compressor.threshold.value = -15;
+
+      for (let i = 0; i < 3; i++) {
+        stemGains[i] = audioCtx.createGain();
+        stemGains[i].gain.value = i === 0 ? 0.9 : 0.3;
+        stemGains[i].connect(masterFilter);
+      }
+
+      masterFilter.connect(dryGain);
+      dryGain.connect(compressor);
+
+      masterFilter.connect(delayNode);
+      delayNode.connect(feedbackGain);
+      feedbackGain.connect(delayNode);
+      delayNode.connect(compressor);
+
+      masterFilter.connect(convolverNode);
+      convolverNode.connect(reverbGain);
+      reverbGain.connect(compressor);
+
+      compressor.connect(audioCtx.destination);
+    }
+
+    function createImpulse(duration, decay) {
+      const len = audioCtx.sampleRate * duration;
+      const buf = audioCtx.createBuffer(2, len, audioCtx.sampleRate);
+      for (let c = 0; c < 2; c++) {
+        const ch = buf.getChannelData(c);
+        for (let i = 0; i < len; i++) {
+          ch[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+        }
+      }
+      return buf;
+    }
+
+    async function loadStem(index, file) {
+      if (!file) return;
+      initAudio();
+      document.getElementById(`label${index}`).textContent = `Camada ${index+1}: Lendo...`;
+      try {
+        const buf = await file.arrayBuffer();
+        audioCtx.decodeAudioData(buf, (decoded) => {
+          stemBuffers[index] = decoded;
+          document.getElementById(`label${index}`).textContent = `Camada ${index+1}: ${file.name.slice(0, 12)}`;
+          if (isPlaying) playStems();
+        });
+      } catch(e) {
+        document.getElementById(`label${index}`).textContent = `Erro ao carregar`;
+      }
+    }
+
+    function playStems() {
+      stopStems();
+      const speed = parseFloat(document.getElementById('sliderSpeed').value);
+      for (let i = 0; i < 3; i++) {
+        if (stemBuffers[i]) {
+          const src = audioCtx.createBufferSource();
+          src.buffer = stemBuffers[i];
+          src.loop = true;
+          src.playbackRate.value = speed;
+          src.connect(stemGains[i]);
+          src.start(0);
+          stemSources[i] = src;
+        }
+      }
+    }
+
+    function stopStems() {
+      for (let i = 0; i < 3; i++) {
+        if (stemSources[i]) {
+          try { stemSources[i].stop(); } catch(e){}
+          stemSources[i] = null;
+        }
+      }
+    }
+
+    function setVolume(index, val) {
+      document.getElementById(`volVal${index}`).textContent = Math.round(val * 100) + '%';
+      if (stemGains[index] && audioCtx) {
+        stemGains[index].gain.setTargetAtTime(val, audioCtx.currentTime, 0.1);
+      }
+    }
+
+    function toggleMasterPlay() {
+      initAudio();
+      const btn = document.getElementById('masterPlayBtn');
+      const sub = document.getElementById('playSub');
+      const topSt = document.getElementById('topStatus');
+
+      if (!isPlaying) {
+        if (!stemBuffers[0] && !stemBuffers[1] && !stemBuffers[2]) {
+          // Se não há upload, usa oscilador suave de fundo
+          startSynthFallback();
+        } else {
+          playStems();
+        }
+        isPlaying = true;
+        btn.classList.add('active');
+        sub.textContent = 'ATIVO';
+        topSubText = 'RODANDO';
+        topSt.textContent = 'SONHANDO';
+      } else {
+        isPlaying = false;
+        stopStems();
+        stopSynthFallback();
+        btn.classList.remove('active');
+        sub.textContent = 'OFF';
+        topSt.textContent = 'PARADO';
+      }
+    }
+
+    // Fallback sintetizador suave caso o usuário não suba MP3
+    let synthOscs = [];
+    function startSynthFallback() {
+      stopSynthFallback();
+      const speed = parseFloat(document.getElementById('sliderSpeed').value);
+      [73.42, 110.0, 146.83].forEach(freq => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq * speed;
+        g.gain.value = 0.15;
+        osc.connect(g);
+        g.connect(masterFilter);
+        osc.start();
+        synthOscs.push({ osc, base: freq });
+      });
+    }
+    function stopSynthFallback() {
+      synthOscs.forEach(s => { try{s.osc.stop()}catch(e){} });
+      synthOscs = [];
+    }
+
+    function selectLevel(idx) {
+      initAudio();
+      for(let i=0; i<6; i++) {
+        document.getElementById(`lvl${i}`).classList.toggle('active', i===idx);
+      }
+      const l = LEVELS[idx];
+      document.getElementById('sliderSpeed').value = l.speed;
+      document.getElementById('sliderFilter').value = l.filter;
+      document.getElementById('sliderDelay').value = l.delay;
+      document.getElementById('sliderReverb').value = l.reverb;
+      applyParameters();
+    }
+
+    function updateFromSliders() {
+      applyParameters();
+    }
+
+    function applyParameters() {
+      const speed = parseFloat(document.getElementById('sliderSpeed').value);
+      const filter = parseFloat(document.getElementById('sliderFilter').value);
+      const delay = parseFloat(document.getElementById('sliderDelay').value);
+      const reverb = parseFloat(document.getElementById('sliderReverb').value);
+
+      document.getElementById('valSpeed').textContent = speed.toFixed(2) + 'x';
+      document.getElementById('valFilter').textContent = Math.round(filter) + ' Hz';
+      document.getElementById('valDelay').textContent = Math.round(delay * 100) + '%';
+      document.getElementById('valReverb').textContent = Math.round(reverb * 100) + '%';
+
+      if (audioCtx) {
+        if (masterFilter) masterFilter.frequency.setTargetAtTime(filter, audioCtx.currentTime, 0.1);
+        if (feedbackGain) feedbackGain.gain.setTargetAtTime(delay, audioCtx.currentTime, 0.1);
+        if (reverbGain) reverbGain.gain.setTargetAtTime(reverb, audioCtx.currentTime, 0.1);
+        stemSources.forEach(s => { if(s) s.playbackRate.setTargetAtTime(speed, audioCtx.currentTime, 0.1); });
+        synthOscs.forEach(s => { s.osc.frequency.setTargetAtTime(s.base * speed, audioCtx.currentTime, 0.1); });
+      }
+
+      generateSeed(speed, filter, delay, reverb);
+    }
+
+    // SISTEMA DE SEED / HASH
+    function generateSeed(spd, flt, dly, rev) {
+      const seed = `SPD${spd.toFixed(2)}-FLT${Math.round(flt)}-DLY${dly.toFixed(2)}-REV${rev.toFixed(2)}`;
+      document.getElementById('seedInput').value = seed;
+    }
+
+    function applySeed() {
+      const val = document.getElementById('seedInput').value.trim();
+      try {
+        const parts = val.split('-');
+        const spd = parseFloat(parts[0].replace('SPD',''));
+        const flt = parseFloat(parts[1].replace('FLT',''));
+        const dly = parseFloat(parts[2].replace('DLY',''));
+        const rev = parseFloat(parts[3].replace('REV',''));
+
+        if(!isNaN(spd)) document.getElementById('sliderSpeed').value = spd;
+        if(!isNaN(flt)) document.getElementById('sliderFilter').value = flt;
+        if(!isNaN(dly)) document.getElementById('sliderDelay').value = dly;
+        if(!isNaN(rev)) document.getElementById('sliderReverb').value = rev;
+        applyParameters();
+      } catch(e) {
+        alert('Seed inválida.');
+      }
+    }
+
+    // X/Y PAD INTERATIVO
+    const xyPad = document.getElementById('xyPad');
+    const xyCursor = document.getElementById('xyCursor');
+    let isDragging = false;
+
+    function handleXYMove(clientX, clientY) {
+      const rect = xyPad.getBoundingClientRect();
+      let x = (clientX - rect.left) / rect.width;
+      let y = (clientY - rect.top) / rect.height;
+      x = Math.max(0, Math.min(1, x));
+      y = Math.max(0, Math.min(1, y));
+
+      xyCursor.style.left = (x * 100) + '%';
+      xyCursor.style.top = (y * 100) + '%';
+
+      document.getElementById('xyCoords').textContent = `X: ${Math.round(x*100)}% | Y: ${Math.round((1-y)*100)}%`;
+
+      // Mapeia X para Velocidade (0.25x a 1.4x) e Y para Filtro (160Hz a 18000Hz)
+      const mappedSpeed = 0.25 + x * 1.15;
+      const mappedFilter = 160 + (1 - y) * (18000 - 160);
+
+      document.getElementById('sliderSpeed').value = mappedSpeed;
+      document.getElementById('sliderFilter').value = mappedFilter;
+      applyParameters();
+    }
+
+    xyPad.addEventListener('pointerdown', (e) => { isDragging = true; handleXYMove(e.clientX, e.clientY); });
+    window.addEventListener('pointermove', (e) => { if (isDragging) handleXYMove(e.clientX, e.clientY); });
+    window.addEventListener('pointerup', () => { isDragging = false; });
+
+    function togglePanel(id) {
+      const el = document.getElementById(id);
+      el.classList.toggle('open');
+    }
+
+    function triggerKick() {
+      initAudio();
+      const now = audioCtx.currentTime;
+      [55, 110, 164.81].forEach(freq => {
+        const osc = audioCtx.createOscillator();
+        const flt = audioCtx.createBiquadFilter();
+        const g = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now);
+        osc.frequency.linearRampToValueAtTime(freq * 0.95, now + 2.5);
+        flt.type = 'lowpass';
+        flt.frequency.setValueAtTime(180, now);
+        flt.frequency.exponentialRampToValueAtTime(2000, now + 0.4);
+        g.gain.setValueAtTime(0.01, now);
+        g.gain.linearRampToValueAtTime(0.25, now + 0.2);
+        g.gain.exponentialRampToValueAtTime(0.001, now + 2.6);
+        osc.connect(flt);
+        flt.connect(g);
+        g.connect(compressor);
+        osc.start(now);
+        osc.stop(now + 2.65);
+      });
+      selectLevel(4);
+      setTimeout(() => selectLevel(0), 2600);
+    }
+  </script>
+</body>
+</html>
