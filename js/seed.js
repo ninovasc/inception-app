@@ -19,7 +19,11 @@ export function encodeState(s) {
   const m = s.mechanics || {};
   const lucidMin = (m.lucidMin != null) ? m.lucidMin : [0, 15, 30, 60][s.lucidModeIdx || 0];
   const mch = `${m.mem ? 1 : 0}${m.auto ? 1 : 0}${m.spatial ? 1 : 0}${lucidMin}${m.depr ? 1 : 0}`;
-  return `MOD${mod}-SYN${syn}-LVL${lvl}-XY${xyX},${xyY}-VOL${v0},${v1},${v2},${vs}-SPD${spd}-FLT${flt}-DLY${dly}-REV${rev}-MCH${mch}`;
+  let seed = `MOD${mod}-SYN${syn}-LVL${lvl}-XY${xyX},${xyY}-VOL${v0},${v1},${v2},${vs}-SPD${spd}-FLT${flt}-DLY${dly}-REV${rev}-MCH${mch}`;
+  if (s.ytLinks && s.ytLinks.some(x => x)) {
+    seed += `-YT${s.ytLinks.map(x => x || '_').join(',')}`;
+  }
+  return seed;
 }
 
 // Pure decode: seed string -> object or null
@@ -28,9 +32,10 @@ export function decodeState(str) {
   try {
     const tokens = {};
     str.trim().split('-').forEach(part => {
-      // XY is a 2-char key; all others are 3-char
+      // XY is a 2-char key; YT is a 2-char key; all others are 3-char
       let key, data;
       if (part.startsWith('XY')) { key = 'XY'; data = part.slice(2); }
+      else if (part.startsWith('YT')) { key = 'YT'; data = part.slice(2); }
       else { key = part.slice(0, 3); data = part.slice(3); }
       tokens[key] = data;
     });
@@ -60,6 +65,10 @@ export function decodeState(str) {
         depr: m.charAt(m.length - 1) === '1'
       };
     }
+    if (tokens.YT) {
+      const ids = tokens.YT.split(',').map(x => (x === '_' ? '' : x));
+      out.ytLinks = ids;
+    }
     return out;
   } catch (e) {
     return null;
@@ -74,6 +83,12 @@ export function generateFullSeed() {
     parseFloat(document.getElementById('vol2').value),
     parseFloat(document.getElementById('volSynth').value)
   ];
+  const ytLinks = [0, 1, 2].map(i => {
+    const input = document.getElementById(`ytUrl${i}`);
+    const url = input ? input.value.trim() : '';
+    const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : '';
+  });
   const seed = encodeState({
     sourceMode: state.sourceMode,
     currentSynthType: state.currentSynthType,
@@ -91,7 +106,8 @@ export function generateFullSeed() {
       lucidMin: [0, 15, 30, 60][state.lucidModeIdx],
       depr: state.isDeprivationWatchOn
     },
-    lucidModeIdx: state.lucidModeIdx
+    lucidModeIdx: state.lucidModeIdx,
+    ytLinks
   });
   const input = document.getElementById('seedInput');
   if (input) input.value = seed;
@@ -137,6 +153,15 @@ export async function applySeed() {
     if (parsed.filter !== undefined) document.getElementById('sliderFilter').value = parsed.filter;
     if (parsed.delay !== undefined) document.getElementById('sliderDelay').value = parsed.delay;
     if (parsed.reverb !== undefined) document.getElementById('sliderReverb').value = parsed.reverb;
+
+    if (parsed.ytLinks) {
+      const yt = await import('./youtube.js');
+      parsed.ytLinks.forEach((id, i) => {
+        const input = document.getElementById(`ytUrl${i}`);
+        if (input) input.value = id ? `https://youtu.be/${id}` : '';
+        if (id) yt.loadYouTube(i, `https://youtu.be/${id}`);
+      });
+    }
 
     if (parsed.xyState) {
       const { x, y } = parsed.xyState;

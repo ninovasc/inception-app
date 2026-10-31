@@ -17,7 +17,8 @@ const s = {
   delay: 0.4,
   reverb: 0.6,
   mechanics: { mem: true, auto: false, spatial: true, lucidMin: 30, depr: false },
-  lucidModeIdx: 2
+  lucidModeIdx: 2,
+  ytLinks: ['dQw4w9WgXcQ', '', 'abc123def45']
 };
 const seed = encodeState(s);
 console.log('seed:', seed);
@@ -37,10 +38,13 @@ assert(d.mechanics.auto === false, 'auto');
 assert(d.mechanics.spatial === true, 'spatial');
 assert(d.mechanics.lucidMin === 30, 'lucidMin');
 assert(d.mechanics.depr === false, 'depr');
+assert(d.ytLinks && d.ytLinks[0] === 'dQw4w9WgXcQ', 'yt0');
+assert(d.ytLinks && d.ytLinks[1] === '', 'yt1');
+assert(d.ytLinks && d.ytLinks[2] === 'abc123def45', 'yt2');
 
 // round-trip encode
 const s2 = {
-  sourceMode: d.sourceMode === 'synth' ? 'synth' : 'upload',
+  sourceMode: d.sourceMode,
   currentSynthType: d.currentSynthType,
   currentLevel: d.currentLevel,
   xyState: d.xyState,
@@ -50,7 +54,8 @@ const s2 = {
   delay: d.delay,
   reverb: d.reverb,
   mechanics: d.mechanics,
-  lucidModeIdx: [0,15,30,60].indexOf(d.mechanics.lucidMin)
+  lucidModeIdx: [0,15,30,60].indexOf(d.mechanics.lucidMin),
+  ytLinks: d.ytLinks
 };
 const seed2 = encodeState(s2);
 assert(seed === seed2, 'round-trip stable');
