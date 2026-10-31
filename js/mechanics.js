@@ -69,7 +69,10 @@ export async function toggleSpatial3D() {
     try {
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         const res = await DeviceOrientationEvent.requestPermission();
-        if (res !== 'granted') return;
+        if (res !== 'granted') {
+          (await import('./seed.js')).generateFullSeed();
+          return;
+        }
       }
       state.baseCompassAlpha = null;
       window.addEventListener('deviceorientation', (await import('./sensors.js')).orientationHandler);
