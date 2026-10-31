@@ -9,7 +9,10 @@ export async function toggleMemoryCatcher() {
 
   if (!state.isMemCatcherOn) {
     if (!state.isMicOn) await sensors.toggleMic();
-    if (!state.isMicOn) return;
+    if (!state.isMicOn) {
+      (await import('./seed.js')).generateFullSeed();
+      return;
+    }
 
     state.isMemCatcherOn = true;
     btn.classList.add('active');
@@ -38,6 +41,11 @@ export async function toggleAutoKick() {
 
   if (!state.isAutoKickOn) {
     if (!state.isMotionOn) await sensors.toggleMotion();
+    if (!state.isMotionOn) {
+      setSensorStatus('Auto-Kick requer o giroscópio. Ative o sensor Giro primeiro.');
+      (await import('./seed.js')).generateFullSeed();
+      return;
+    }
     state.isAutoKickOn = true;
     btn.classList.add('active');
     sub.textContent = 'ON (Sensor G)';
@@ -150,6 +158,12 @@ export async function toggleDeprivationWatch() {
 
   if (!state.isDeprivationWatchOn) {
     if (!state.isMicOn) await sensors.toggleMic();
+    // Request orientation permission on iOS for face-down detection
+    try {
+      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+        await DeviceOrientationEvent.requestPermission();
+      }
+    } catch (e) {}
     window.addEventListener('deviceorientation', sensors.orientationHandler);
 
     state.isDeprivationWatchOn = true;
