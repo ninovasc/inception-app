@@ -167,6 +167,10 @@ header {
   user-select: none;
 }
 
+.menu-title span:last-child {
+  display: inline-block;
+}
+
 .menu-item {
   font-size: 1.05rem;
   font-weight: 400;
