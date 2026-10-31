@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="PASIV Engine">
   <title>INCEPTION // PASIV</title>
   <style>
     :root {
@@ -35,7 +38,7 @@
       display: flex;
       flex-direction: column;
       gap: 24px;
-      padding-bottom: 50px;
+      padding-bottom: 60px;
     }
 
     header {
@@ -74,7 +77,7 @@
     }
 
     .menu-item {
-      font-size: 1.15rem;
+      font-size: 1.1rem;
       font-weight: 400;
       color: var(--text);
       background: none;
@@ -86,13 +89,13 @@
       justify-content: space-between;
       align-items: center;
       border-bottom: 1px solid rgba(255,255,255,0.05);
-      transition: color 0.2s;
+      transition: all 0.18s ease;
     }
 
     .menu-item.active {
       color: var(--accent);
-      font-weight: 500;
-      padding-left: 6px;
+      font-weight: 600;
+      padding-left: 8px;
       border-left: 2px solid #fff;
     }
 
@@ -104,7 +107,7 @@
 
     #xyPad {
       width: 100%;
-      height: 130px;
+      height: 140px;
       background: #080808;
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -137,7 +140,7 @@
       display: flex;
       flex-direction: column;
       gap: 5px;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
     .slider-header {
@@ -162,8 +165,8 @@
 
     input[type="range"]::-webkit-slider-thumb {
       appearance: none;
-      width: 10px;
-      height: 10px;
+      width: 12px;
+      height: 12px;
       background: #fff;
       border-radius: 50%;
       cursor: pointer;
@@ -174,7 +177,7 @@
     }
 
     .file-btn {
-      font-size: 0.88rem;
+      font-size: 0.85rem;
       color: #aaa;
       background: #0a0a0a;
       border: 1px solid var(--border);
@@ -184,7 +187,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
 
     .seed-box {
@@ -197,19 +200,19 @@
       background: #0a0a0a;
       border: 1px solid var(--border);
       color: #fff;
-      padding: 7px 10px;
+      padding: 8px 10px;
       font-family: monospace;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       border-radius: 6px;
     }
 
     .seed-box button {
-      background: #222;
+      background: #1c1c1c;
       color: #fff;
-      border: none;
-      padding: 0 12px;
+      border: 1px solid var(--border);
+      padding: 0 11px;
       border-radius: 6px;
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       cursor: pointer;
     }
 
@@ -218,10 +221,18 @@
       padding-top: 8px;
       border-top: 1px solid var(--border);
     }
+
     .hidden-panel.open {
       display: flex;
       flex-direction: column;
       gap: 10px;
+    }
+
+    .synth-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 4px;
+      margin-bottom: 8px;
     }
   </style>
 </head>
@@ -233,6 +244,7 @@
       <div id="topStatus" class="status-mini">PARADO</div>
     </header>
 
+    <!-- ESTADO PRINCIPAL -->
     <div class="menu-section">
       <div class="menu-title">Estado do Sonho</div>
       <button class="menu-item" id="masterPlayBtn" onclick="toggleMasterPlay()">
@@ -245,6 +257,7 @@
       </button>
     </div>
 
+    <!-- 6 NÍVEIS DE ARQUITETURA -->
     <div class="menu-section">
       <div class="menu-title">Arquitetura de Níveis</div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
@@ -257,86 +270,113 @@
       </div>
     </div>
 
+    <!-- X/Y PAD -->
     <div class="menu-section">
       <div class="menu-title" style="display:flex; justify-content:space-between;">
         <span>X/Y Pad (Toque Livre)</span>
-        <span style="color:#fff;" id="xyCoords">X: 50% | Y: 50%</span>
+        <span style="color:#fff; font-family:monospace;" id="xyCoords">X: 65% | Y: 100%</span>
       </div>
       <div id="xyPad">
-        <div class="xy-cursor" id="xyCursor" style="left:50%; top:50%;"></div>
-        <div class="xy-label">Eixo X: Velocidade | Eixo Y: Filtro</div>
+        <div class="xy-cursor" id="xyCursor" style="left:65%; top:0%;"></div>
+        <div class="xy-label">Eixo X: Velocidade | Eixo Y: Filtro Subaquático</div>
       </div>
     </div>
 
+    <!-- FONTE SONORA: 5 SINTETIZADORES VS 3 MP3 -->
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('sourcePanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Fonte Sonora & 3 Camadas</span>
+        <span>Fonte Sonora (5 Synths & 3 MP3)</span>
         <span style="color:#fff;">▼</span>
       </div>
       <div id="sourcePanel" class="hidden-panel open">
         <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.8rem;">Sintetizador</button>
+          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.8rem;">Sintetizadores</button>
           <button class="menu-item" id="btnUpload" onclick="setSourceMode('upload')" style="flex:1; justify-content:center; font-size:0.8rem;">Meus 3 MP3</button>
         </div>
 
-        <div id="synthBox" style="font-size: 0.75rem; color: var(--muted); font-family: monospace; padding: 4px 0;">
-          Gerador procedural ativo: Drones e acordes suaves de Hans Zimmer.
+        <!-- OPÇÕES DOS 5 SINTETIZADORES -->
+        <div id="synthBox" style="display: flex; flex-direction: column; gap: 6px;">
+          <div class="synth-grid">
+            <button class="menu-item active" id="syn0" onclick="selectSynthType(0)" style="font-size:0.85rem;">
+              <span>1. Zimmer Ambient</span><span class="sub">Senoidal Suave</span>
+            </button>
+            <button class="menu-item" id="syn1" onclick="selectSynthType(1)" style="font-size:0.85rem;">
+              <span>2. Brass Drone</span><span class="sub">Metais Densos</span>
+            </button>
+            <button class="menu-item" id="syn2" onclick="selectSynthType(2)" style="font-size:0.85rem;">
+              <span>3. Sub Limbo</span><span class="sub">Abismo LFO</span>
+            </button>
+            <button class="menu-item" id="syn3" onclick="selectSynthType(3)" style="font-size:0.85rem;">
+              <span>4. Glass Choir</span><span class="sub">Coral Cristalino</span>
+            </button>
+            <button class="menu-item" id="syn4" onclick="selectSynthType(4)" style="font-size:0.85rem;">
+              <span>5. Binaural Pulse</span><span class="sub">Psicoacústico</span>
+            </button>
+          </div>
+
+          <div class="slider-group">
+            <div class="slider-header"><span>Volume do Sintetizador</span><span id="volValSynth">80%</span></div>
+            <input type="range" id="volSynth" min="0" max="1" step="0.05" value="0.80" oninput="setSynthVolume(this.value)">
+          </div>
         </div>
 
+        <!-- UPLOAD DE 3 MP3 + VOLUMES SEPARADOS -->
         <div id="uploadBox" style="display: none; flex-direction: column; gap: 6px;">
           <label class="file-btn" for="file0"><span id="label0">Camada 1: [Selecionar MP3]</span><span>📁</span></label>
           <input type="file" id="file0" accept="*" onchange="loadStem(0, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. 1</span><span id="volVal0">90%</span></div>
-          <input type="range" min="0" max="1" step="0.05" value="0.9" oninput="setVolume(0, this.value)"></div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 1</span><span id="volVal0">90%</span></div>
+          <input type="range" id="vol0" min="0" max="1" step="0.05" value="0.90" oninput="setVolume(0, this.value)"></div>
 
           <label class="file-btn" for="file1"><span id="label1">Camada 2: [Selecionar MP3]</span><span>📁</span></label>
           <input type="file" id="file1" accept="*" onchange="loadStem(1, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. 2</span><span id="volVal1">30%</span></div>
-          <input type="range" min="0" max="1" step="0.05" value="0.3" oninput="setVolume(1, this.value)"></div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 2</span><span id="volVal1">30%</span></div>
+          <input type="range" id="vol1" min="0" max="1" step="0.05" value="0.30" oninput="setVolume(1, this.value)"></div>
 
           <label class="file-btn" for="file2"><span id="label2">Camada 3: [Selecionar MP3]</span><span>📁</span></label>
           <input type="file" id="file2" accept="*" onchange="loadStem(2, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. 3</span><span id="volVal2">30%</span></div>
-          <input type="range" min="0" max="1" step="0.05" value="0.3" oninput="setVolume(2, this.value)"></div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 3</span><span id="volVal2">30%</span></div>
+          <input type="range" id="vol2" min="0" max="1" step="0.05" value="0.30" oninput="setVolume(2, this.value)"></div>
         </div>
       </div>
     </div>
 
-    <!-- SENSORES (MIC, GIROSCÓPIO E GPS) -->
+    <!-- SENSORES REAIS (LIGA / DESLIGA) -->
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('sensorPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Sensores Reais (iOS / Android)</span>
+        <span>Sensores Reais (Ligar / Desligar)</span>
         <span style="color:#fff;">▼</span>
       </div>
-      <div id="sensorPanel" class="hidden-panel">
+      <div id="sensorPanel" class="hidden-panel open">
         <div style="display: flex; gap: 6px; flex-wrap: wrap;">
           <button class="menu-item" id="btnMic" onclick="toggleMic()" style="flex:1; justify-content:center; font-size:0.75rem;">Mic: OFF</button>
           <button class="menu-item" id="btnMotion" onclick="toggleMotion()" style="flex:1; justify-content:center; font-size:0.75rem;">Giro: OFF</button>
-          <button class="menu-item" id="btnGps" onclick="activateGPS()" style="flex:1; justify-content:center; font-size:0.75rem;">GPS: OFF</button>
+          <button class="menu-item" id="btnGps" onclick="toggleGPS()" style="flex:1; justify-content:center; font-size:0.75rem;">GPS: OFF</button>
         </div>
-        <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus">Toque para ativar os sensores.</div>
+        <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus">Toque em um sensor para ligar ou desligar.</div>
       </div>
     </div>
 
+    <!-- PARÂMETROS DSP & HASH/SEED COMPLETA -->
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('dspPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Parâmetros & Seed</span>
+        <span>Parâmetros & Hash/Seed</span>
         <span style="color:#fff;">▼</span>
       </div>
-      <div id="dspPanel" class="hidden-panel">
+      <div id="dspPanel" class="hidden-panel open">
         <div class="slider-group"><div class="slider-header"><span>Velocidade</span><span id="valSpeed">1.00x</span></div>
-        <input type="range" id="sliderSpeed" min="0.25" max="1.4" step="0.01" value="1.00" oninput="updateFromSliders()"></div>
-        <div class="slider-group"><div class="slider-header"><span>Filtro</span><span id="valFilter">18000 Hz</span></div>
-        <input type="range" id="sliderFilter" min="160" max="18000" step="50" value="18000" oninput="updateFromSliders()"></div>
-        <div class="slider-group"><div class="slider-header"><span>Eco</span><span id="valDelay">12%</span></div>
-        <input type="range" id="sliderDelay" min="0" max="0.85" step="0.02" value="0.12" oninput="updateFromSliders()"></div>
+        <input type="range" id="sliderSpeed" min="0.25" max="1.4" step="0.01" value="1.00" oninput="updateFromSliders(true)"></div>
+        <div class="slider-group"><div class="slider-header"><span>Filtro Subaquático</span><span id="valFilter">18000 Hz</span></div>
+        <input type="range" id="sliderFilter" min="160" max="18000" step="50" value="18000" oninput="updateFromSliders(true)"></div>
+        <div class="slider-group"><div class="slider-header"><span>Eco (Delay)</span><span id="valDelay">12%</span></div>
+        <input type="range" id="sliderDelay" min="0" max="0.85" step="0.02" value="0.12" oninput="updateFromSliders(false)"></div>
         <div class="slider-group"><div class="slider-header"><span>Reverb</span><span id="valReverb">30%</span></div>
-        <input type="range" id="sliderReverb" min="0" max="1" step="0.02" value="0.30" oninput="updateFromSliders()"></div>
+        <input type="range" id="sliderReverb" min="0" max="1" step="0.02" value="0.30" oninput="updateFromSliders(false)"></div>
 
         <div style="margin-top: 6px;">
-          <div class="menu-title" style="margin-bottom:4px;">Seed (Hash)</div>
+          <div class="menu-title" style="margin-bottom:4px;">Seed Completa (Salva todas as opções)</div>
           <div class="seed-box">
-            <input type="text" id="seedInput" placeholder="SPD1.00-FLT18000...">
+            <input type="text" id="seedInput" placeholder="Cole a seed aqui...">
+            <button onclick="copySeed()">Copiar</button>
             <button onclick="applySeed()">Carregar</button>
           </div>
         </div>
@@ -354,19 +394,34 @@
       { name: 'Lúcido', speed: 1.18, filter: 16000, delay: 0.28, reverb: 0.30 }
     ];
 
+    // 5 Configs de Sintetizadores
+    const SYNTH_PRESETS = [
+      { name: 'Zimmer Ambient', freqs: [36.71, 73.42, 110.0, 146.83], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.22, 0.14, 0.08, 0.06], lfo: 0 },
+      { name: 'Brass Drone', freqs: [55.0, 110.0, 164.81, 220.0], types: ['triangle', 'sawtooth', 'triangle', 'sine'], gains: [0.18, 0.06, 0.09, 0.05], lfo: 0.15 },
+      { name: 'Sub Limbo', freqs: [32.70, 49.00, 65.41, 98.00], types: ['sine', 'triangle', 'sine', 'sine'], gains: [0.28, 0.15, 0.10, 0.05], lfo: 0.08 },
+      { name: 'Glass Choir', freqs: [220.0, 329.63, 440.0, 659.25], types: ['sine', 'triangle', 'sine', 'sine'], gains: [0.10, 0.08, 0.06, 0.04], lfo: 0.25 },
+      { name: 'Binaural Pulse', freqs: [110.0, 114.5, 220.0, 226.0], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.16, 0.16, 0.07, 0.07], lfo: 0 }
+    ];
+
     let audioCtx = null;
     let isPlaying = false;
-    let sourceMode = 'synth';
-    
+    let sourceMode = 'synth'; // 'synth' | 'upload'
+    let currentSynthType = 0;
+    let currentLevel = 0;
+    let xyState = { x: 0.65, y: 0.0 };
+
     let masterFilter, delayNode, feedbackGain, convolverNode, reverbGain, dryGain, compressor;
-    
+    let synthMasterGain = null;
+
     const stemBuffers = [null, null, null];
     const stemSources = [null, null, null];
     const stemGains = [null, null, null];
 
     let synthNodes = [];
-    let micStream = null, micGain = null, isMicOn = false;
+    let micStream = null, micSource = null, micGain = null, isMicOn = false;
     let isMotionOn = false;
+    let isGpsOn = false;
+    let gpsWatchId = null;
 
     function initAudio() {
       if (audioCtx) {
@@ -396,9 +451,13 @@
       compressor = audioCtx.createDynamicsCompressor();
       compressor.threshold.value = -15;
 
+      synthMasterGain = audioCtx.createGain();
+      synthMasterGain.gain.value = parseFloat(document.getElementById('volSynth').value);
+      synthMasterGain.connect(masterFilter);
+
       for (let i = 0; i < 3; i++) {
         stemGains[i] = audioCtx.createGain();
-        stemGains[i].gain.value = i === 0 ? 0.9 : 0.3;
+        stemGains[i].gain.value = parseFloat(document.getElementById(`vol${i}`).value);
         stemGains[i].connect(masterFilter);
       }
 
@@ -433,27 +492,85 @@
       sourceMode = mode;
       document.getElementById('btnSynth').classList.toggle('active', mode === 'synth');
       document.getElementById('btnUpload').classList.toggle('active', mode === 'upload');
-      document.getElementById('synthBox').style.display = mode === 'synth' ? 'block' : 'none';
+      document.getElementById('synthBox').style.display = mode === 'synth' ? 'flex' : 'none';
       document.getElementById('uploadBox').style.display = mode === 'upload' ? 'flex' : 'none';
 
       if (isPlaying) {
         if (mode === 'synth') { stopStems(); startSynth(); }
         else { stopSynth(); startStems(); }
       }
+      generateFullSeed();
+    }
+
+    function selectSynthType(idx) {
+      initAudio();
+      currentSynthType = idx;
+      for (let i = 0; i < 5; i++) {
+        document.getElementById(`syn${i}`).classList.toggle('active', i === idx);
+      }
+      if (isPlaying && sourceMode === 'synth') {
+        startSynth();
+      }
+      generateFullSeed();
+    }
+
+    function setSynthVolume(val) {
+      const v = parseFloat(val);
+      document.getElementById('volValSynth').textContent = Math.round(v * 100) + '%';
+      if (synthMasterGain && audioCtx) {
+        synthMasterGain.gain.setTargetAtTime(v, audioCtx.currentTime, 0.1);
+      }
+      generateFullSeed();
+    }
+
+    function startSynth() {
+      stopSynth();
+      const preset = SYNTH_PRESETS[currentSynthType];
+      const speed = parseFloat(document.getElementById('sliderSpeed').value);
+
+      preset.freqs.forEach((freq, idx) => {
+        const osc = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        osc.type = preset.types[idx];
+        osc.frequency.value = freq * speed;
+        g.gain.value = preset.gains[idx];
+
+        // Se o sintetizador tiver LFO (modulação lenta)
+        if (preset.lfo > 0) {
+          const lfo = audioCtx.createOscillator();
+          const lfoGain = audioCtx.createGain();
+          lfo.frequency.value = preset.lfo;
+          lfoGain.gain.value = freq * 0.015;
+          lfo.connect(lfoGain);
+          lfoGain.connect(osc.frequency);
+          lfo.start();
+          synthNodes.push({ osc: lfo, base: preset.lfo, isLfo: true });
+        }
+
+        osc.connect(g);
+        g.connect(synthMasterGain);
+        osc.start();
+        synthNodes.push({ osc, base: freq, isLfo: false });
+      });
+    }
+
+    function stopSynth() {
+      synthNodes.forEach(s => { try { s.osc.stop(); } catch (e) {} });
+      synthNodes = [];
     }
 
     async function loadStem(index, file) {
       if (!file) return;
       initAudio();
-      document.getElementById(`label${index}`).textContent = `Camada ${index+1}: Lendo...`;
+      document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: Lendo...`;
       try {
         const buf = await file.arrayBuffer();
         audioCtx.decodeAudioData(buf, (decoded) => {
           stemBuffers[index] = decoded;
-          document.getElementById(`label${index}`).textContent = `Camada ${index+1}: ${file.name.slice(0, 12)}`;
+          document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: ${file.name.slice(0, 14)}`;
           if (isPlaying && sourceMode === 'upload') startStems();
         });
-      } catch(e) {
+      } catch (e) {
         document.getElementById(`label${index}`).textContent = `Erro ao carregar`;
       }
     }
@@ -477,38 +594,19 @@
     function stopStems() {
       for (let i = 0; i < 3; i++) {
         if (stemSources[i]) {
-          try { stemSources[i].stop(); } catch(e){}
+          try { stemSources[i].stop(); } catch (e) {}
           stemSources[i] = null;
         }
       }
     }
 
     function setVolume(index, val) {
-      document.getElementById(`volVal${index}`).textContent = Math.round(val * 100) + '%';
+      const v = parseFloat(val);
+      document.getElementById(`volVal${index}`).textContent = Math.round(v * 100) + '%';
       if (stemGains[index] && audioCtx) {
-        stemGains[index].gain.setTargetAtTime(val, audioCtx.currentTime, 0.1);
+        stemGains[index].gain.setTargetAtTime(v, audioCtx.currentTime, 0.1);
       }
-    }
-
-    function startSynth() {
-      stopSynth();
-      const speed = parseFloat(document.getElementById('sliderSpeed').value);
-      [73.42, 110.0, 146.83].forEach(freq => {
-        const osc = audioCtx.createOscillator();
-        const g = audioCtx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq * speed;
-        g.gain.value = 0.16;
-        osc.connect(g);
-        g.connect(masterFilter);
-        osc.start();
-        synthNodes.push({ osc, base: freq });
-      });
-    }
-
-    function stopSynth() {
-      synthNodes.forEach(s => { try{s.osc.stop()}catch(e){} });
-      synthNodes = [];
+      generateFullSeed();
     }
 
     function toggleMasterPlay() {
@@ -537,18 +635,33 @@
 
     function selectLevel(idx) {
       initAudio();
-      for(let i=0; i<6; i++) {
-        document.getElementById(`lvl${i}`).classList.toggle('active', i===idx);
+      currentLevel = idx;
+      for (let i = 0; i < 6; i++) {
+        document.getElementById(`lvl${i}`).classList.toggle('active', i === idx);
       }
       const l = LEVELS[idx];
       document.getElementById('sliderSpeed').value = l.speed;
       document.getElementById('sliderFilter').value = l.filter;
       document.getElementById('sliderDelay').value = l.delay;
       document.getElementById('sliderReverb').value = l.reverb;
+
+      syncXYPadFromSliders(l.speed, l.filter);
       applyParameters();
     }
 
-    function updateFromSliders() {
+    function syncXYPadFromSliders(speed, filter) {
+      const x = Math.max(0, Math.min(1, (speed - 0.25) / 1.15));
+      const y = Math.max(0, Math.min(1, 1 - (filter - 160) / (18000 - 160)));
+      xyState = { x, y };
+      xyCursor.style.left = (x * 100) + '%';
+      xyCursor.style.top = (y * 100) + '%';
+      document.getElementById('xyCoords').textContent = `X: ${Math.round(x * 100)}% | Y: ${Math.round((1 - y) * 100)}%`;
+    }
+
+    function updateFromSliders(syncXY) {
+      const speed = parseFloat(document.getElementById('sliderSpeed').value);
+      const filter = parseFloat(document.getElementById('sliderFilter').value);
+      if (syncXY) syncXYPadFromSliders(speed, filter);
       applyParameters();
     }
 
@@ -567,38 +680,102 @@
         if (masterFilter) masterFilter.frequency.setTargetAtTime(filter, audioCtx.currentTime, 0.1);
         if (feedbackGain) feedbackGain.gain.setTargetAtTime(delay, audioCtx.currentTime, 0.1);
         if (reverbGain) reverbGain.gain.setTargetAtTime(reverb, audioCtx.currentTime, 0.1);
-        stemSources.forEach(s => { if(s) s.playbackRate.setTargetAtTime(speed, audioCtx.currentTime, 0.1); });
-        synthNodes.forEach(s => { s.osc.frequency.setTargetAtTime(s.base * speed, audioCtx.currentTime, 0.1); });
+        stemSources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, audioCtx.currentTime, 0.1); });
+        synthNodes.forEach(s => {
+          if (!s.isLfo) s.osc.frequency.setTargetAtTime(s.base * speed, audioCtx.currentTime, 0.1);
+        });
       }
 
-      generateSeed(speed, filter, delay, reverb);
+      generateFullSeed();
     }
 
-    function generateSeed(spd, flt, dly, rev) {
-      const seed = `SPD${spd.toFixed(2)}-FLT${Math.round(flt)}-DLY${dly.toFixed(2)}-REV${rev.toFixed(2)}`;
+    // ====================================================
+    // HASH / SEED COMPLETA (SALVA E RESTAURA TUDO)
+    // ====================================================
+    function generateFullSeed() {
+      const mod = sourceMode === 'synth' ? 'S' : 'U';
+      const syn = currentSynthType;
+      const lvl = currentLevel;
+      const xyX = Math.round(xyState.x * 100);
+      const xyY = Math.round(xyState.y * 100);
+      const v0 = Math.round(parseFloat(document.getElementById('vol0').value) * 100);
+      const v1 = Math.round(parseFloat(document.getElementById('vol1').value) * 100);
+      const v2 = Math.round(parseFloat(document.getElementById('vol2').value) * 100);
+      const vs = Math.round(parseFloat(document.getElementById('volSynth').value) * 100);
+      const spd = parseFloat(document.getElementById('sliderSpeed').value).toFixed(2);
+      const flt = Math.round(parseFloat(document.getElementById('sliderFilter').value));
+      const dly = parseFloat(document.getElementById('sliderDelay').value).toFixed(2);
+      const rev = parseFloat(document.getElementById('sliderReverb').value).toFixed(2);
+
+      const seed = `MOD${mod}-SYN${syn}-LVL${lvl}-XY${xyX},${xyY}-VOL${v0},${v1},${v2},${vs}-SPD${spd}-FLT${flt}-DLY${dly}-REV${rev}`;
       document.getElementById('seedInput').value = seed;
+    }
+
+    function copySeed() {
+      const input = document.getElementById('seedInput');
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      document.getElementById('sensorStatus').textContent = 'Seed copiada para a área de transferência!';
     }
 
     function applySeed() {
       const val = document.getElementById('seedInput').value.trim();
-      try {
-        const parts = val.split('-');
-        const spd = parseFloat(parts[0].replace('SPD',''));
-        const flt = parseFloat(parts[1].replace('FLT',''));
-        const dly = parseFloat(parts[2].replace('DLY',''));
-        const rev = parseFloat(parts[3].replace('REV',''));
+      if (!val) return;
+      initAudio();
 
-        if(!isNaN(spd)) document.getElementById('sliderSpeed').value = spd;
-        if(!isNaN(flt)) document.getElementById('sliderFilter').value = flt;
-        if(!isNaN(dly)) document.getElementById('sliderDelay').value = dly;
-        if(!isNaN(rev)) document.getElementById('sliderReverb').value = rev;
+      try {
+        const tokens = {};
+        val.split('-').forEach(part => {
+          const key = part.slice(0, 3);
+          const data = part.slice(3);
+          tokens[key] = data;
+        });
+
+        if (tokens.MOD) setSourceMode(tokens.MOD === 'S' ? 'synth' : 'upload');
+        if (tokens.SYN !== undefined) selectSynthType(parseInt(tokens.SYN, 10));
+        if (tokens.LVL !== undefined) {
+          currentLevel = parseInt(tokens.LVL, 10);
+          for (let i = 0; i < 6; i++) {
+            document.getElementById(`lvl${i}`).classList.toggle('active', i === currentLevel);
+          }
+        }
+        if (tokens.VOL) {
+          const [v0, v1, v2, vs] = tokens.VOL.split(',').map(n => parseInt(n, 10) / 100);
+          if (!isNaN(v0)) { document.getElementById('vol0').value = v0; setVolume(0, v0); }
+          if (!isNaN(v1)) { document.getElementById('vol1').value = v1; setVolume(1, v1); }
+          if (!isNaN(v2)) { document.getElementById('vol2').value = v2; setVolume(2, v2); }
+          if (!isNaN(vs)) { document.getElementById('volSynth').value = vs; setSynthVolume(vs); }
+        }
+        if (tokens.SPD) document.getElementById('sliderSpeed').value = parseFloat(tokens.SPD);
+        if (tokens.FLT) document.getElementById('sliderFilter').value = parseFloat(tokens.FLT);
+        if (tokens.DLY) document.getElementById('sliderDelay').value = parseFloat(tokens.DLY);
+        if (tokens.REV) document.getElementById('sliderReverb').value = parseFloat(tokens.REV);
+
+        if (tokens.XY) {
+          const [xx, yy] = tokens.XY.split(',').map(n => parseInt(n, 10) / 100);
+          if (!isNaN(xx) && !isNaN(yy)) {
+            xyState = { x: xx, y: yy };
+            xyCursor.style.left = (xx * 100) + '%';
+            xyCursor.style.top = (yy * 100) + '%';
+            document.getElementById('xyCoords').textContent = `X: ${Math.round(xx * 100)}% | Y: ${Math.round((1 - yy) * 100)}%`;
+          }
+        } else {
+          syncXYPadFromSliders(
+            parseFloat(document.getElementById('sliderSpeed').value),
+            parseFloat(document.getElementById('sliderFilter').value)
+          );
+        }
+
         applyParameters();
-      } catch(e) {
-        alert('Seed inválida.');
+        document.getElementById('sensorStatus').textContent = 'Seed restaurada com sucesso!';
+      } catch (e) {
+        alert('Formato de Seed inválido.');
       }
     }
 
-    // X/Y PAD
+    // ====================================================
+    // X/Y PAD INTERATIVO
+    // ====================================================
     const xyPad = document.getElementById('xyPad');
     const xyCursor = document.getElementById('xyCursor');
     let isDragging = false;
@@ -610,9 +787,10 @@
       x = Math.max(0, Math.min(1, x));
       y = Math.max(0, Math.min(1, y));
 
+      xyState = { x, y };
       xyCursor.style.left = (x * 100) + '%';
       xyCursor.style.top = (y * 100) + '%';
-      document.getElementById('xyCoords').textContent = `X: ${Math.round(x*100)}% | Y: ${Math.round((1-y)*100)}%`;
+      document.getElementById('xyCoords').textContent = `X: ${Math.round(x * 100)}% | Y: ${Math.round((1 - y) * 100)}%`;
 
       const mappedSpeed = 0.25 + x * 1.15;
       const mappedFilter = 160 + (1 - y) * (18000 - 160);
@@ -626,26 +804,49 @@
     window.addEventListener('pointermove', (e) => { if (isDragging) handleXYMove(e.clientX, e.clientY); });
     window.addEventListener('pointerup', () => { isDragging = false; });
 
-    // SENSORES
+    // ====================================================
+    // SENSORES REAIS (LIGA E DESLIGA COMPLETO)
+    // ====================================================
     async function toggleMic() {
       initAudio();
       const btn = document.getElementById('btnMic');
       if (!isMicOn) {
         try {
-          const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-          const src = audioCtx.createMediaStreamSource(stream);
+          micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+          micSource = audioCtx.createMediaStreamSource(micStream);
           micGain = audioCtx.createGain();
           micGain.gain.value = 0.5;
-          src.connect(micGain);
+          micSource.connect(micGain);
           micGain.connect(masterFilter);
           isMicOn = true;
           btn.classList.add('active');
-          btn.textContent = 'Mic: ATIVO';
-        } catch(e) { alert('Erro ao acessar microfone.'); }
+          btn.textContent = 'Mic: ON';
+          document.getElementById('sensorStatus').textContent = 'Microfone ligado.';
+        } catch (e) {
+          document.getElementById('sensorStatus').textContent = 'Permissão de microfone negada.';
+        }
       } else {
+        if (micStream) micStream.getTracks().forEach(track => track.stop());
+        if (micSource) { try { micSource.disconnect(); } catch (e) {} }
+        if (micGain) { try { micGain.disconnect(); } catch (e) {} }
         isMicOn = false;
         btn.classList.remove('active');
         btn.textContent = 'Mic: OFF';
+        document.getElementById('sensorStatus').textContent = 'Microfone desligado.';
+      }
+    }
+
+    function motionHandler(e) {
+      if (!isMotionOn) return;
+      const acc = e.accelerationIncludingGravity;
+      if (!acc) return;
+      const force = Math.sqrt((acc.x || 0) ** 2 + (acc.y || 0) ** 2 + (acc.z || 0) ** 2);
+      const intensity = Math.min(1, Math.abs(force - 9.81) / 10);
+      if (intensity > 0.05) {
+        const mappedSpeed = 0.5 + intensity * 0.8;
+        document.getElementById('sliderSpeed').value = mappedSpeed;
+        syncXYPadFromSliders(mappedSpeed, parseFloat(document.getElementById('sliderFilter').value));
+        applyParameters();
       }
     }
 
@@ -653,56 +854,75 @@
       initAudio();
       const btn = document.getElementById('btnMotion');
       if (!isMotionOn) {
-        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
-          const res = await DeviceMotionEvent.requestPermission();
-          if (res !== 'granted') return;
-        }
-        window.addEventListener('devicemotion', (e) => {
-          const acc = e.accelerationIncludingGravity;
-          if (!acc) return;
-          const force = Math.sqrt((acc.x||0)**2 + (acc.y||0)**2 + (acc.z||0)**2);
-          const intensity = Math.min(1, Math.abs(force - 9.81) / 10);
-          if (intensity > 0.05) {
-            const mappedSpeed = 0.5 + intensity * 0.8;
-            document.getElementById('sliderSpeed').value = mappedSpeed;
-            applyParameters();
+        try {
+          if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+            const res = await DeviceMotionEvent.requestPermission();
+            if (res !== 'granted') {
+              document.getElementById('sensorStatus').textContent = 'Permissão de Giroscópio negada.';
+              return;
+            }
           }
-        });
-        isMotionOn = true;
-        btn.classList.add('active');
-        btn.textContent = 'Giro: ATIVO';
+          window.addEventListener('devicemotion', motionHandler);
+          isMotionOn = true;
+          btn.classList.add('active');
+          btn.textContent = 'Giro: ON';
+          document.getElementById('sensorStatus').textContent = 'Giroscópio ligado.';
+        } catch (e) {
+          document.getElementById('sensorStatus').textContent = 'Erro ao ligar Giroscópio.';
+        }
       } else {
+        window.removeEventListener('devicemotion', motionHandler);
         isMotionOn = false;
         btn.classList.remove('active');
         btn.textContent = 'Giro: OFF';
+        document.getElementById('sensorStatus').textContent = 'Giroscópio desligado.';
       }
     }
 
-    function activateGPS() {
+    function toggleGPS() {
       initAudio();
       const btn = document.getElementById('btnGps');
-      document.getElementById('sensorStatus').textContent = 'Buscando GPS...';
-      
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          btn.classList.add('active');
-          btn.textContent = 'GPS: ATIVO';
-          try {
-            const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current=rain,is_day`);
-            const data = await res.json();
-            if (data.current.rain > 0) selectLevel(1); // Chuva
-            else if (data.current.is_day === 0) selectLevel(2); // Hotel / Noite
-            else selectLevel(0); // Realidade
-            document.getElementById('sensorStatus').textContent = 'GPS Sincronizado com o clima local!';
-          } catch(e) {
-            document.getElementById('sensorStatus').textContent = 'GPS obtido, mas sem clima.';
-          }
-        },
-        () => {
-          document.getElementById('sensorStatus').textContent = 'GPS negado nos Ajustes do iPhone.';
-        },
-        { timeout: 10000 }
-      );
+
+      if (!isGpsOn) {
+        if (!('geolocation' in navigator)) {
+          document.getElementById('sensorStatus').textContent = 'GPS não suportado.';
+          return;
+        }
+        document.getElementById('sensorStatus').textContent = 'Ativando GPS...';
+        gpsWatchId = navigator.geolocation.watchPosition(
+          async (pos) => {
+            isGpsOn = true;
+            btn.classList.add('active');
+            btn.textContent = 'GPS: ON';
+            try {
+              const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current=rain,is_day`);
+              const data = await res.json();
+              if (data.current.rain > 0) selectLevel(1);
+              else if (data.current.is_day === 0) selectLevel(2);
+              else selectLevel(0);
+              document.getElementById('sensorStatus').textContent = 'GPS ligado e clima sincronizado.';
+            } catch (e) {
+              document.getElementById('sensorStatus').textContent = 'GPS ligado (sem conexão de clima).';
+            }
+          },
+          () => {
+            isGpsOn = false;
+            btn.classList.remove('active');
+            btn.textContent = 'GPS: OFF';
+            document.getElementById('sensorStatus').textContent = 'GPS negado nos Ajustes do iOS.';
+          },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
+        );
+      } else {
+        if (gpsWatchId !== null) {
+          navigator.geolocation.clearWatch(gpsWatchId);
+          gpsWatchId = null;
+        }
+        isGpsOn = false;
+        btn.classList.remove('active');
+        btn.textContent = 'GPS: OFF';
+        document.getElementById('sensorStatus').textContent = 'GPS desligado.';
+      }
     }
 
     function togglePanel(id) {
@@ -734,7 +954,9 @@
       selectLevel(4);
       setTimeout(() => selectLevel(0), 2600);
     }
+
+    // Gera a seed inicial ao abrir
+    generateFullSeed();
   </script>
 </body>
 </html>
-
