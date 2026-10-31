@@ -88,7 +88,7 @@ export function setSourceMode(mode) {
     if (mode === 'synth') { stopStems(); startSynth(); }
     else { stopSynth(); startStems(); }
   }
-  import('./seed.js').then(m => m.generateFullSeed());
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function selectSynthType(idx) {
@@ -98,7 +98,7 @@ export function selectSynthType(idx) {
     document.getElementById(`syn${i}`).classList.toggle('active', i === idx);
   }
   if (state.isPlaying && state.sourceMode === 'synth') startSynth();
-  import('./seed.js').then(m => m.generateFullSeed());
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setSynthVolume(val) {
@@ -107,7 +107,7 @@ export function setSynthVolume(val) {
   if (state.synthMasterGain && state.audioCtx) {
     state.synthMasterGain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
   }
-  import('./seed.js').then(m => m.generateFullSeed());
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function startSynth() {
@@ -191,7 +191,7 @@ export function setVolume(index, val) {
   if (state.stemGains[index] && state.audioCtx) {
     state.stemGains[index].gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
   }
-  import('./seed.js').then(m => m.generateFullSeed());
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function toggleMasterPlay() {
@@ -230,7 +230,7 @@ export function toggleMasterPlay() {
       p.setMediaPlaybackState(false);
     });
   }
-  import('./seed.js').then(m => m.generateFullSeed());
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function selectLevel(idx) {
@@ -247,7 +247,7 @@ export function selectLevel(idx) {
 
   syncXYPadFromSliders(l.speed, l.filter);
   applyParameters();
-  import('./seed.js').then(m => m.generateFullSeed());
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function syncXYPadFromSliders(speed, filter) {
@@ -288,7 +288,7 @@ export function applyParameters() {
     });
   }
 
-  import('./seed.js').then(m => m.generateFullSeed());
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function triggerKick(withPiafCue) {

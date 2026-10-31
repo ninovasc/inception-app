@@ -10,7 +10,7 @@ export async function toggleMemoryCatcher() {
   if (!state.isMemCatcherOn) {
     if (!state.isMicOn) await sensors.toggleMic();
     if (!state.isMicOn) {
-      (await import('./seed.js')).generateFullSeed();
+      if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
       return;
     }
 
@@ -31,7 +31,7 @@ export async function toggleMemoryCatcher() {
     sub.textContent = 'OFF';
     setSensorStatus('Memory Catcher desligado.');
   }
-  (await import('./seed.js')).generateFullSeed();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export async function toggleAutoKick() {
@@ -45,7 +45,7 @@ export async function toggleAutoKick() {
     if (!state.isMotionOn) await sensors.toggleMotion();
     if (!state.isMotionOn) {
       setSensorStatus('Auto-Kick requer o giroscópio. Ative o sensor Giro primeiro.');
-      (await import('./seed.js')).generateFullSeed();
+      if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
       return;
     }
     state.isAutoKickOn = true;
@@ -60,7 +60,7 @@ export async function toggleAutoKick() {
     sub.textContent = 'OFF';
     setSensorStatus('Auto-Kick desligado.');
   }
-  (await import('./seed.js')).generateFullSeed();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export async function toggleSpatial3D() {
@@ -74,7 +74,7 @@ export async function toggleSpatial3D() {
       if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
         const res = await DeviceOrientationEvent.requestPermission();
         if (res !== 'granted') {
-          (await import('./seed.js')).generateFullSeed();
+          if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
           return;
         }
       }
@@ -98,7 +98,7 @@ export async function toggleSpatial3D() {
     sub.textContent = 'OFF (Centro)';
     setSensorStatus('Áudio Espacial 3D desligado.');
   }
-  (await import('./seed.js')).generateFullSeed();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export async function cycleLucidTimer() {
@@ -107,7 +107,7 @@ export async function cycleLucidTimer() {
   state.lucidModeIdx = (state.lucidModeIdx + 1) % (await import('./config.js')).LUCID_MODES.length;
   const modes = (await import('./config.js')).LUCID_MODES;
   setLucidTimerMinutes(modes[state.lucidModeIdx]);
-  (await import('./seed.js')).generateFullSeed();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setLucidTimerMinutes(mins) {
@@ -194,7 +194,7 @@ export async function toggleDeprivationWatch() {
     sub.textContent = 'OFF';
     setSensorStatus('Privação Sensorial desligada.');
   }
-  (await import('./seed.js')).generateFullSeed();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function checkSensoryDeprivation() {
