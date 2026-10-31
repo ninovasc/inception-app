@@ -299,17 +299,35 @@ export function triggerKick(withPiafCue) {
   const now = state.audioCtx.currentTime;
 
   if (withPiafCue) {
-    [392.0, 440.0, 493.88, 523.25].forEach((nFreq, idx) => {
+    // Fanfarra grave lembrando "Non, je ne regrette rien" (Piaf), uma oitava abaixo
+    [196.0, 220.0, 246.94, 261.63].forEach((nFreq, idx) => {
       const o = state.audioCtx.createOscillator();
+      const f = state.audioCtx.createBiquadFilter();
       const g = state.audioCtx.createGain();
       o.type = 'sawtooth';
-      o.frequency.setValueAtTime(nFreq, now + idx * 0.14);
-      g.gain.setValueAtTime(0.08, now + idx * 0.14);
-      g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.14 + 0.13);
-      o.connect(state.masterFilter);
-      o.start(now + idx * 0.14);
-      o.stop(now + idx * 0.14 + 0.14);
+      f.type = 'lowpass';
+      f.frequency.value = 900;
+      o.frequency.setValueAtTime(nFreq, now + idx * 0.16);
+      g.gain.setValueAtTime(0.12, now + idx * 0.16);
+      g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.16 + 0.16);
+      o.connect(f);
+      f.connect(g);
+      g.connect(state.masterFilter);
+      o.start(now + idx * 0.16);
+      o.stop(now + idx * 0.16 + 0.18);
     });
+    // drone grave sustentado (lembrança do motivo)
+    const drone = state.audioCtx.createOscillator();
+    const dg = state.audioCtx.createGain();
+    drone.type = 'triangle';
+    drone.frequency.setValueAtTime(98.0, now);
+    dg.gain.setValueAtTime(0.001, now);
+    dg.gain.linearRampToValueAtTime(0.10, now + 0.1);
+    dg.gain.exponentialRampToValueAtTime(0.001, now + 0.7);
+    drone.connect(dg);
+    dg.connect(state.masterFilter);
+    drone.start(now);
+    drone.stop(now + 0.75);
   }
 
   [55, 110, 164.81].forEach(freq => {
