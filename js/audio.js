@@ -75,8 +75,12 @@ function createImpulse(duration, decay) {
 
 export function setSourceMode(mode) {
   state.sourceMode = mode;
-  document.getElementById('btnSynth').classList.toggle('active', mode === 'synth');
-  document.getElementById('btnUpload').classList.toggle('active', mode === 'upload');
+  const btnSynth = document.getElementById('btnSynth');
+  const btnUpload = document.getElementById('btnUpload');
+  btnSynth.classList.toggle('active', mode === 'synth');
+  btnUpload.classList.toggle('active', mode === 'upload');
+  btnSynth.setAttribute('aria-pressed', mode === 'synth' ? 'true' : 'false');
+  btnUpload.setAttribute('aria-pressed', mode === 'upload' ? 'true' : 'false');
   document.getElementById('synthBox').style.display = mode === 'synth' ? 'flex' : 'none';
   document.getElementById('uploadBox').style.display = mode === 'upload' ? 'flex' : 'none';
 
@@ -147,11 +151,10 @@ export async function loadStem(index, file) {
   document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: Lendo...`;
   try {
     const buf = await file.arrayBuffer();
-    state.audioCtx.decodeAudioData(buf, (decoded) => {
-      state.stemBuffers[index] = decoded;
-      document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: ${file.name.slice(0, 14)}`;
-      if (state.isPlaying && state.sourceMode === 'upload') startStems();
-    });
+    const decoded = await state.audioCtx.decodeAudioData(buf);
+    state.stemBuffers[index] = decoded;
+    document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: ${file.name.slice(0, 14)}`;
+    if (state.isPlaying && state.sourceMode === 'upload') startStems();
   } catch (e) {
     document.getElementById(`label${index}`).textContent = 'Erro ao carregar';
   }
@@ -203,16 +206,29 @@ export function toggleMasterPlay() {
     else startStems();
 
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     sub.textContent = 'ATIVO';
     topSt.textContent = 'SONHANDO';
+
+    import('./power.js').then(p => {
+      p.setupMediaSession();
+      p.requestWakeLock();
+      p.setMediaPlaybackState(true);
+    });
   } else {
     state.isPlaying = false;
     stopStems();
     stopSynth();
     stopDeprivationHeartbeat();
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     sub.textContent = 'OFF';
     topSt.textContent = 'PARADO';
+
+    import('./power.js').then(p => {
+      p.releaseWakeLock();
+      p.setMediaPlaybackState(false);
+    });
   }
   import('./seed.js').then(m => m.generateFullSeed());
 }
@@ -343,7 +359,8 @@ export function captureAndPlaySubconsciousMemory() {
       try {
         const blob = new Blob(chunks);
         const arr = await blob.arrayBuffer();
-        state.audioCtx.decodeAudioData(arr, (buffer) => {
+        try {
+          const buffer = await state.audioCtx.decodeAudioData(arr);
           const reverse = Math.random() > 0.4;
           if (reverse) {
             for (let c = 0; c < buffer.numberOfChannels; c++) {
@@ -363,7 +380,7 @@ export function captureAndPlaySubconsciousMemory() {
           if (status) status.textContent = reverse
             ? 'Memory Catcher: Eco reverso projetado no sonho.'
             : 'Memory Catcher: Fragmento desacelerado projetado.';
-        });
+        } catch (e) {}
       } catch (e) {}
     };
     recorder.start();

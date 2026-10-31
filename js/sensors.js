@@ -20,6 +20,7 @@ export async function toggleMic() {
       state.micGain.connect(state.masterFilter);
       state.isMicOn = true;
       btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
       btn.textContent = 'Mic: ON';
       setSensorStatus('Microfone ligado.');
     } catch (e) {
@@ -31,6 +32,7 @@ export async function toggleMic() {
     if (state.micGain) { try { state.micGain.disconnect(); } catch (e) {} }
     state.isMicOn = false;
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     btn.textContent = 'Mic: OFF';
     setSensorStatus('Microfone desligado.');
   }
@@ -52,6 +54,7 @@ export async function toggleMotion() {
       window.addEventListener('devicemotion', motionHandler);
       state.isMotionOn = true;
       btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
       btn.textContent = 'Giro: ON';
       setSensorStatus('Giroscópio ligado.');
     } catch (e) {
@@ -61,6 +64,7 @@ export async function toggleMotion() {
     window.removeEventListener('devicemotion', motionHandler);
     state.isMotionOn = false;
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     btn.textContent = 'Giro: OFF';
     setSensorStatus('Giroscópio desligado.');
   }
@@ -121,7 +125,6 @@ export function orientationHandler(e) {
 }
 
 export function toggleGPS() {
-  const audio = null;
   const btn = document.getElementById('btnGps');
 
   if (!state.isGpsOn && state.gpsWatchId === null) {
@@ -130,11 +133,16 @@ export function toggleGPS() {
       return;
     }
     setSensorStatus('Ativando GPS...');
+    let lastGpsUpdate = 0;
     state.gpsWatchId = navigator.geolocation.watchPosition(
       async (pos) => {
         state.isGpsOn = true;
         btn.classList.add('active');
+        btn.setAttribute('aria-pressed', 'true');
         btn.textContent = 'GPS: ON';
+        const now = Date.now();
+        if (now - lastGpsUpdate < 60000) return;
+        lastGpsUpdate = now;
         try {
           const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current=rain,is_day`);
           const data = await res.json();
@@ -150,6 +158,7 @@ export function toggleGPS() {
         state.isGpsOn = false;
         if (state.gpsWatchId !== null) { navigator.geolocation.clearWatch(state.gpsWatchId); state.gpsWatchId = null; }
         btn.classList.remove('active');
+        btn.setAttribute('aria-pressed', 'false');
         btn.textContent = 'GPS: OFF';
         setSensorStatus('GPS negado nos Ajustes do iOS.');
       },
@@ -162,6 +171,7 @@ export function toggleGPS() {
     }
     state.isGpsOn = false;
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     btn.textContent = 'GPS: OFF';
     setSensorStatus('GPS desligado.');
   }

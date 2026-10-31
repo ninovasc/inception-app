@@ -1,35 +1,100 @@
 import { state } from './state.js';
 
-export function generateFullSeed() {
-  const mod = state.sourceMode === 'synth' ? 'S' : 'U';
-  const syn = state.currentSynthType;
-  const lvl = state.currentLevel;
-  const xyX = Math.round(state.xyState.x * 100);
-  const xyY = Math.round(state.xyState.y * 100);
-  const v0 = Math.round(parseFloat(document.getElementById('vol0').value) * 100);
-  const v1 = Math.round(parseFloat(document.getElementById('vol1').value) * 100);
-  const v2 = Math.round(parseFloat(document.getElementById('vol2').value) * 100);
-  const vs = Math.round(parseFloat(document.getElementById('volSynth').value) * 100);
-  const spd = parseFloat(document.getElementById('sliderSpeed').value).toFixed(2);
-  const flt = Math.round(parseFloat(document.getElementById('sliderFilter').value));
-  const dly = parseFloat(document.getElementById('sliderDelay').value).toFixed(2);
-  const rev = parseFloat(document.getElementById('sliderReverb').value).toFixed(2);
-  const mch = `${state.isMemCatcherOn ? 1 : 0}${state.isAutoKickOn ? 1 : 0}${state.isSpatial3DOn ? 1 : 0}${(awaitSafeLucidMode())}${state.isDeprivationWatchOn ? 1 : 0}`;
-
-  const seed = `MOD${mod}-SYN${syn}-LVL${lvl}-XY${xyX},${xyY}-VOL${v0},${v1},${v2},${vs}-SPD${spd}-FLT${flt}-DLY${dly}-REV${rev}-MCH${mch}`;
-  const input = document.getElementById('seedInput');
-  if (input) input.value = seed;
+// Pure encode: stateObj -> seed string
+export function encodeState(s) {
+  const mod = s.sourceMode === 'synth' ? 'S' : 'U';
+  const syn = s.currentSynthType;
+  const lvl = s.currentLevel;
+  const xyX = Math.round(s.xyState.x * 100);
+  const xyY = Math.round(s.xyState.y * 100);
+  const v = s.volumes || [0.9, 0.3, 0.3, 0.8];
+  const v0 = Math.round(v[0] * 100);
+  const v1 = Math.round(v[1] * 100);
+  const v2 = Math.round(v[2] * 100);
+  const vs = Math.round(v[3] * 100);
+  const spd = Number(s.speed).toFixed(2);
+  const flt = Math.round(s.filter);
+  const dly = Number(s.delay).toFixed(2);
+  const rev = Number(s.reverb).toFixed(2);
+  const m = s.mechanics || {};
+  const lucidMin = (m.lucidMin != null) ? m.lucidMin : [0, 15, 30, 60][s.lucidModeIdx || 0];
+  const mch = `${m.mem ? 1 : 0}${m.auto ? 1 : 0}${m.spatial ? 1 : 0}${lucidMin}${m.depr ? 1 : 0}`;
+  return `MOD${mod}-SYN${syn}-LVL${lvl}-XY${xyX},${xyY}-VOL${v0},${v1},${v2},${vs}-SPD${spd}-FLT${flt}-DLY${dly}-REV${rev}-MCH${mch}`;
 }
 
-function awaitSafeLucidMode() {
-  // LUCID_MODES imported lazily; default to current idx value stored as minutes not index.
-  // We encode the minutes value (as original) using a lazy import cache.
+// Pure decode: seed string -> object or null
+export function decodeState(str) {
+  if (!str || typeof str !== 'string') return null;
   try {
-    // original encoded LUCID_MODES[lucidModeIdx] (minutes), not index
-    return window.__lucidModes ? window.__lucidModes[state.lucidModeIdx] : [0,15,30,60][state.lucidModeIdx];
+    const tokens = {};
+    str.trim().split('-').forEach(part => {
+      // XY is a 2-char key; all others are 3-char
+      let key, data;
+      if (part.startsWith('XY')) { key = 'XY'; data = part.slice(2); }
+      else { key = part.slice(0, 3); data = part.slice(3); }
+      tokens[key] = data;
+    });
+    const out = {};
+    if (tokens.MOD) out.sourceMode = tokens.MOD === 'S' ? 'synth' : 'upload';
+    if (tokens.SYN !== undefined) out.currentSynthType = parseInt(tokens.SYN, 10);
+    if (tokens.LVL !== undefined) out.currentLevel = parseInt(tokens.LVL, 10);
+    if (tokens.XY) {
+      const [xx, yy] = tokens.XY.split(',').map(n => parseInt(n, 10) / 100);
+      if (!isNaN(xx) && !isNaN(yy)) out.xyState = { x: xx, y: yy };
+    }
+    if (tokens.VOL) {
+      const parts = tokens.VOL.split(',').map(n => parseInt(n, 10) / 100);
+      if (parts.length === 4 && parts.every(n => !isNaN(n))) out.volumes = parts;
+    }
+    if (tokens.SPD) out.speed = parseFloat(tokens.SPD);
+    if (tokens.FLT) out.filter = parseFloat(tokens.FLT);
+    if (tokens.DLY) out.delay = parseFloat(tokens.DLY);
+    if (tokens.REV) out.reverb = parseFloat(tokens.REV);
+    if (tokens.MCH) {
+      const m = tokens.MCH;
+      out.mechanics = {
+        mem: m.charAt(0) === '1',
+        auto: m.charAt(1) === '1',
+        spatial: m.charAt(2) === '1',
+        lucidMin: parseInt(m.slice(3, m.length - 1), 10),
+        depr: m.charAt(m.length - 1) === '1'
+      };
+    }
+    return out;
   } catch (e) {
-    return [0,15,30,60][state.lucidModeIdx];
+    return null;
   }
+}
+
+export function generateFullSeed() {
+  const audio = null;
+  const volumes = [
+    parseFloat(document.getElementById('vol0').value),
+    parseFloat(document.getElementById('vol1').value),
+    parseFloat(document.getElementById('vol2').value),
+    parseFloat(document.getElementById('volSynth').value)
+  ];
+  const seed = encodeState({
+    sourceMode: state.sourceMode,
+    currentSynthType: state.currentSynthType,
+    currentLevel: state.currentLevel,
+    xyState: state.xyState,
+    volumes,
+    speed: parseFloat(document.getElementById('sliderSpeed').value),
+    filter: parseFloat(document.getElementById('sliderFilter').value),
+    delay: parseFloat(document.getElementById('sliderDelay').value),
+    reverb: parseFloat(document.getElementById('sliderReverb').value),
+    mechanics: {
+      mem: state.isMemCatcherOn,
+      auto: state.isAutoKickOn,
+      spatial: state.isSpatial3DOn,
+      lucidMin: [0, 15, 30, 60][state.lucidModeIdx],
+      depr: state.isDeprivationWatchOn
+    },
+    lucidModeIdx: state.lucidModeIdx
+  });
+  const input = document.getElementById('seedInput');
+  if (input) input.value = seed;
 }
 
 export async function copySeed() {
@@ -40,7 +105,7 @@ export async function copySeed() {
     await navigator.clipboard.writeText(input.value);
     setSensorStatus('Seed copiada para a área de transferência!');
   } catch (e) {
-    document.execCommand && document.execCommand('copy');
+    try { document.execCommand('copy'); } catch (e2) {}
     setSensorStatus('Seed copiada (fallback).');
   }
 }
@@ -51,62 +116,54 @@ export async function applySeed() {
   const audio = await import('./audio.js');
   audio.initAudio();
 
+  const parsed = decodeState(val);
+  if (!parsed) {
+    alert('Formato de Seed inválido.');
+    return;
+  }
+
   try {
-    const tokens = {};
-    val.split('-').forEach(part => {
-      const key = part.slice(0, 3);
-      const data = part.slice(3);
-      tokens[key] = data;
-    });
-
-    if (tokens.MOD) (await import('./audio.js')).setSourceMode(tokens.MOD === 'S' ? 'synth' : 'upload');
-    if (tokens.SYN !== undefined) (await import('./audio.js')).selectSynthType(parseInt(tokens.SYN, 10));
-    if (tokens.LVL !== undefined) {
-      const lvl = parseInt(tokens.LVL, 10);
-      (await import('./audio.js')).selectLevel(lvl);
+    if (parsed.sourceMode) audio.setSourceMode(parsed.sourceMode);
+    if (parsed.currentSynthType !== undefined) audio.selectSynthType(parsed.currentSynthType);
+    if (parsed.currentLevel !== undefined) audio.selectLevel(parsed.currentLevel);
+    if (parsed.volumes) {
+      const [v0, v1, v2, vs] = parsed.volumes;
+      if (!isNaN(v0)) { document.getElementById('vol0').value = v0; audio.setVolume(0, v0); }
+      if (!isNaN(v1)) { document.getElementById('vol1').value = v1; audio.setVolume(1, v1); }
+      if (!isNaN(v2)) { document.getElementById('vol2').value = v2; audio.setVolume(2, v2); }
+      if (!isNaN(vs)) { document.getElementById('volSynth').value = vs; audio.setSynthVolume(vs); }
     }
-    if (tokens.VOL) {
-      const [v0, v1, v2, vs] = tokens.VOL.split(',').map(n => parseInt(n, 10) / 100);
-      if (!isNaN(v0)) { document.getElementById('vol0').value = v0; (await import('./audio.js')).setVolume(0, v0); }
-      if (!isNaN(v1)) { document.getElementById('vol1').value = v1; (await import('./audio.js')).setVolume(1, v1); }
-      if (!isNaN(v2)) { document.getElementById('vol2').value = v2; (await import('./audio.js')).setVolume(2, v2); }
-      if (!isNaN(vs)) { document.getElementById('volSynth').value = vs; (await import('./audio.js')).setSynthVolume(vs); }
-    }
-    if (tokens.SPD) document.getElementById('sliderSpeed').value = parseFloat(tokens.SPD);
-    if (tokens.FLT) document.getElementById('sliderFilter').value = parseFloat(tokens.FLT);
-    if (tokens.DLY) document.getElementById('sliderDelay').value = parseFloat(tokens.DLY);
-    if (tokens.REV) document.getElementById('sliderReverb').value = parseFloat(tokens.REV);
+    if (parsed.speed !== undefined) document.getElementById('sliderSpeed').value = parsed.speed;
+    if (parsed.filter !== undefined) document.getElementById('sliderFilter').value = parsed.filter;
+    if (parsed.delay !== undefined) document.getElementById('sliderDelay').value = parsed.delay;
+    if (parsed.reverb !== undefined) document.getElementById('sliderReverb').value = parsed.reverb;
 
-    if (tokens.XY) {
-      const [xx, yy] = tokens.XY.split(',').map(n => parseInt(n, 10) / 100);
-      if (!isNaN(xx) && !isNaN(yy)) {
-        state.xyState = { x: xx, y: yy };
-        document.getElementById('xyCursor').style.left = (xx * 100) + '%';
-        document.getElementById('xyCursor').style.top = (yy * 100) + '%';
-        document.getElementById('xyCoords').textContent = `X: ${Math.round(xx * 100)}% | Y: ${Math.round((1 - yy) * 100)}%`;
+    if (parsed.xyState) {
+      const { x, y } = parsed.xyState;
+      state.xyState = { x, y };
+      const cursor = document.getElementById('xyCursor');
+      if (cursor) {
+        cursor.style.left = (x * 100) + '%';
+        cursor.style.top = (y * 100) + '%';
       }
+      const coords = document.getElementById('xyCoords');
+      if (coords) coords.textContent = `X: ${Math.round(x * 100)}% | Y: ${Math.round((1 - y) * 100)}%`;
     }
 
-    // Restore mechanics from MCH token: MCH<mem><auto><spatial><lucidMinutes><deprivation>
-    if (tokens.MCH) {
-      const m = tokens.MCH;
-      const mem = m.charAt(0) === '1';
-      const auto = m.charAt(1) === '1';
-      const spat = m.charAt(2) === '1';
-      const lucidMin = parseInt(m.slice(3, m.length - 1), 10);
-      const depr = m.charAt(m.length - 1) === '1';
+    // Restore mechanics
+    if (parsed.mechanics) {
+      const m = parsed.mechanics;
       const mech = await import('./mechanics.js');
-      if (mem !== state.isMemCatcherOn) await mech.toggleMemoryCatcher();
-      if (auto !== state.isAutoKickOn) await mech.toggleAutoKick();
-      if (spat !== state.isSpatial3DOn) await mech.toggleSpatial3D();
-      if (depr !== state.isDeprivationWatchOn) await mech.toggleDeprivationWatch();
-      if (!isNaN(lucidMin)) {
+      if (m.mem !== state.isMemCatcherOn) await mech.toggleMemoryCatcher();
+      if (m.auto !== state.isAutoKickOn) await mech.toggleAutoKick();
+      if (m.spatial !== state.isSpatial3DOn) await mech.toggleSpatial3D();
+      if (m.depr !== state.isDeprivationWatchOn) await mech.toggleDeprivationWatch();
+      if (!isNaN(m.lucidMin)) {
         const modes = (await import('./config.js')).LUCID_MODES;
-        const idx = modes.indexOf(lucidMin);
+        const idx = modes.indexOf(m.lucidMin);
         if (idx >= 0) {
           state.lucidModeIdx = idx;
-          // apply without re-triggering seed storm: call setLucidTimerMinutes
-          mech.setLucidTimerMinutes(lucidMin);
+          mech.setLucidTimerMinutes(m.lucidMin);
         }
       }
     }

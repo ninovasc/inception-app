@@ -5,6 +5,7 @@ import * as sensors from './sensors.js';
 import * as mechanics from './mechanics.js';
 import * as seed from './seed.js';
 import * as ui from './ui.js';
+import './power.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -44,8 +45,7 @@ Object.assign(window, {
   copySeed: seed.copySeed,
   applySeed: seed.applySeed,
   togglePanel: ui.togglePanel,
-  handleXYMove: ui.handleXYMove,
-  showToast: ui.showToast
+  handleXYMove: ui.handleXYMove
 });
 
 // Wire X/Y pad

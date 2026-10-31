@@ -27,16 +27,4 @@ export function handleXYMove(clientX, clientY) {
   import('./audio.js').then(a => a.applyParameters());
 }
 
-export function showToast(msg) {
-  let toast = document.getElementById('statusToast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.id = 'statusToast';
-    toast.className = 'status-toast';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.classList.add('show');
-  clearTimeout(toast._t);
-  toast._t = setTimeout(() => toast.classList.remove('show'), 2200);
-}
+

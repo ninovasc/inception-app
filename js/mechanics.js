@@ -16,6 +16,7 @@ export async function toggleMemoryCatcher() {
 
     state.isMemCatcherOn = true;
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     sub.textContent = 'ON (Gravando Ecos)';
     setSensorStatus('Memory Catcher ativo: capturando fragmentos do subconsciente.');
 
@@ -26,6 +27,7 @@ export async function toggleMemoryCatcher() {
     state.isMemCatcherOn = false;
     if (state.memCatcherTimer) { clearInterval(state.memCatcherTimer); state.memCatcherTimer = null; }
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     sub.textContent = 'OFF';
     setSensorStatus('Memory Catcher desligado.');
   }
@@ -48,11 +50,13 @@ export async function toggleAutoKick() {
     }
     state.isAutoKickOn = true;
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     sub.textContent = 'ON (Sensor G)';
     setSensorStatus('Auto-Kick ativo: solte ou sacuda o celular para disparar O Chute.');
   } else {
     state.isAutoKickOn = false;
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     sub.textContent = 'OFF';
     setSensorStatus('Auto-Kick desligado.');
   }
@@ -78,6 +82,7 @@ export async function toggleSpatial3D() {
       window.addEventListener('deviceorientation', (await import('./sensors.js')).orientationHandler);
       state.isSpatial3DOn = true;
       btn.classList.add('active');
+      btn.setAttribute('aria-pressed', 'true');
       sub.textContent = 'ON (3D Ativo)';
       setSensorStatus('Áudio 3D ligado: gire o celular para ouvir o som mudar de lado.');
     } catch (e) {
@@ -85,10 +90,11 @@ export async function toggleSpatial3D() {
     }
   } else {
     state.isSpatial3DOn = false;
+    btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     if (state.stereoPanner && state.stereoPanner.pan) {
       state.stereoPanner.pan.setTargetAtTime(0, state.audioCtx.currentTime, 0.1);
     }
-    btn.classList.remove('active');
     sub.textContent = 'OFF (Centro)';
     setSensorStatus('Áudio Espacial 3D desligado.');
   }
@@ -111,6 +117,7 @@ export function setLucidTimerMinutes(mins) {
 
   if (mins === 0) {
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     sub.textContent = 'OFF';
     return;
   }
@@ -118,6 +125,7 @@ export function setLucidTimerMinutes(mins) {
   state.lucidTotalSec = mins * 60;
   state.lucidRemainingSec = state.lucidTotalSec;
   btn.classList.add('active');
+  btn.setAttribute('aria-pressed', 'true');
   updateLucidSub();
 
   state.lucidInterval = setInterval(async () => {
@@ -172,6 +180,7 @@ export async function toggleDeprivationWatch() {
     state.isDeprivationWatchOn = true;
     state.silenceSeconds = 0;
     btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
     sub.textContent = 'VIGIANDO (0/15s)';
     setSensorStatus('Privação Sensorial: vire o celular para baixo em silêncio por 15s.');
 
@@ -181,6 +190,7 @@ export async function toggleDeprivationWatch() {
     if (state.deprivationCheckInterval) { clearInterval(state.deprivationCheckInterval); state.deprivationCheckInterval = null; }
     stopDeprivationHeartbeat();
     btn.classList.remove('active');
+    btn.setAttribute('aria-pressed', 'false');
     sub.textContent = 'OFF';
     setSensorStatus('Privação Sensorial desligada.');
   }

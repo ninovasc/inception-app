@@ -41,12 +41,20 @@ App web estático, mobile-first, instalável como PWA, publicado via GitHub Page
 É um app estático. Basta servir a pasta:
 
 ```bash
-npx serve .
+node scripts/serve.js .
 # ou
-python -m http.server 8000
+npx serve .
 ```
 
-Abra em `http://localhost:8000`. Sensores (mic/giroscópio/GPS) exigem HTTPS ou `localhost`.
+Abra em `http://localhost:8099`. Sensores (mic/giroscópio/GPS) exigem HTTPS ou `localhost`.
+
+## Testes
+
+Testes unitários (seed encode/decode):
+
+```bash
+node scripts/test-seed.mjs
+```
 
 ## Permissões
 
