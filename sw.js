@@ -1,4 +1,4 @@
-const CACHE = 'pasiv-v18';
+const CACHE = 'pasiv-v19';
 const ASSETS = [
   './',
   './index.html',
@@ -12,6 +12,7 @@ const ASSETS = [
   './js/seed.js',
   './js/ui.js',
   './js/power.js',
+  './js/youtube.js',
   './manifest.webmanifest',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',

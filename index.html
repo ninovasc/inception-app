@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v1.11.0</div>
+        <div class="version">v1.12.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -77,9 +77,10 @@
         <span style="color:#fff;">▼</span>
       </div>
       <div id="sourcePanel" class="hidden-panel open">
-        <div style="display: flex; gap: 6px; margin-bottom: 6px;">
-          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.8rem;" aria-label="Modo sintetizadores" aria-pressed="true">Sintetizadores</button>
-          <button class="menu-item" id="btnUpload" onclick="setSourceMode('upload')" style="flex:1; justify-content:center; font-size:0.8rem;" aria-label="Modo meus MP3" aria-pressed="false">Meus 3 MP3</button>
+        <div style="display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
+          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo sintetizadores" aria-pressed="true">Synths</button>
+          <button class="menu-item" id="btnUpload" onclick="setSourceMode('upload')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo meus MP3" aria-pressed="false">MP3</button>
+          <button class="menu-item" id="btnYt" onclick="setSourceMode('youtube')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo YouTube" aria-pressed="false">YouTube</button>
         </div>
 
         <div id="synthBox" style="display: flex; flex-direction: column; gap: 6px;">
@@ -122,6 +123,28 @@
           <input type="file" id="file2" accept="*" onchange="loadStem(2, this.files[0])">
           <div class="slider-group"><div class="slider-header"><span>Vol. Camada 3</span><span id="volVal2">20%</span></div>
           <input type="range" id="vol2" min="0" max="1" step="0.05" value="0.20" oninput="setVolume(2, this.value)"></div>
+        </div>
+
+        <!-- YOUTUBE 3 LINKS -->
+        <div id="ytBox" style="display: none; flex-direction: column; gap: 6px;">
+          <div style="font-size:0.7rem; color:var(--muted);">Cole links do YouTube (3 camadas). O áudio toca via player do YouTube.</div>
+          <input type="text" id="ytUrl0" placeholder="Link YouTube camada 1" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.72rem;border-radius:6px;" onchange="loadYouTube(0, this.value)">
+          <div id="ytPlayer0" style="display:none;"></div>
+          <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;" id="ytLabel0">Camada 1: [sem link]</div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 1</span><span id="ytVolVal0">30%</span></div>
+          <input type="range" id="ytVol0" min="0" max="1" step="0.05" value="0.30" oninput="setYouTubeVolume(0, this.value)"></div>
+
+          <input type="text" id="ytUrl1" placeholder="Link YouTube camada 2" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.72rem;border-radius:6px;" onchange="loadYouTube(1, this.value)">
+          <div id="ytPlayer1" style="display:none;"></div>
+          <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;" id="ytLabel1">Camada 2: [sem link]</div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 2</span><span id="ytVolVal1">30%</span></div>
+          <input type="range" id="ytVol1" min="0" max="1" step="0.05" value="0.30" oninput="setYouTubeVolume(1, this.value)"></div>
+
+          <input type="text" id="ytUrl2" placeholder="Link YouTube camada 3" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.72rem;border-radius:6px;" onchange="loadYouTube(2, this.value)">
+          <div id="ytPlayer2" style="display:none;"></div>
+          <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;" id="ytLabel2">Camada 3: [sem link]</div>
+          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 3</span><span id="ytVolVal2">30%</span></div>
+          <input type="range" id="ytVol2" min="0" max="1" step="0.05" value="0.30" oninput="setYouTubeVolume(2, this.value)"></div>
         </div>
       </div>
     </div>
@@ -214,6 +237,7 @@
       <ul>
         <li><strong>5 sintetizadores</strong>: Zimmer Ambient, Brass Drone, Sub Limbo, Glass Choir, Binaural Pulse.</li>
         <li><strong>3 camadas MP3</strong>: envie seus próprios arquivos, com volume individual.</li>
+      <li><strong>3 links do YouTube</strong>: use vídeos do YouTube como camadas sonoras.</li>
       </ul>
 
       <h3>X/Y Pad</h3>

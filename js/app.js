@@ -6,6 +6,7 @@ import * as mechanics from './mechanics.js';
 import * as seed from './seed.js';
 import * as ui from './ui.js';
 import './power.js';
+import * as yt from './youtube.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -46,7 +47,12 @@ Object.assign(window, {
   applySeed: seed.applySeed,
   togglePanel: ui.togglePanel,
   handleXYMove: ui.handleXYMove,
-  toggleHelp: ui.toggleHelp
+  toggleHelp: ui.toggleHelp,
+  startYouTube: yt.startYouTube,
+  stopYouTube: yt.stopYouTube,
+  setYouTubeRate: yt.setYouTubeRate,
+  loadYouTube: yt.loadYouTube,
+  setYouTubeVolume: yt.setYouTubeVolume
 });
 
 // Wire X/Y pad
@@ -73,6 +79,9 @@ try {
     screen.orientation.lock('portrait').catch(() => {});
   }
 } catch (e) {}
+
+// Init YouTube API
+yt.initYouTube();
 
 // Initial seed
 seed.generateFullSeed();

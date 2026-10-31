@@ -81,12 +81,20 @@ export function setSourceMode(mode) {
   btnUpload.classList.toggle('active', mode === 'upload');
   btnSynth.setAttribute('aria-pressed', mode === 'synth' ? 'true' : 'false');
   btnUpload.setAttribute('aria-pressed', mode === 'upload' ? 'true' : 'false');
+  const btnYt = document.getElementById('btnYt');
+  if (btnYt) btnYt.classList.toggle('active', mode === 'youtube');
+  if (btnYt) btnYt.setAttribute('aria-pressed', mode === 'youtube' ? 'true' : 'false');
   document.getElementById('synthBox').style.display = mode === 'synth' ? 'flex' : 'none';
   document.getElementById('uploadBox').style.display = mode === 'upload' ? 'flex' : 'none';
+  const ytBox = document.getElementById('ytBox');
+  if (ytBox) ytBox.style.display = mode === 'youtube' ? 'flex' : 'none';
 
   if (state.isPlaying) {
-    if (mode === 'synth') { stopStems(); startSynth(); }
-    else { stopSynth(); startStems(); }
+    stopStems(); stopSynth();
+    if (window.stopYouTube) window.stopYouTube();
+    if (mode === 'synth') startSynth();
+    else if (mode === 'upload') startStems();
+    else if (mode === 'youtube') { if (window.startYouTube) window.startYouTube(); }
   }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
@@ -206,7 +214,8 @@ export function toggleMasterPlay() {
   if (!state.isPlaying) {
     state.isPlaying = true;
     if (state.sourceMode === 'synth') startSynth();
-    else startStems();
+    else if (state.sourceMode === 'upload') startStems();
+    else if (state.sourceMode === 'youtube') { if (window.startYouTube) window.startYouTube(); }
 
     btn.classList.add('active');
     btn.setAttribute('aria-pressed', 'true');
@@ -222,6 +231,7 @@ export function toggleMasterPlay() {
     state.isPlaying = false;
     stopStems();
     stopSynth();
+    if (window.stopYouTube) window.stopYouTube();
     stopDeprivationHeartbeat();
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');
@@ -291,6 +301,7 @@ export function applyParameters() {
     });
   }
 
+  if (typeof window.setYouTubeRate === 'function') window.setYouTubeRate(speed);
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
