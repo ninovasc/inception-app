@@ -302,10 +302,10 @@ export function triggerKick(withPiafCue) {
     // Melodia de "Non, je ne regrette rien" (Piaf) em registro grave
     // G - A - B - C, com ritmo marchado (última nota sustentada)
     const notes = [
-      { f: 98.0,  t: 0.00, dur: 0.13 },
-      { f: 110.0, t: 0.15, dur: 0.13 },
-      { f: 123.47,t: 0.30, dur: 0.13 },
-      { f: 130.81,t: 0.45, dur: 0.30 }
+      { f: 98.0,  t: 0.00, dur: 0.22 },
+      { f: 110.0, t: 0.28, dur: 0.22 },
+      { f: 123.47,t: 0.56, dur: 0.22 },
+      { f: 130.81,t: 0.84, dur: 0.45 }
     ];
     notes.forEach(n => {
       const o = state.audioCtx.createOscillator();
@@ -344,11 +344,11 @@ export function triggerKick(withPiafCue) {
     drone.frequency.setValueAtTime(49.0, now);
     dg.gain.setValueAtTime(0.001, now);
     dg.gain.linearRampToValueAtTime(0.16, now + 0.1);
-    dg.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+    dg.gain.exponentialRampToValueAtTime(0.001, now + 1.3);
     drone.connect(dg);
     dg.connect(state.masterFilter);
     drone.start(now);
-    drone.stop(now + 0.95);
+    drone.stop(now + 1.35);
   }
 
   [55, 110, 164.81].forEach(freq => {
@@ -356,23 +356,23 @@ export function triggerKick(withPiafCue) {
     const flt = state.audioCtx.createBiquadFilter();
     const g = state.audioCtx.createGain();
     osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, now + 0.55);
-    osc.frequency.linearRampToValueAtTime(freq * 0.95, now + 3.0);
+    osc.frequency.setValueAtTime(freq, now + 1.1);
+    osc.frequency.linearRampToValueAtTime(freq * 0.95, now + 3.6);
     flt.type = 'lowpass';
-    flt.frequency.setValueAtTime(180, now + 0.55);
-    flt.frequency.exponentialRampToValueAtTime(2000, now + 0.95);
-    g.gain.setValueAtTime(0.01, now + 0.55);
-    g.gain.linearRampToValueAtTime(0.45, now + 0.75);
-    g.gain.exponentialRampToValueAtTime(0.001, now + 3.1);
+    flt.frequency.setValueAtTime(180, now + 1.1);
+    flt.frequency.exponentialRampToValueAtTime(2000, now + 1.5);
+    g.gain.setValueAtTime(0.01, now + 1.1);
+    g.gain.linearRampToValueAtTime(0.45, now + 1.3);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 3.6);
     osc.connect(flt);
     flt.connect(g);
     g.connect(state.compressor);
-    osc.start(now + 0.55);
-    osc.stop(now + 3.15);
+    osc.start(now + 1.1);
+    osc.stop(now + 3.7);
   });
 
   selectLevel(4);
-  setTimeout(() => selectLevel(0), 3100);
+  setTimeout(() => selectLevel(0), 3800);
 }
 
 export function playHeartbeatPulse(offsetGain) {
