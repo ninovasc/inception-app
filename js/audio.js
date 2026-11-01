@@ -390,10 +390,11 @@ export function toggleMasterPlay() {
 
   if (!state.isPlaying) {
     state.isPlaying = true;
-    if (state.sourceMode === 'synth') { startSynth(); startChordProgression(); }
-    else if (state.sourceMode === 'upload') startMp3World();
-    else if (state.sourceMode === 'youtube') { if (window.startYouTubeWorld) window.startYouTubeWorld(); }
-    else if (state.sourceMode === 'capture') { if (window.startCapture) window.startCapture(); }
+    const wType = (state.worldSourceType && state.worldSourceType[state.currentLevel]) || 'synth';
+    if (wType === 'synth') { startSynth(); startChordProgression(); }
+    else if (wType === 'mp3') startMp3World();
+    else if (wType === 'youtube') { if (window.startYouTubeWorld) window.startYouTubeWorld(); }
+    else if (wType === 'capture') { if (window.startCapture) window.startCapture(); }
 
     btn.classList.add('active');
     btn.setAttribute('aria-pressed', 'true');
@@ -442,6 +443,7 @@ export function selectLevel(idx) {
     setTimeout(() => {
       state.currentLevel = idx;
   state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null) ? state.worldSynth[idx] : WORLD_SYNTH[idx];
+  state.sourceMode = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
       const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
       for (let i = 0; i < 6; i++) {
         const _b = document.getElementById(`lvl${i}`);
@@ -488,6 +490,7 @@ export function selectLevel(idx) {
   } else {
     state.currentLevel = idx;
   state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null) ? state.worldSynth[idx] : WORLD_SYNTH[idx];
+  state.sourceMode = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
     const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
     for (let i = 0; i < 6; i++) {
       const _b = document.getElementById(`lvl${i}`);

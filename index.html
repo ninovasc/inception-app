@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v2.3.0</div>
+        <div class="version">v2.4.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -69,13 +69,13 @@
 
     <div class="menu-section">
       <div class="menu-title">Mundos</div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-        <button class="menu-item active" id="lvl0" onclick="selectLevel(0)" style="font-size: 0.7rem;" aria-label="Realidade">Realidade</button>
-        <button class="menu-item" id="lvl1" onclick="selectLevel(1)" style="font-size: 0.7rem;" aria-label="Chuva">Chuva</button>
-        <button class="menu-item" id="lvl2" onclick="selectLevel(2)" style="font-size: 0.7rem;" aria-label="Hotel">Hotel</button>
-        <button class="menu-item" id="lvl3" onclick="selectLevel(3)" style="font-size: 0.7rem;" aria-label="Fortaleza">Fortaleza</button>
-        <button class="menu-item" id="lvl4" onclick="selectLevel(4)" style="font-size: 0.7rem;" aria-label="Limbo">Limbo</button>
-        <button class="menu-item" id="lvl5" onclick="selectLevel(5)" style="font-size: 0.7rem;" aria-label="Lúcido">Lúcido</button>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
+        <button class="menu-item active" id="lvl0" onclick="selectLevel(0)" style="font-size: 0.7rem; justify-content:center;" aria-label="Realidade">Realidade</button>
+        <button class="menu-item" id="lvl1" onclick="selectLevel(1)" style="font-size: 0.7rem; justify-content:center;" aria-label="Chuva">Chuva</button>
+        <button class="menu-item" id="lvl2" onclick="selectLevel(2)" style="font-size: 0.7rem; justify-content:center;" aria-label="Hotel">Hotel</button>
+        <button class="menu-item" id="lvl3" onclick="selectLevel(3)" style="font-size: 0.7rem; justify-content:center;" aria-label="Fortaleza">Fortaleza</button>
+        <button class="menu-item" id="lvl4" onclick="selectLevel(4)" style="font-size: 0.7rem; justify-content:center;" aria-label="Limbo">Limbo</button>
+        <button class="menu-item" id="lvl5" onclick="selectLevel(5)" style="font-size: 0.7rem; justify-content:center;" aria-label="Lúcido">Lúcido</button>
       </div>
 
       <!-- Parâmetros da arquitetura (sliders) -->
@@ -127,29 +127,11 @@
 
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('sourcePanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Fonte Sonora (5 Synths &amp; 3 MP3)</span>
+        <span>Fonte Sonora</span>
         <span style="color:#fff;">▼</span>
       </div>
       <div id="sourcePanel" class="hidden-panel open">
-        <!-- Abas por mundo -->
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-bottom:8px;" id="worldTabs">
-          <button class="menu-item world-tab active" data-world="0" onclick="selectWorldTab(0)" style="justify-content:center; font-size:0.7rem;" aria-pressed="true">Realidade</button>
-          <button class="menu-item world-tab" data-world="1" onclick="selectWorldTab(1)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Chuva</button>
-          <button class="menu-item world-tab" data-world="2" onclick="selectWorldTab(2)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Hotel</button>
-          <button class="menu-item world-tab" data-world="3" onclick="selectWorldTab(3)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Fortaleza</button>
-          <button class="menu-item world-tab" data-world="4" onclick="selectWorldTab(4)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Limbo</button>
-          <button class="menu-item world-tab" data-world="5" onclick="selectWorldTab(5)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Lúcido</button>
-        </div>
-
-        <!-- Seletor de tipo por mundo -->
-        <div style="display:flex; gap:4px; margin-bottom:8px;">
-          <button class="menu-item src-type active" data-type="synth" onclick="setWorldSourceType(currentWorldTab, 'synth')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="true">Synth</button>
-          <button class="menu-item src-type" data-type="mp3" onclick="setWorldSourceType(currentWorldTab, 'mp3')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="false">MP3</button>
-          <button class="menu-item src-type" data-type="youtube" onclick="setWorldSourceType(currentWorldTab, 'youtube')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="false">YouTube</button>
-        </div>
-
-        <!-- Controles dinâmicos -->
-        <div id="worldSourceContent"></div>
+        <div id="sourceList"></div>
       </div>
     </div>
 

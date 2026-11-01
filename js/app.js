@@ -107,34 +107,105 @@ document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(
   el.setAttribute('disabled', 'true');
 });
 
-// Render per-world source inputs
-function renderWorldSources() {
+// Render source list (vertical, one world at a time expanded)
+let activeSourceWorld = 0;
+
+function renderSourceList() {
+  const container = document.getElementById('sourceList');
+  if (!container) return;
   const worlds = ['Realidade', 'Chuva', 'Hotel', 'Fortaleza', 'Limbo', 'Lúcido'];
-  const mp3Container = document.getElementById('mp3Worlds');
-  const ytContainer = document.getElementById('ytWorlds');
-  if (mp3Container) {
-    mp3Container.innerHTML = worlds.map((w, i) => `
-      <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-        <span style="font-size:0.7rem; color:var(--muted); width:70px;">${w}</span>
-        <label class="file-btn" for="mp3File${i}" style="flex:1; margin:0; padding:6px 8px; font-size:0.7rem;">
-          <span id="mp3Label${i}">[Selecionar MP3]</span><span>📁</span>
-        </label>
-        <input type="file" id="mp3File${i}" accept="*" onchange="loadWorldMp3(${i}, this.files[0])" style="display:none;">
-        <input type="range" id="mp3Vol${i}" min="0" max="1" step="0.05" value="0.20" style="width:60px;" oninput="setWorldMp3Volume(${i}, this.value)">
+  const synthNames = ['Zimmer Ambient', 'Brass Drone', 'Sub Limbo', 'Glass Choir', 'Binaural Pulse'];
+  container.innerHTML = worlds.map((w, i) => {
+    const type = (state.worldSourceType && state.worldSourceType[i]) || 'synth';
+    const vol = (state.worldVolume && state.worldVolume[i]) || 0.2;
+    const synthIdx = (state.worldSynth && state.worldSynth[i]) || 0;
+    const expanded = i === activeSourceWorld;
+    let controls = '';
+    if (expanded) {
+      if (type === 'synth') {
+        controls = `
+          <div style="margin-top:6px;">
+            <select onchange="setWorldSynth(${i}, this.value)" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.72rem;border-radius:6px;width:100%;margin-bottom:4px;">
+              ${synthNames.map((n, j) => `<option value="${j}" ${j === synthIdx ? 'selected' : ''}>${n}</option>`).join('')}
+            </select>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
+              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolumeIdx(${i}, this.value)">
+              <span style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
+            </div>
+          </div>
+        `;
+      } else if (type === 'mp3') {
+        const label = state.worldSources && state.worldSources.mp3 && state.worldSources.mp3[i] ? state.worldSources.mp3[i].slice(0,20) : '[Selecionar MP3]';
+        controls = `
+          <div style="margin-top:6px;">
+            <label class="file-btn" for="mp3File${i}" style="margin:0; padding:6px 8px; font-size:0.7rem;">
+              <span id="mp3Label${i}">${label}</span><span>📁</span>
+            </label>
+            <input type="file" id="mp3File${i}" accept="*" onchange="loadWorldMp3(${i}, this.files[0])" style="display:none;">
+            <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
+              <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
+              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolumeIdx(${i}, this.value)">
+              <span style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
+            </div>
+          </div>
+        `;
+      } else if (type === 'youtube') {
+        const url = state.worldSources && state.worldSources.youtube && state.worldSources.youtube[i] ? 'https://youtu.be/' + state.worldSources.youtube[i] : '';
+        const label = state.worldSources && state.worldSources.youtube && state.worldSources.youtube[i] ? state.worldSources.youtube[i] : '[sem link]';
+        controls = `
+          <div style="margin-top:6px;">
+            <input type="text" id="ytUrl${i}" placeholder="Link YouTube" value="${url}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.72rem;border-radius:6px;width:100%;margin-bottom:4px;" onchange="loadYouTube(${i}, this.value)">
+            <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;margin-bottom:4px;" id="ytLabel${i}">${label}</div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
+              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolumeIdx(${i}, this.value)">
+              <span style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
+            </div>
+          </div>
+        `;
+      }
+    }
+    return `
+      <div style="border-bottom:1px solid var(--border); padding:8px 0;">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+          <button class="menu-item" onclick="toggleSourceRow(${i})" style="flex:0 0 auto; background:none; border:none; color:var(--muted); font-size:0.7rem; padding:0; cursor:pointer;">${expanded ? '▼' : '▶'}</button>
+          <span style="font-size:0.75rem; font-weight:600; flex:1;">${w}</span>
+          <div style="display:flex; gap:2px;">
+            <button class="src-type-btn ${type==='synth'?'active':''}" onclick="setWorldSourceType(${i},'synth')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='synth'?'#fff':'transparent'}; color:${type==='synth'?'#000':'#888'}; border-radius:4px; cursor:pointer;">Synth</button>
+            <button class="src-type-btn ${type==='mp3'?'active':''}" onclick="setWorldSourceType(${i},'mp3')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='mp3'?'#fff':'transparent'}; color:${type==='mp3'?'#000':'#888'}; border-radius:4px; cursor:pointer;">MP3</button>
+            <button class="src-type-btn ${type==='youtube'?'active':''}" onclick="setWorldSourceType(${i},'youtube')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='youtube'?'#fff':'transparent'}; color:${type==='youtube'?'#000':'#888'}; border-radius:4px; cursor:pointer;">YT</button>
+          </div>
+        </div>
+        ${expanded ? controls : ''}
       </div>
-    `).join('');
-  }
-  if (ytContainer) {
-    ytContainer.innerHTML = worlds.map((w, i) => `
-      <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-        <span style="font-size:0.7rem; color:var(--muted); width:70px;">${w}</span>
-        <input type="text" id="ytUrl${i}" placeholder="Link YouTube" style="flex:1; background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.7rem;border-radius:6px;" onchange="loadYouTube(${i}, this.value)">
-        <input type="range" id="ytVol${i}" min="0" max="1" step="0.05" value="0.30" style="width:60px;" oninput="setYouTubeVolume(${i}, this.value)">
-      </div>
-    `).join('');
-  }
+    `;
+  }).join('');
 }
-renderWorldSources();
+
+window.toggleSourceRow = function(idx) {
+  activeSourceWorld = idx;
+  renderSourceList();
+};
+
+window.setWorldSourceType = function(worldIdx, type) {
+  if (!state.worldSourceType) state.worldSourceType = ['synth','synth','synth','synth','synth','synth'];
+  state.worldSourceType[worldIdx] = type;
+  activeSourceWorld = worldIdx;
+  renderSourceList();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+};
+
+// override selectWorldTab to use new render
+window.selectWorldTab = function(idx) {
+  activeSourceWorld = idx;
+  renderSourceList();
+};
+
+renderSourceList();
+
+// Initial seed
+seed.generateFullSeed();
 
 // Per-world source state
 window.currentWorldTab = 0;
