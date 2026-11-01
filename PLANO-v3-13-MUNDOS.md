@@ -169,15 +169,15 @@ Arquivos: `config.js`, `state.js`, `seed.js`, `scripts/test-seed.mjs`
 - [ ] `node --check` nos 3 arquivos + testes verdes
 - [ ] Commit: `fase 1: dados 13 mundos, 13 regras, seed v3 com migração`
 
-### Fase 2 — Motor de áudio: extensão moderada + 13 presets + MP3 inteligente ☐
+### Fase 2 — Motor de áudio: extensão moderada + 13 presets + MP3 inteligente ✅
 Arquivos: `audio.js`
-- [ ] Implementar camadas opcionais: `pluck`, `pulse` (gate no BPM), `noise` (buffer + filtro + LFO), `detune/drift` (LFO lento), `binaural` (ΔHz baixo, volume contido)
-- [ ] BPM e progressão por mundo (consumir `CHORD_PROGRESSIONS` de 13)
-- [ ] Aplicar os 13 `WORLD_SYNTH` e 13 `WORLD_VOICE_PRESETS` (voz incluída aqui)
-- [ ] Caps de vozes/polyfonia; smoke test local (`scripts/serve.js`, porta 8099): sem picotar, sem clipping, fades OK
-- [ ] Reprodução inteligente de MP3 (2.9): âncoras por energia, início aleatório-lógico ao trocar de mundo, retomada com lookahead ao fim, LRU + aleatório, fades nos saltos, fallback seguro
-- [ ] `node --check` + testes
-- [ ] Commit: `fase 2: motor de synth com camadas, 13 presets e MP3 inteligente`
+- [x] Implementar camadas opcionais: `pluck`, `pulse` (gate no BPM), `noise` (buffer + filtro + LFO), `detune/drift` (LFO lento), `binaural` (ΔHz baixo, volume contido)
+- [x] BPM e progressão por mundo (consumir `CHORD_PROGRESSIONS` de 13)
+- [x] Aplicar os 13 `WORLD_SYNTH` e 13 `WORLD_VOICE_PRESETS` (voz incluída aqui)
+- [x] Caps de vozes/polyfonia; smoke test local (`scripts/serve.js`, porta 8099): sem picotar, sem clipping, fades OK
+- [x] Reprodução inteligente de MP3 (2.9): âncoras por energia, início aleatório-lógico ao trocar de mundo, retomada com lookahead ao fim, LRU + aleatório, fades nos saltos, fallback seguro
+- [x] `node --check` + testes
+- [x] Commit: `fase 2: motor de synth com camadas, 13 presets e MP3 inteligente`
 
 ### Fase 3 — Automode: prioridade curada + novos sensores ☐
 Arquivos: `automode.js`, `sensors.js`
@@ -251,6 +251,6 @@ Arquivos: `mechanics.js`, demais pontas
 
 ## ESTADO ATUAL
 
-> **Fase concluída:** 0 e 1 (dados de 13 mundos + seed v3 com migração; testes 89/89)
-> **Próximo passo:** Fase 2 — motor de áudio (camadas + 13 presets + MP3 inteligente) em `audio.js`
-> **Última atualização:** 2026-11-01 (Fase 1 commitada)
+> **Fase concluída:** 0, 1 e 2 (dados + seed v3 + motor de áudio com MP3 inteligente)
+> **Próximo passo:** Fase 3 — automode com prioridade curada e novos sensores (`automode.js`, `sensors.js`)
+> **Última atualização:** 2026-11-01 (Fase 2 commitada)
