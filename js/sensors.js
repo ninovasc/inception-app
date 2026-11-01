@@ -13,23 +13,24 @@ export async function toggleMic() {
       state.micSource = state.audioCtx.createMediaStreamSource(state.micStream);
       state.micAnalyser = state.audioCtx.createAnalyser();
       state.micAnalyser.fftSize = 128;
-      state.micGain = state.audioCtx.createGain();
-      state.micGain.gain.value = 0.5;
+      // Canal independente do mic
       state.micSource.connect(state.micAnalyser);
-      state.micSource.connect(state.micGain);
-      state.micGain.connect(state.masterFilter);
+      state.micSource.connect(state.micGainNode);
       state.isMicOn = true;
       btn.classList.add('active');
       btn.setAttribute('aria-pressed', 'true');
       btn.textContent = 'Mic: ON';
       setSensorStatus('Microfone ligado.');
+      // Iniciar noise gate + LED
+      startMicGate();
+      applyMicPreset(state.micPreset);
     } catch (e) {
       setSensorStatus('Permissão de microfone negada.');
     }
   } else {
     if (state.micStream) state.micStream.getTracks().forEach(track => track.stop());
     if (state.micSource) { try { state.micSource.disconnect(); } catch (e) {} }
-    if (state.micGain) { try { state.micGain.disconnect(); } catch (e) {} }
+    stopMicGate();
     state.isMicOn = false;
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');
@@ -175,6 +176,60 @@ export function toggleGPS() {
     btn.textContent = 'GPS: OFF';
     setSensorStatus('GPS desligado.');
   }
+}
+
+let micGateInterval = null;
+
+export function startMicGate() {
+  if (micGateInterval) clearInterval(micGateInterval);
+  micGateInterval = setInterval(() => {
+    if (!state.isMicOn || !state.micAnalyser) return;
+    const arr = new Uint8Array(state.micAnalyser.frequencyBinCount);
+    state.micAnalyser.getByteFrequencyData(arr);
+    const level = arr.reduce((a, b) => a + b, 0) / arr.length;
+    const db = 20 * Math.log10(level / 255 + 1e-6);
+    const open = db > state.micGateThreshold;
+    state.micLedOn = open;
+    // Gate: reduzir gain quando fechado
+    if (state.micGainNode) {
+      const target = open ? 1.0 : 0.0;
+      state.micGainNode.gain.setTargetAtTime(target, state.audioCtx.currentTime, 0.05);
+    }
+    // LED
+    const led = document.getElementById('micLed');
+    if (led) led.classList.toggle('on', open);
+    const ledLabel = document.getElementById('micLedLabel');
+    if (ledLabel) ledLabel.textContent = open ? 'LED: capturando' : 'LED: silêncio';
+  }, 100);
+}
+
+export function stopMicGate() {
+  if (micGateInterval) { clearInterval(micGateInterval); micGateInterval = null; }
+  state.micLedOn = false;
+  const led = document.getElementById('micLed');
+  if (led) led.classList.remove('on');
+}
+
+export const MIC_PRESETS = {
+  limpo: { gate: -30, delay: 0.08, feedback: 0.05, reverb: 0.10, dry: 0.90, wet: 0.10, pitch: 0 },
+  onirico: { gate: -40, delay: 0.40, feedback: 0.30, reverb: 0.40, dry: 0.70, wet: 0.30, pitch: 1 },
+  abismo: { gate: -50, delay: 0.70, feedback: 0.50, reverb: 0.70, dry: 0.50, wet: 0.50, pitch: 3 },
+  fantasma: { gate: -35, delay: 0.12, feedback: 0.10, reverb: 0.25, dry: 0.80, wet: 0.20, pitch: 3 }
+};
+
+export function applyMicPreset(name) {
+  const p = MIC_PRESETS[name];
+  if (!p) return;
+  state.micPreset = name;
+  state.micGateThreshold = p.gate;
+  if (state.micDelay) state.micDelay.delayTime.setTargetAtTime(p.delay, state.audioCtx.currentTime, 0.1);
+  if (state.micFeedback) state.micFeedback.gain.setTargetAtTime(p.feedback, state.audioCtx.currentTime, 0.1);
+  if (state.micReverbSend) state.micReverbSend.gain.setTargetAtTime(p.reverb, state.audioCtx.currentTime, 0.1);
+  if (state.micDry) state.micDry.gain.setTargetAtTime(p.dry, state.audioCtx.currentTime, 0.1);
+  if (state.micWet) state.micWet.gain.setTargetAtTime(p.wet, state.audioCtx.currentTime, 0.1);
+  // update UI
+  document.querySelectorAll('.mic-preset').forEach(b => b.classList.toggle('active', b.dataset.preset === name));
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 function setSensorStatus(msg) {

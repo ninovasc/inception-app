@@ -13,10 +13,15 @@ export function initAudio() {
   state.masterFilter.type = 'lowpass';
   state.masterFilter.frequency.value = 18000;
 
-  state.delayNode = state.audioCtx.createDelay(5.0);
-  state.delayNode.delayTime.value = 0.45;
-  state.feedbackGain = state.audioCtx.createGain();
-  state.feedbackGain.gain.value = 0.12;
+  // Delay estéreo: left e right com tempos diferentes
+  state.delayLeft = state.audioCtx.createDelay(5.0);
+  state.delayLeft.delayTime.value = 0.35;
+  state.delayRight = state.audioCtx.createDelay(5.0);
+  state.delayRight.delayTime.value = 0.50;
+  state.feedbackLeft = state.audioCtx.createGain();
+  state.feedbackLeft.gain.value = 0.12;
+  state.feedbackRight = state.audioCtx.createGain();
+  state.feedbackRight.gain.value = 0.10;
 
   state.convolverNode = state.audioCtx.createConvolver();
   state.convolverNode.buffer = createImpulse(3.5, 2.5);
@@ -29,6 +34,10 @@ export function initAudio() {
   state.stereoPanner = state.audioCtx.createStereoPanner
     ? state.audioCtx.createStereoPanner()
     : state.audioCtx.createGain();
+
+  // Crossfade gain para transição entre níveis
+  state.crossfadeGain = state.audioCtx.createGain();
+  state.crossfadeGain.gain.value = 1.0;
 
   state.compressor = state.audioCtx.createDynamicsCompressor();
   state.compressor.threshold.value = -15;
@@ -43,20 +52,74 @@ export function initAudio() {
     state.stemGains[i].connect(state.masterFilter);
   }
 
+  // Conexões principais
   state.masterFilter.connect(state.dryGain);
   state.dryGain.connect(state.stereoPanner);
 
-  state.masterFilter.connect(state.delayNode);
-  state.delayNode.connect(state.feedbackGain);
-  state.feedbackGain.connect(state.delayNode);
-  state.delayNode.connect(state.stereoPanner);
+  // Delay estéreo com feedback
+  state.masterFilter.connect(state.delayLeft);
+  state.delayLeft.connect(state.feedbackLeft);
+  state.feedbackLeft.connect(state.delayLeft);
+  state.delayLeft.connect(state.stereoPanner);
+
+  state.masterFilter.connect(state.delayRight);
+  state.delayRight.connect(state.feedbackRight);
+  state.feedbackRight.connect(state.delayRight);
+  state.delayRight.connect(state.stereoPanner);
 
   state.masterFilter.connect(state.convolverNode);
   state.convolverNode.connect(state.reverbGain);
   state.reverbGain.connect(state.stereoPanner);
 
-  state.stereoPanner.connect(state.compressor);
+  state.stereoPanner.connect(state.crossfadeGain);
+  state.crossfadeGain.connect(state.compressor);
   state.compressor.connect(state.audioCtx.destination);
+
+  // Evolução temporal: LFO lento (respiração) modulando filtro e volume
+  state.breathLfo = state.audioCtx.createOscillator();
+  state.breathLfo.frequency.value = 0.03; // ~33s por ciclo
+  state.breathLfoGain = state.audioCtx.createGain();
+  state.breathLfoGain.gain.value = 150; // ±150 Hz no filtro
+  state.breathLfo.connect(state.breathLfoGain);
+  state.breathLfoGain.connect(state.masterFilter.frequency);
+  state.breathLfo.start();
+
+  state.breathVolLfo = state.audioCtx.createOscillator();
+  state.breathVolLfo.frequency.value = 0.02; // ~50s por ciclo
+  state.breathVolGain = state.audioCtx.createGain();
+  state.breathVolGain.gain.value = 0.03; // ±3% no volume
+  state.breathVolLfo.connect(state.breathVolGain);
+  state.breathVolGain.connect(state.synthMasterGain.gain);
+  state.breathVolLfo.start();
+
+  // Canal de mic independente (criado quando mic ligado, mas preparar nós)
+  state.micFilter = state.audioCtx.createBiquadFilter();
+  state.micFilter.type = 'lowpass';
+  state.micFilter.frequency.value = 4000;
+  state.micDelay = state.audioCtx.createDelay(2.0);
+  state.micDelay.delayTime.value = 0.08;
+  state.micFeedback = state.audioCtx.createGain();
+  state.micFeedback.gain.value = 0.05;
+  state.micReverbSend = state.audioCtx.createGain();
+  state.micReverbSend.gain.value = 0.10;
+  state.micDry = state.audioCtx.createGain();
+  state.micDry.gain.value = 0.85;
+  state.micWet = state.audioCtx.createGain();
+  state.micWet.gain.value = 0.15;
+  state.micGainNode = state.audioCtx.createGain();
+  state.micGainNode.gain.value = 0.5;
+
+  // Conectar canal de mic
+  state.micGainNode.connect(state.micFilter);
+  state.micFilter.connect(state.micDry);
+  state.micFilter.connect(state.micDelay);
+  state.micDelay.connect(state.micFeedback);
+  state.micFeedback.connect(state.micDelay);
+  state.micDelay.connect(state.micWet);
+  state.micFilter.connect(state.micReverbSend);
+  state.micReverbSend.connect(state.convolverNode);
+  state.micDry.connect(state.stereoPanner);
+  state.micWet.connect(state.stereoPanner);
 }
 
 function createImpulse(duration, decay) {
@@ -257,19 +320,44 @@ export function toggleMasterPlay() {
 
 export function selectLevel(idx) {
   initAudio();
-  state.currentLevel = idx;
-  for (let i = 0; i < 6; i++) {
-    document.getElementById(`lvl${i}`).classList.toggle('active', i === idx);
+  // Crossfade: fade out, apply, fade in
+  if (state.crossfadeGain) {
+    const now = state.audioCtx.currentTime;
+    state.crossfadeGain.gain.cancelScheduledValues(now);
+    state.crossfadeGain.gain.setValueAtTime(state.crossfadeGain.gain.value, now);
+    state.crossfadeGain.gain.linearRampToValueAtTime(0, now + 0.75);
+    setTimeout(() => {
+      state.currentLevel = idx;
+      for (let i = 0; i < 6; i++) {
+        document.getElementById(`lvl${i}`).classList.toggle('active', i === idx);
+      }
+      const l = LEVELS[idx];
+      document.getElementById('sliderSpeed').value = l.speed;
+      document.getElementById('sliderFilter').value = l.filter;
+      document.getElementById('sliderDelay').value = l.delay;
+      document.getElementById('sliderReverb').value = l.reverb;
+      syncXYPadFromSliders(l.speed, l.filter);
+      applyParameters();
+      const now2 = state.audioCtx.currentTime;
+      state.crossfadeGain.gain.cancelScheduledValues(now2);
+      state.crossfadeGain.gain.setValueAtTime(0, now2);
+      state.crossfadeGain.gain.linearRampToValueAtTime(1, now2 + 0.75);
+      if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+    }, 750);
+  } else {
+    state.currentLevel = idx;
+    for (let i = 0; i < 6; i++) {
+      document.getElementById(`lvl${i}`).classList.toggle('active', i === idx);
+    }
+    const l = LEVELS[idx];
+    document.getElementById('sliderSpeed').value = l.speed;
+    document.getElementById('sliderFilter').value = l.filter;
+    document.getElementById('sliderDelay').value = l.delay;
+    document.getElementById('sliderReverb').value = l.reverb;
+    syncXYPadFromSliders(l.speed, l.filter);
+    applyParameters();
+    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
   }
-  const l = LEVELS[idx];
-  document.getElementById('sliderSpeed').value = l.speed;
-  document.getElementById('sliderFilter').value = l.filter;
-  document.getElementById('sliderDelay').value = l.delay;
-  document.getElementById('sliderReverb').value = l.reverb;
-
-  syncXYPadFromSliders(l.speed, l.filter);
-  applyParameters();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function syncXYPadFromSliders(speed, filter) {

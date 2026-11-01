@@ -378,6 +378,11 @@ input[type="file"] {
   opacity: 1;
 }
 
+#micLed.on {
+  background: #fff !important;
+  box-shadow: 0 0 6px #fff;
+}
+
 @media (max-width: 480px) {
   body { padding: 16px 12px; }
   .app-shell { gap: 18px; }

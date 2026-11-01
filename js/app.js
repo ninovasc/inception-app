@@ -30,6 +30,7 @@ Object.assign(window, {
   applyParameters: audio.applyParameters,
   triggerKick: audio.triggerKick,
   toggleMic: sensors.toggleMic,
+  applyMicPreset: sensors.applyMicPreset,
   toggleMotion: sensors.toggleMotion,
   motionHandler: sensors.motionHandler,
   orientationHandler: sensors.orientationHandler,
