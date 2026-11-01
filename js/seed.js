@@ -1,5 +1,10 @@
 import { state } from './state.js';
-import { normalizeSourceType } from './config.js';
+import {
+  normalizeSourceType,
+  normalizeWorldTriggers,
+  DEFAULT_TRIGGER_MOTION,
+  DEFAULT_TRIGGER_SILENCE_SEC
+} from './config.js';
 
 // Compact key mapping for cipher
 const KEYMAP = {
@@ -18,7 +23,9 @@ const KEYMAP = {
   worldSourceType: 't',
   worldSynth: 'w',
   worldVolume: 'o',
-  worldSources: 'u'
+  worldSources: 'u',
+  autoMode: 'a',
+  worldTriggers: 'g'
 };
 
 // Pure encode: stateObj -> cipher string (base64 of compact JSON)
@@ -44,6 +51,16 @@ export function encodeState(s) {
   if (s.worldSynth) compact[KEYMAP.worldSynth] = s.worldSynth.join('');
   if (s.worldVolume) compact[KEYMAP.worldVolume] = s.worldVolume.map(v => Math.round(v * 100));
   if (s.worldSources && s.worldSources.youtube && s.worldSources.youtube.some(x => x)) compact[KEYMAP.worldSources] = s.worldSources.youtube.map(x => x || '_').join(',');
+  if (s.autoMode !== undefined) compact[KEYMAP.autoMode] = s.autoMode ? 1 : 0;
+  if (s.worldTriggers) {
+    const t = s.worldTriggers;
+    const motion = (s.triggerMotion != null) ? s.triggerMotion : DEFAULT_TRIGGER_MOTION;
+    const silence = (s.triggerSilenceSec != null) ? s.triggerSilenceSec : DEFAULT_TRIGGER_SILENCE_SEC;
+    compact[KEYMAP.worldTriggers] = [
+      t.freefall, t.rain, t.night, t.silence, t.motion, t.fallback,
+      Math.round(motion * 100), Math.round(silence)
+    ];
+  }
   const json = JSON.stringify(compact);
   return btoa(json);
 }
@@ -85,6 +102,17 @@ export function decodeState(str) {
       const ids = c.u.split(',').map(x => (x === '_' ? '' : x));
       if (!out.worldSources) out.worldSources = { mp3: ['', '', '', '', '', ''], youtube: ['', '', '', '', '', ''] };
       out.worldSources.youtube = ids;
+    }
+    if (c.a !== undefined) out.autoMode = !!c.a;
+    if (c.g) {
+      out.worldTriggers = normalizeWorldTriggers({
+        freefall: c.g[0], rain: c.g[1], night: c.g[2],
+        silence: c.g[3], motion: c.g[4], fallback: c.g[5]
+      });
+      const motion = Number(c.g[6]);
+      if (!isNaN(motion)) out.triggerMotion = Math.max(0, Math.min(1, motion / 100));
+      const silence = Number(c.g[7]);
+      if (!isNaN(silence)) out.triggerSilenceSec = Math.max(5, Math.min(300, silence));
     }
     return out;
   } catch (e) {
@@ -149,7 +177,11 @@ function buildSeed() {
     worldSourceType: state.worldSourceType,
     worldSynth: state.worldSynth,
     worldVolume: state.worldVolume,
-    worldSources: { mp3: state.worldSources.mp3, youtube: worldYt }
+    worldSources: { mp3: state.worldSources.mp3, youtube: worldYt },
+    autoMode: state.autoMode,
+    worldTriggers: state.worldTriggers,
+    triggerMotion: state.triggerMotion,
+    triggerSilenceSec: state.triggerSilenceSec
   });
   const input = document.getElementById('seedInput');
   if (input) {
@@ -193,6 +225,14 @@ export async function applySeed() {
     if (parsed.worldSources && parsed.worldSources.youtube) {
       state.worldSources.youtube = parsed.worldSources.youtube;
     }
+    if (parsed.worldTriggers) {
+      state.worldTriggers = normalizeWorldTriggers(parsed.worldTriggers);
+    } else {
+      state.worldTriggers = normalizeWorldTriggers(state.worldTriggers);
+    }
+    if (parsed.triggerMotion !== undefined) state.triggerMotion = parsed.triggerMotion;
+    if (parsed.triggerSilenceSec !== undefined) state.triggerSilenceSec = parsed.triggerSilenceSec;
+    if (typeof window.renderTriggerList === 'function') window.renderTriggerList();
 
     // Sliders antes do nível: selectLevel(..., true) preserva os valores salvos.
     const setVal = (id, value) => {
@@ -232,6 +272,13 @@ export async function applySeed() {
         }
       }
     }
+
+    // Modo Automático (sensores) é independente do Chute Automático.
+    if (parsed.autoMode !== undefined) {
+      const auto = await import('./automode.js');
+      auto.setAutoModeEnabled(parsed.autoMode);
+    }
+    if (typeof window.syncMechanicsUI === 'function') window.syncMechanicsUI();
 
     audio.applyParameters();
     // Atualiza o código na hora após restaurar (sem esperar o throttle).

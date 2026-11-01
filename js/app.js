@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType } from './config.js';
+import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType, TRIGGER_DEFS, WORLD_NAMES, normalizeWorldTriggers } from './config.js';
 import * as audio from './audio.js';
 import * as sensors from './sensors.js';
 import * as mechanics from './mechanics.js';
@@ -49,6 +49,7 @@ Object.assign(window, {
   checkSensoryDeprivation: mechanics.checkSensoryDeprivation,
   enterSensoryDeprivation: mechanics.enterSensoryDeprivation,
   stopDeprivationHeartbeat: mechanics.stopDeprivationHeartbeat,
+  syncMechanicsUI: mechanics.syncMechanicsUI,
   generateFullSeed: seed.generateFullSeed,
   copySeed: seed.copySeed,
   applySeed: seed.applySeed,
@@ -69,22 +70,18 @@ Object.assign(window, {
   startCapture: cap.startCapture,
   stopCapture: cap.stopCapture,
   setCaptureVolume: cap.setCaptureVolume,
-  toggleAutoMode: () => {
-    if (auto.isAutoMode()) {
-      auto.stopAutoMode();
-      document.getElementById('btnAutoMode')?.classList.remove('active');
-      document.getElementById('btnAutoMode')?.setAttribute('aria-pressed', 'false');
-      const sub = document.getElementById('autoSub');
-      if (sub) sub.textContent = 'OFF';
-    } else {
-      auto.startAutoMode();
-      document.getElementById('btnAutoMode')?.classList.add('active');
-      document.getElementById('btnAutoMode')?.setAttribute('aria-pressed', 'true');
-      const sub = document.getElementById('autoSub');
-      if (sub) sub.textContent = 'ON';
-    }
-  }
+  toggleAutoMode: auto.toggleAutoMode,
+  setWorldTrigger: (key, value) => setWorldTrigger(key, value),
+  setWorldTriggerMotion: (value) => setWorldTriggerMotion(value),
+  setWorldTriggerSilence: (value) => setWorldTriggerSilence(value)
 });
+
+// Ao iniciar o sonho, ativa as mecânicas padrão (permissões exigem gesto).
+const baseToggleMasterPlay = audio.toggleMasterPlay;
+window.toggleMasterPlay = function() {
+  if (!state.isPlaying) mechanics.activateDreamDefaults();
+  return baseToggleMasterPlay();
+};
 
 // Service worker
 if ('serviceWorker' in navigator) {
@@ -253,7 +250,85 @@ window.setWorldSourceType = function(worldIdx, type) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 };
 
+// --- Gatilhos de Mundo (Modo Automático) ---
+function triggerOptions(current, allowOff) {
+  const off = allowOff
+    ? `<option value="-1" ${current === -1 ? 'selected' : ''}>— desativado</option>`
+    : '';
+  return off + WORLD_NAMES.map((name, i) =>
+    `<option value="${i}" ${current === i ? 'selected' : ''}>${i}. ${name}</option>`
+  ).join('');
+}
+
+function renderTriggerList() {
+  const container = document.getElementById('triggerList');
+  if (!container) return;
+  if (!state.worldTriggers) state.worldTriggers = normalizeWorldTriggers(null);
+  const t = state.worldTriggers;
+  container.innerHTML = TRIGGER_DEFS.map((def, i) => {
+    const current = (t[def.key] != null) ? t[def.key] : -1;
+    const allowOff = def.key !== 'fallback';
+    return `
+      <div style="display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid #151515;">
+        <span style="font-size:0.62rem; color:var(--muted); font-family:monospace; width:14px;">${i + 1}</span>
+        <span style="font-size:0.7rem; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${def.label}</span>
+        <select onchange="setWorldTrigger('${def.key}', this.value)" aria-label="${def.label}" style="background:#0a0a0a; border:1px solid var(--border); color:#fff; padding:4px 6px; font-size:0.68rem; border-radius:6px; max-width:130px;">
+          ${triggerOptions(current, allowOff)}
+        </select>
+      </div>
+    `;
+  }).join('');
+
+  const mEl = document.getElementById('triggerMotion');
+  const sEl = document.getElementById('triggerSilence');
+  const mVal = document.getElementById('triggerMotionVal');
+  const sVal = document.getElementById('triggerSilenceVal');
+  if (mEl) mEl.value = state.triggerMotion;
+  if (mVal) mVal.textContent = Math.round(state.triggerMotion * 100) + '%';
+  if (sEl) sEl.value = state.triggerSilenceSec;
+  if (sVal) sVal.textContent = state.triggerSilenceSec + 's';
+}
+window.renderTriggerList = renderTriggerList;
+
+function setWorldTrigger(key, value) {
+  if (!state.worldTriggers) state.worldTriggers = normalizeWorldTriggers(null);
+  if (!(key in state.worldTriggers)) return;
+  const idx = parseInt(value, 10);
+  if (key === 'fallback') {
+    if (idx < 0 || idx >= WORLD_NAMES.length) return; // fallback sempre ativo
+    state.worldTriggers.fallback = idx;
+  } else {
+    state.worldTriggers[key] = (idx >= 0 && idx < WORLD_NAMES.length) ? idx : -1;
+  }
+  renderTriggerList();
+  if (state.autoMode && state.isPlaying) auto.evaluateAutoMode();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+function setWorldTriggerMotion(value) {
+  const v = parseFloat(value);
+  if (isNaN(v)) return;
+  state.triggerMotion = Math.max(0, Math.min(1, v));
+  const el = document.getElementById('triggerMotionVal');
+  if (el) el.textContent = Math.round(state.triggerMotion * 100) + '%';
+  if (state.autoMode && state.isPlaying) auto.evaluateAutoMode();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+function setWorldTriggerSilence(value) {
+  const v = parseInt(value, 10);
+  if (isNaN(v)) return;
+  state.triggerSilenceSec = Math.max(5, Math.min(300, v));
+  const el = document.getElementById('triggerSilenceVal');
+  if (el) el.textContent = state.triggerSilenceSec + 's';
+  if (state.autoMode && state.isPlaying) auto.evaluateAutoMode();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
 renderSourceList();
+renderTriggerList();
+mechanics.syncMechanicsUI();
+auto.startAutoMode();
 
 // Initial seed
 seed.generateFullSeed(true);

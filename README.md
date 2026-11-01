@@ -11,8 +11,9 @@ App web estático, mobile-first, instalável como PWA, publicado via GitHub Page
 - **Fonte sonora por mundo**: cada mundo escolhe entre 5 sintetizadores (Zimmer Ambient, Brass Drone, Sub Limbo, Glass Choir, Binaural Pulse) ou um MP3 próprio, com volume independente. (A fonte YouTube está temporariamente indisponível; o código do player foi preservado em `js/youtube.js`.)
 - **Efeitos DSP** via Web Audio API: lowpass, delay com feedback, convolver reverb, dry/wet, stereo panner, compressor.
 - **"O Chute" (Kick)**: fanfarra de metais + BRAAAM grave.
-- **Sensores reais** (opt-in): microfone, giroscópio e GPS (clima via Open-Meteo).
-- **Mecânicas psicoacústicas**: Memory Catcher, Auto-Kick, Áudio Espacial 3D, Timer de Sonho Lúcido, Privação Sensorial.
+- **Sensores reais**: microfone, giroscópio e GPS (clima via Open-Meteo).
+- **Modo Automático** (ligado por padrão): escolhe mundo e voz a cada 10s com **gatilhos exclusivos** de queda livre, chuva, noite, silêncio e movimento. Mundos e limiares são configuráveis e vão para o seed.
+- **Mecânicas psicoacústicas**: Memory Catcher, Auto-Kick, Áudio Espacial 3D, Timer de Sonho Lúcido, Privação Sensorial. As mecânicas vêm ligadas por padrão (exceto o Timer), ativando no primeiro play para respeitar as permissões do iOS.
 - **Seed**: serializa todo o estado em uma string compartilhável.
 
 ## Estrutura
@@ -30,6 +31,7 @@ App web estático, mobile-first, instalável como PWA, publicado via GitHub Page
 │   ├── audio.js        # grafo de áudio e DSP
 │   ├── sensors.js      # mic, motion, gps
 │   ├── mechanics.js    # mecânicas psicoacústicas
+│   ├── automode.js     # modo automático e gatilhos de mundo
 │   ├── seed.js         # serialização/restauração
 │   └── ui.js           # helpers de UI
 ├── assets/icons/       # ícones PWA

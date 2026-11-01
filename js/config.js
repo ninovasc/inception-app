@@ -32,6 +32,37 @@ export const WORLD_VOICE_PRESETS = {
 
 export const WORLD_NAMES = ['Realidade', 'Chuva', 'Hotel', 'Fortaleza', 'Limbo', 'Lúcido'];
 
+// Gatilhos de mundo (Modo Automático).
+// Ordem fixa de prioridade: o primeiro gatilho verdadeiro escolhe o mundo.
+// -1 desativa o gatilho. 'fallback' é usado quando nenhum outro corresponde.
+export const TRIGGER_DEFS = [
+  { key: 'freefall', label: 'Queda livre (O Chute)' },
+  { key: 'rain', label: 'Chuva (GPS)' },
+  { key: 'night', label: 'Noite (GPS)' },
+  { key: 'silence', label: 'Silêncio (Mic)' },
+  { key: 'motion', label: 'Movimento (Giro)' },
+  { key: 'fallback', label: 'Sem gatilho' }
+];
+
+export const DEFAULT_WORLD_TRIGGERS = {
+  freefall: 4, rain: 1, night: 2, silence: 5, motion: 3, fallback: 0
+};
+
+export const DEFAULT_TRIGGER_MOTION = 0.6;
+export const DEFAULT_TRIGGER_SILENCE_SEC = 30;
+
+// Garante um mapeamento válido vindo de seeds antigas/edições manuais.
+export function normalizeWorldTriggers(raw) {
+  const out = { ...DEFAULT_WORLD_TRIGGERS };
+  if (!raw || typeof raw !== 'object') return out;
+  for (const { key } of TRIGGER_DEFS) {
+    const v = raw[key];
+    if (Number.isInteger(v) && v >= 0 && v < WORLD_NAMES.length) out[key] = v;
+    else if (v === -1 && key !== 'fallback') out[key] = -1;
+  }
+  return out;
+}
+
 // YouTube está temporariamente indisponível para o usuário.
 // Todo o código do player permanece em js/youtube.js — basta mudar para true
 // para reativar o botão "YT" na Fonte Sonora.

@@ -137,6 +137,14 @@ export function orientationHandler(e) {
   }
 }
 
+// Um único listener de orientação para Som 3D e Privação Sensorial.
+let orientationWatching = false;
+export function startOrientationWatch() {
+  if (orientationWatching) return;
+  orientationWatching = true;
+  window.addEventListener('deviceorientation', orientationHandler);
+}
+
 export function toggleGPS() {
   const btn = document.getElementById('btnGps');
 
@@ -161,9 +169,8 @@ export function toggleGPS() {
           const data = await res.json();
           state.gpsRain = data.current.rain > 0;
           state.gpsNight = data.current.is_day === 0;
-          if (data.current.rain > 0) (await import('./audio.js')).selectLevel(1);
-          else if (data.current.is_day === 0) (await import('./audio.js')).selectLevel(2);
-          else (await import('./audio.js')).selectLevel(0);
+          // A troca de mundo é responsabilidade dos Gatilhos de Mundo
+          // (Modo Automático), garantindo uma única decisão por vez.
           setSensorStatus('GPS ligado e clima sincronizado.');
         } catch (e) {
           setSensorStatus('GPS ligado (sem conexão de clima).');
@@ -206,6 +213,10 @@ export function startMicGate() {
     const db = 20 * Math.log10(level / 255 + 1e-6);
     const open = db > state.micGateThreshold;
     state.micLedOn = open;
+    // Silêncio contínuo do microfone: alimenta o gatilho "Silêncio (Mic)"
+    // do Modo Automático, independente da Privação Sensorial.
+    if (open) state.micSilenceSec = 0;
+    else state.micSilenceSec = Math.min(3600, state.micSilenceSec + 0.1);
     // Gate: reduzir gain quando fechado
     if (state.micGainNode) {
       const target = open ? 1.0 : 0.0;
@@ -222,6 +233,7 @@ export function startMicGate() {
 export function stopMicGate() {
   if (micGateInterval) { clearInterval(micGateInterval); micGateInterval = null; }
   state.micLedOn = false;
+  state.micSilenceSec = 0;
   const led = document.getElementById('micLed');
   if (led) led.classList.remove('on');
 }

@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v2.8.2</div>
+        <div class="version">v2.9.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -64,6 +64,28 @@
           <button class="menu-item" id="btnGps" onclick="toggleGPS()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="GPS" aria-pressed="false">GPS: OFF</button>
         </div>
         <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus">Toque em um sensor para ligar ou desligar.</div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title" onclick="togglePanel('triggerPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span>Gatilhos de Mundo</span>
+        <span style="color:#fff;">▼</span>
+      </div>
+      <div id="triggerPanel" class="hidden-panel open">
+        <div style="font-size:0.65rem; color:var(--muted); margin-bottom:6px; line-height:1.4;">
+          O primeiro gatilho verdadeiro escolhe o mundo (prioridade de cima para baixo). Use “desativado” para ignorar um gatilho.
+        </div>
+        <div id="triggerList"></div>
+        <div style="margin-top:8px;">
+          <div class="slider-group"><div class="slider-header"><span>Limiar de movimento</span><span id="triggerMotionVal">60%</span></div>
+          <input type="range" id="triggerMotion" min="0.05" max="1" step="0.05" value="0.60" oninput="setWorldTriggerMotion(this.value)"></div>
+          <div class="slider-group"><div class="slider-header"><span>Limiar de silêncio</span><span id="triggerSilenceVal">30s</span></div>
+          <input type="range" id="triggerSilence" min="5" max="300" step="5" value="30" oninput="setWorldTriggerSilence(this.value)"></div>
+        </div>
+        <div style="font-size:0.65rem; color:var(--muted); font-family:monospace; margin-top:4px;">
+          “Sem gatilho” é o mundo de repouso e não pode ser desativado.
+        </div>
       </div>
     </div>
 
@@ -215,7 +237,16 @@
       </ul>
 
       <h3>Modo Automático</h3>
-      <p>Usa sensores (GPS, giro, mic) para escolher o melhor mundo e voz automaticamente.</p>
+      <p>Vem ligado por padrão. Usa sensores (GPS, giro, mic) para escolher o mundo e a voz homônima automaticamente, avaliando a cada 10s.</p>
+
+      <h3>Gatilhos de Mundo</h3>
+      <ul>
+        <li><strong>Prioridade exclusiva</strong>: os gatilhos são avaliados de cima para baixo e só o primeiro verdadeiro escolhe o mundo. Não há sobreposição.</li>
+        <li><strong>Ordem</strong>: Queda livre → Chuva → Noite → Silêncio → Movimento → Sem gatilho.</li>
+        <li><strong>Desativado</strong>: use a opção “— desativado” para ignorar um gatilho (o repouso nunca fica desativado).</li>
+        <li><strong>Limiares</strong>: ajuste a intensidade de movimento e os segundos de silêncio que disparam a troca.</li>
+        <li><strong>Seed</strong>: mundos escolhidos e limiares são salvos no Código do Sonho.</li>
+      </ul>
 
       <h3>O Chute (Kick)</h3>
       <p>Dispara uma fanfarra de metais + BRAAAM grave e desce ao Limbo.</p>

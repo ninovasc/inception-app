@@ -1,5 +1,5 @@
 import { encodeState, decodeState } from '../js/seed.js';
-import { normalizeSourceType } from '../js/config.js';
+import { normalizeSourceType, normalizeWorldTriggers } from '../js/config.js';
 
 let pass = 0, fail = 0;
 function assert(cond, msg) {
@@ -23,7 +23,11 @@ const s = {
   worldSourceType: ['synth', 'mp3', 'youtube', 'synth', 'synth', 'synth'],
   worldSynth: [0, 1, 2, 3, 4, 0],
   worldVolume: [0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
-  worldSources: { mp3: ['', '', '', '', '', ''], youtube: ['dQw4w9WgXcQ', '', '', '', '', ''] }
+  worldSources: { mp3: ['', '', '', '', '', ''], youtube: ['dQw4w9WgXcQ', '', '', '', '', ''] },
+  autoMode: true,
+  worldTriggers: { freefall: 4, rain: 1, night: 2, silence: 5, motion: 3, fallback: 0 },
+  triggerMotion: 0.45,
+  triggerSilenceSec: 45
 };
 const seed = encodeState(s);
 console.log('seed:', seed);
@@ -50,6 +54,29 @@ assert(!d.worldSourceType.includes('upload'), 'no legacy upload');
 assert(d.worldSynth && d.worldSynth[2] === 2, 'wsy');
 assert(d.worldVolume && d.worldVolume[3] === 0.5, 'wvl');
 assert(d.worldSources && d.worldSources.youtube && d.worldSources.youtube[0] === 'dQw4w9WgXcQ', 'wsyu');
+assert(d.autoMode === true, 'autoMode');
+assert(d.worldTriggers && d.worldTriggers.freefall === 4, 'trigger freefall');
+assert(d.worldTriggers && d.worldTriggers.silence === 5, 'trigger silence');
+assert(d.worldTriggers && d.worldTriggers.fallback === 0, 'trigger fallback');
+assert(d.triggerMotion === 0.45, 'triggerMotion');
+assert(d.triggerSilenceSec === 45, 'triggerSilenceSec');
+
+// Gatilhos: valores inválidos caem no padrão; -1 desativa; fallback sempre ativo.
+const trig = normalizeWorldTriggers({ freefall: -1, rain: 9, night: 2, silence: -1, motion: 3, fallback: 5 });
+assert(trig.freefall === -1, 'normalize off');
+assert(trig.rain === 1, 'normalize invalid -> default');
+assert(trig.night === 2, 'normalize valid');
+assert(trig.fallback === 5, 'normalize fallback valid');
+const invalidAll = normalizeWorldTriggers({ freefall: 99, rain: -7, night: null, silence: 'x', motion: 2.5, fallback: -1 });
+assert(invalidAll.freefall === 4 && invalidAll.rain === 1 && invalidAll.fallback === 0, 'normalize invalid all');
+assert(normalizeWorldTriggers(null).motion === 3, 'normalize null defaults');
+
+// Seed antiga (sem os campos novos) não inventa valores.
+const oldSeed = encodeState({ currentLevel: 2, mechanics: { mem: false, auto: false, spatial: false, lucidMin: 0, depr: false } });
+const oldDecoded = decodeState(oldSeed);
+assert(oldDecoded.autoMode === undefined, 'old seed autoMode undefined');
+assert(oldDecoded.worldTriggers === undefined, 'old seed triggers undefined');
+assert(oldDecoded.triggerMotion === undefined, 'old seed motion undefined');
 
 // round-trip
 const s2 = { ...s, ytLinks: d.ytLinks, worldSourceType: d.worldSourceType, worldSynth: d.worldSynth, worldVolume: d.worldVolume, worldSources: d.worldSources };

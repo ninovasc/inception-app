@@ -1,124 +1,187 @@
 import { state } from './state.js';
 
-export async function toggleMemoryCatcher() {
-  const btn = document.getElementById('btnMemCatcher');
-  const sub = document.getElementById('subMemCatcher');
+let memCatcherRuntime = false;
+let spatialRuntime = false;
+let deprivationRuntime = false;
+let defaultsActivated = false;
+
+function setMechanicUI(btnId, subId, on, onText, offText) {
+  const btn = document.getElementById(btnId);
+  const sub = document.getElementById(subId);
+  if (btn) {
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-pressed', on ? 'true' : 'false');
+  }
+  if (sub) sub.textContent = on ? onText : offText;
+}
+
+export function syncMechanicsUI() {
+  setMechanicUI('btnMemCatcher', 'subMemCatcher', state.isMemCatcherOn, 'ON (Gravando Ecos)', 'OFF');
+  setMechanicUI('btnAutoKick', 'subAutoKick', state.isAutoKickOn, 'ON (Sensor G)', 'OFF');
+  setMechanicUI('btnSpatial3D', 'subSpatial3D', state.isSpatial3DOn, 'ON (3D Ativo)', 'OFF (Centro)');
+  const deprOn = state.isDeprivationWatchOn;
+  setMechanicUI('btnDeprivation', 'subDeprivation', deprOn, 'VIGIANDO (0/15s)', 'OFF');
+  // Timer de Sonho Lúcido permanece OFF por padrão.
+  const timer = document.getElementById('btnLucidTimer');
+  if (timer && !state.lucidInterval) {
+    timer.classList.remove('active');
+    timer.setAttribute('aria-pressed', 'false');
+    const sub = document.getElementById('subLucidTimer');
+    if (sub) sub.textContent = 'OFF';
+  }
+}
+
+// --- Ecos do Ambiente (Memory Catcher) ---
+export async function startMemoryCatcher() {
+  if (memCatcherRuntime) {
+    state.isMemCatcherOn = true;
+    setMechanicUI('btnMemCatcher', 'subMemCatcher', true, 'ON (Gravando Ecos)', 'OFF');
+    return true;
+  }
 
   if (typeof MediaRecorder === 'undefined') {
+    state.isMemCatcherOn = false;
+    setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', 'OFF');
     setSensorStatus('Memory Catcher não suportado neste navegador.');
-    if (btn) btn.setAttribute('aria-disabled', 'true');
-    return;
+    return false;
   }
 
   const audio = await import('./audio.js');
   const sensors = await import('./sensors.js');
   audio.initAudio();
 
-  if (!state.isMemCatcherOn) {
-    if (!state.isMicOn) await sensors.toggleMic();
-    if (!state.isMicOn) {
-      if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-      return;
-    }
-
-    state.isMemCatcherOn = true;
-    btn.classList.add('active');
-    btn.setAttribute('aria-pressed', 'true');
-    sub.textContent = 'ON (Gravando Ecos)';
-    setSensorStatus('Memory Catcher ativo: capturando fragmentos do subconsciente.');
-
-    const scheduleNext = () => {
-      if (!state.isMemCatcherOn) return;
-      const delay = 8000 + Math.random() * 16000; // 8s-24s variável
-      state.memCatcherTimer = setTimeout(() => {
-        if (state.isPlaying && state.isMicOn && state.isMemCatcherOn) audio.captureAndPlaySubconsciousMemory();
-        scheduleNext();
-      }, delay);
-    };
-    scheduleNext();
-  } else {
+  if (!state.isMicOn) await sensors.toggleMic();
+  if (!state.isMicOn) {
     state.isMemCatcherOn = false;
-    if (state.memCatcherTimer) { clearTimeout(state.memCatcherTimer); state.memCatcherTimer = null; }
-    btn.classList.remove('active');
-    btn.setAttribute('aria-pressed', 'false');
-    sub.textContent = 'OFF';
-    setSensorStatus('Memory Catcher desligado.');
+    setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', 'OFF');
+    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+    return false;
   }
+
+  memCatcherRuntime = true;
+  state.isMemCatcherOn = true;
+  setMechanicUI('btnMemCatcher', 'subMemCatcher', true, 'ON (Gravando Ecos)', 'OFF');
+  setSensorStatus('Memory Catcher ativo: capturando fragmentos do subconsciente.');
+
+  const scheduleNext = () => {
+    if (!memCatcherRuntime) return;
+    const delay = 8000 + Math.random() * 16000; // 8s-24s variável
+    state.memCatcherTimer = setTimeout(() => {
+      if (state.isPlaying && state.isMicOn && memCatcherRuntime) audio.captureAndPlaySubconsciousMemory();
+      scheduleNext();
+    }, delay);
+  };
+  scheduleNext();
+  return true;
+}
+
+export function stopMemoryCatcher() {
+  memCatcherRuntime = false;
+  state.isMemCatcherOn = false;
+  if (state.memCatcherTimer) { clearTimeout(state.memCatcherTimer); state.memCatcherTimer = null; }
+  setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', 'OFF');
+  setSensorStatus('Memory Catcher desligado.');
+}
+
+export async function toggleMemoryCatcher() {
+  if (state.isMemCatcherOn) stopMemoryCatcher();
+  else await startMemoryCatcher();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+// --- Chute Automático (Auto-Kick) ---
+export async function startAutoKick() {
+  const audio = await import('./audio.js');
+  const sensors = await import('./sensors.js');
+  audio.initAudio();
+
+  if (!state.isMotionOn) await sensors.toggleMotion();
+  if (!state.isMotionOn) {
+    state.isAutoKickOn = false;
+    setMechanicUI('btnAutoKick', 'subAutoKick', false, 'ON (Sensor G)', 'OFF');
+    setSensorStatus('Auto-Kick requer o giroscópio. Ative o sensor Giro primeiro.');
+    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+    return false;
+  }
+
+  state.isAutoKickOn = true;
+  setMechanicUI('btnAutoKick', 'subAutoKick', true, 'ON (Sensor G)', 'OFF');
+  setSensorStatus('Auto-Kick ativo: solte ou sacuda o celular para disparar O Chute.');
+  return true;
+}
+
+export function stopAutoKick() {
+  state.isAutoKickOn = false;
+  setMechanicUI('btnAutoKick', 'subAutoKick', false, 'ON (Sensor G)', 'OFF');
+  setSensorStatus('Auto-Kick desligado.');
 }
 
 export async function toggleAutoKick() {
+  if (state.isAutoKickOn) stopAutoKick();
+  else await startAutoKick();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+// --- Som 3D (Bússola) ---
+export async function startSpatial3D() {
+  if (spatialRuntime) {
+    state.isSpatial3DOn = true;
+    setMechanicUI('btnSpatial3D', 'subSpatial3D', true, 'ON (3D Ativo)', 'OFF (Centro)');
+    return true;
+  }
   const audio = await import('./audio.js');
   const sensors = await import('./sensors.js');
   audio.initAudio();
-  const btn = document.getElementById('btnAutoKick');
-  const sub = document.getElementById('subAutoKick');
 
-  if (!state.isAutoKickOn) {
-    if (!state.isMotionOn) await sensors.toggleMotion();
-    if (!state.isMotionOn) {
-      setSensorStatus('Auto-Kick requer o giroscópio. Ative o sensor Giro primeiro.');
+  try {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      const res = await DeviceOrientationEvent.requestPermission();
+      if (res !== 'granted') {
+        state.isSpatial3DOn = false;
+        setMechanicUI('btnSpatial3D', 'subSpatial3D', false, 'ON (3D Ativo)', 'OFF (Centro)');
+        setSensorStatus('Permissão de orientação negada. Áudio 3D indisponível neste dispositivo.');
+        if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+        return false;
+      }
+    } else if (typeof DeviceOrientationEvent === 'undefined') {
+      state.isSpatial3DOn = false;
+      setMechanicUI('btnSpatial3D', 'subSpatial3D', false, 'ON (3D Ativo)', 'OFF (Centro)');
+      setSensorStatus('Orientação não suportada neste dispositivo.');
       if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-      return;
+      return false;
     }
-    state.isAutoKickOn = true;
-    btn.classList.add('active');
-    btn.setAttribute('aria-pressed', 'true');
-    sub.textContent = 'ON (Sensor G)';
-    setSensorStatus('Auto-Kick ativo: solte ou sacuda o celular para disparar O Chute.');
-  } else {
-    state.isAutoKickOn = false;
-    btn.classList.remove('active');
-    btn.setAttribute('aria-pressed', 'false');
-    sub.textContent = 'OFF';
-    setSensorStatus('Auto-Kick desligado.');
+    state.baseCompassAlpha = null;
+    sensors.startOrientationWatch();
+    spatialRuntime = true;
+    state.isSpatial3DOn = true;
+    setMechanicUI('btnSpatial3D', 'subSpatial3D', true, 'ON (3D Ativo)', 'OFF (Centro)');
+    setSensorStatus('Áudio 3D ligado: gire o celular para ouvir o som mudar de lado.');
+    return true;
+  } catch (e) {
+    state.isSpatial3DOn = false;
+    setMechanicUI('btnSpatial3D', 'subSpatial3D', false, 'ON (3D Ativo)', 'OFF (Centro)');
+    setSensorStatus('Erro ao ativar bússola 3D.');
+    return false;
   }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+export function stopSpatial3D() {
+  spatialRuntime = false;
+  state.isSpatial3DOn = false;
+  if (state.stereoPanner && state.stereoPanner.pan && state.audioCtx) {
+    state.stereoPanner.pan.setTargetAtTime(0, state.audioCtx.currentTime, 0.1);
+  }
+  setMechanicUI('btnSpatial3D', 'subSpatial3D', false, 'ON (3D Ativo)', 'OFF (Centro)');
+  setSensorStatus('Áudio Espacial 3D desligado.');
 }
 
 export async function toggleSpatial3D() {
-  const audio = await import('./audio.js');
-  audio.initAudio();
-  const btn = document.getElementById('btnSpatial3D');
-  const sub = document.getElementById('subSpatial3D');
-
-  if (!state.isSpatial3DOn) {
-    try {
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        const res = await DeviceOrientationEvent.requestPermission();
-        if (res !== 'granted') {
-          setSensorStatus('Permissão de orientação negada. Áudio 3D indisponível neste dispositivo.');
-          if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-          return;
-        }
-      } else if (typeof DeviceOrientationEvent === 'undefined') {
-        setSensorStatus('Orientação não suportada neste dispositivo.');
-        if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-        return;
-      }
-      state.baseCompassAlpha = null;
-      window.addEventListener('deviceorientation', (await import('./sensors.js')).orientationHandler);
-      state.isSpatial3DOn = true;
-      btn.classList.add('active');
-      btn.setAttribute('aria-pressed', 'true');
-      sub.textContent = 'ON (3D Ativo)';
-      setSensorStatus('Áudio 3D ligado: gire o celular para ouvir o som mudar de lado.');
-    } catch (e) {
-      setSensorStatus('Erro ao ativar bússola 3D.');
-    }
-  } else {
-    state.isSpatial3DOn = false;
-    btn.classList.remove('active');
-    btn.setAttribute('aria-pressed', 'false');
-    if (state.stereoPanner && state.stereoPanner.pan) {
-      state.stereoPanner.pan.setTargetAtTime(0, state.audioCtx.currentTime, 0.1);
-    }
-    sub.textContent = 'OFF (Centro)';
-    setSensorStatus('Áudio Espacial 3D desligado.');
-  }
+  if (state.isSpatial3DOn) stopSpatial3D();
+  else await startSpatial3D();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
+// --- Timer de Sonho Lúcido (não liga por padrão) ---
 export async function cycleLucidTimer() {
   const audio = await import('./audio.js');
   audio.initAudio();
@@ -178,40 +241,57 @@ function updateLucidSub() {
   document.getElementById('subLucidTimer').textContent = `${m}:${s}`;
 }
 
-export async function toggleDeprivationWatch() {
+// --- Privação Sensorial ---
+export async function startDeprivationWatch() {
+  if (deprivationRuntime) {
+    state.isDeprivationWatchOn = true;
+    setMechanicUI('btnDeprivation', 'subDeprivation', true, 'VIGIANDO (0/15s)', 'OFF');
+    return true;
+  }
   const audio = await import('./audio.js');
   const sensors = await import('./sensors.js');
   audio.initAudio();
-  const btn = document.getElementById('btnDeprivation');
-  const sub = document.getElementById('subDeprivation');
 
-  if (!state.isDeprivationWatchOn) {
-    if (!state.isMicOn) await sensors.toggleMic();
-    // Request orientation permission on iOS for face-down detection
-    try {
-      if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-        await DeviceOrientationEvent.requestPermission();
-      }
-    } catch (e) {}
-    window.addEventListener('deviceorientation', sensors.orientationHandler);
-
-    state.isDeprivationWatchOn = true;
-    state.silenceSeconds = 0;
-    btn.classList.add('active');
-    btn.setAttribute('aria-pressed', 'true');
-    sub.textContent = 'VIGIANDO (0/15s)';
-    setSensorStatus('Privação Sensorial: vire o celular para baixo em silêncio por 15s.');
-
-    state.deprivationCheckInterval = setInterval(checkSensoryDeprivation, 1000);
-  } else {
+  if (!state.isMicOn) await sensors.toggleMic();
+  if (!state.isMicOn) {
     state.isDeprivationWatchOn = false;
-    if (state.deprivationCheckInterval) { clearInterval(state.deprivationCheckInterval); state.deprivationCheckInterval = null; }
-    stopDeprivationHeartbeat();
-    btn.classList.remove('active');
-    btn.setAttribute('aria-pressed', 'false');
-    sub.textContent = 'OFF';
-    setSensorStatus('Privação Sensorial desligada.');
+    setMechanicUI('btnDeprivation', 'subDeprivation', false, 'VIGIANDO (0/15s)', 'OFF');
+    setSensorStatus('Privação Sensorial requer o microfone.');
+    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+    return false;
   }
+
+  // Permissão de orientação no iOS para detectar o celular virado.
+  try {
+    if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+      await DeviceOrientationEvent.requestPermission();
+    }
+  } catch (e) {}
+  sensors.startOrientationWatch();
+
+  deprivationRuntime = true;
+  state.isDeprivationWatchOn = true;
+  state.silenceSeconds = 0;
+  setMechanicUI('btnDeprivation', 'subDeprivation', true, 'VIGIANDO (0/15s)', 'OFF');
+  setSensorStatus('Privação Sensorial: vire o celular para baixo em silêncio por 15s.');
+
+  if (state.deprivationCheckInterval) clearInterval(state.deprivationCheckInterval);
+  state.deprivationCheckInterval = setInterval(checkSensoryDeprivation, 1000);
+  return true;
+}
+
+export function stopDeprivationWatch() {
+  deprivationRuntime = false;
+  state.isDeprivationWatchOn = false;
+  if (state.deprivationCheckInterval) { clearInterval(state.deprivationCheckInterval); state.deprivationCheckInterval = null; }
+  stopDeprivationHeartbeat();
+  setMechanicUI('btnDeprivation', 'subDeprivation', false, 'VIGIANDO (0/15s)', 'OFF');
+  setSensorStatus('Privação Sensorial desligada.');
+}
+
+export async function toggleDeprivationWatch() {
+  if (state.isDeprivationWatchOn) stopDeprivationWatch();
+  else await startDeprivationWatch();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
@@ -264,6 +344,20 @@ export async function enterSensoryDeprivation() {
 export function stopDeprivationHeartbeat() {
   state.isDeprivationActive = false;
   if (state.heartbeatInterval) { clearInterval(state.heartbeatInterval); state.heartbeatInterval = null; }
+}
+
+// Ativa as mecânicas padrão no primeiro play (gesto do usuário, necessário
+// para permissões de mic/giroscópio/orientação). O timer fica de fora.
+export async function activateDreamDefaults() {
+  if (defaultsActivated) return;
+  defaultsActivated = true;
+  // Sensores primeiro: no iOS as permissões de movimento/orientação
+  // precisam acontecer perto do gesto do usuário.
+  if (state.isAutoKickOn) await startAutoKick();
+  if (state.isSpatial3DOn) await startSpatial3D();
+  if (state.isMemCatcherOn) await startMemoryCatcher();
+  if (state.isDeprivationWatchOn) await startDeprivationWatch();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed(true);
 }
 
 function setSensorStatus(msg) {
