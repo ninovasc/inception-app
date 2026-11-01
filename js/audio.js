@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS } from './config.js';
+import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS } from './config.js';
 
 export function initAudio() {
   if (state.audioCtx) {
@@ -158,10 +158,10 @@ export function setSourceMode(mode) {
   if (capBox) capBox.style.display = mode === 'capture' ? 'flex' : 'none';
 
   if (state.isPlaying) {
-    stopStems(); stopSynth();
+    stopStems(); stopSynth(); stopChordProgression();
     if (window.stopYouTube) window.stopYouTube();
     if (window.stopCapture) window.stopCapture();
-    if (mode === 'synth') startSynth();
+    if (mode === 'synth') { startSynth(); startChordProgression(); }
     else if (mode === 'upload') startStems();
     else if (mode === 'youtube') { if (window.startYouTube) window.startYouTube(); }
     else if (mode === 'capture') { if (window.startCapture) window.startCapture(); }
@@ -188,16 +188,17 @@ export function setSynthVolume(val) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-export function startSynth() {
+export function startSynth(transposeSemitones = 0) {
   stopSynth();
   const preset = SYNTH_PRESETS[state.currentSynthType];
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
+  const factor = Math.pow(2, transposeSemitones / 12);
 
   preset.freqs.forEach((freq, idx) => {
     const osc = state.audioCtx.createOscillator();
     const g = state.audioCtx.createGain();
     osc.type = preset.types[idx];
-    osc.frequency.value = freq * speed;
+    osc.frequency.value = freq * speed * factor;
     g.gain.value = preset.gains[idx];
 
     if (preset.lfo > 0) {
@@ -221,6 +222,25 @@ export function startSynth() {
 export function stopSynth() {
   state.synthNodes.forEach(s => { try { s.osc.stop(); } catch (e) {} });
   state.synthNodes = [];
+}
+
+export function startChordProgression() {
+  stopChordProgression();
+  const prog = CHORD_PROGRESSIONS[state.currentLevel] || CHORD_PROGRESSIONS[0];
+  state.chordIndex = 0;
+  // play first chord immediately
+  if (state.sourceMode === 'synth' && state.isPlaying) {
+    startSynth(prog[0]);
+  }
+  state.chordInterval = setInterval(() => {
+    if (!state.isPlaying || state.sourceMode !== 'synth') return;
+    state.chordIndex = (state.chordIndex + 1) % prog.length;
+    startSynth(prog[state.chordIndex]);
+  }, 8000);
+}
+
+export function stopChordProgression() {
+  if (state.chordInterval) { clearInterval(state.chordInterval); state.chordInterval = null; }
 }
 
 export async function loadStem(index, file) {
@@ -283,7 +303,7 @@ export function toggleMasterPlay() {
 
   if (!state.isPlaying) {
     state.isPlaying = true;
-    if (state.sourceMode === 'synth') startSynth();
+    if (state.sourceMode === 'synth') { startSynth(); startChordProgression(); }
     else if (state.sourceMode === 'upload') startStems();
     else if (state.sourceMode === 'youtube') { if (window.startYouTube) window.startYouTube(); }
     else if (state.sourceMode === 'capture') { if (window.startCapture) window.startCapture(); }
@@ -302,6 +322,7 @@ export function toggleMasterPlay() {
     state.isPlaying = false;
     stopStems();
     stopSynth();
+    stopChordProgression();
     if (window.stopYouTube) window.stopYouTube();
     if (window.stopCapture) window.stopCapture();
     stopDeprivationHeartbeat();
@@ -342,6 +363,10 @@ export function selectLevel(idx) {
       state.crossfadeGain.gain.cancelScheduledValues(now2);
       state.crossfadeGain.gain.setValueAtTime(0, now2);
       state.crossfadeGain.gain.linearRampToValueAtTime(1, now2 + 0.75);
+      if (state.isPlaying && state.sourceMode === 'synth') {
+        stopChordProgression();
+        startChordProgression();
+      }
       if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
     }, 750);
   } else {
@@ -356,6 +381,10 @@ export function selectLevel(idx) {
     document.getElementById('sliderReverb').value = l.reverb;
     syncXYPadFromSliders(l.speed, l.filter);
     applyParameters();
+    if (state.isPlaying && state.sourceMode === 'synth') {
+      stopChordProgression();
+      startChordProgression();
+    }
     if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
   }
 }
@@ -510,20 +539,27 @@ export function captureAndPlaySubconsciousMemory() {
         const blob = new Blob(chunks);
         const arr = await blob.arrayBuffer();
         state.audioCtx.decodeAudioData(arr, (buffer) => {
-          const reverse = Math.random() > 0.4;
+          const reverseProb = state.currentLevel === 4 ? 0.8 : (state.currentLevel === 0 ? 0.2 : 0.4);
+          const reverse = Math.random() < reverseProb;
           if (reverse) {
             for (let c = 0; c < buffer.numberOfChannels; c++) {
               Array.prototype.reverse.call(buffer.getChannelData(c));
             }
           }
+          const pitchShift = Math.random() < 0.5 ? (Math.random() < 0.5 ? 1 : -1) : 0;
+          const pitchFactor = Math.pow(2, pitchShift / 12);
           const src = state.audioCtx.createBufferSource();
           const g = state.audioCtx.createGain();
           src.buffer = buffer;
-          src.playbackRate.value = 0.62;
+          src.playbackRate.value = 0.62 * pitchFactor;
           g.gain.value = 0.75;
           src.connect(g);
           g.connect(state.convolverNode);
           g.connect(state.delayNode);
+          const varDelay = state.audioCtx.createDelay(2.0);
+          varDelay.delayTime.value = 0.3 + Math.random() * 0.5;
+          g.connect(varDelay);
+          varDelay.connect(state.stereoPanner);
           src.start();
           const status = document.getElementById('sensorStatus');
           if (status) status.textContent = reverse

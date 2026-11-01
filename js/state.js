@@ -18,6 +18,8 @@ export const state = {
   stemSources: [null, null, null],
   stemGains: [null, null, null],
   synthNodes: [],
+  chordIndex: 0,
+  chordInterval: null,
   micStream: null,
   micSource: null,
   micGain: null,

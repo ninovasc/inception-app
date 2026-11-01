@@ -30,6 +30,7 @@ export async function toggleMic() {
   } else {
     if (state.micStream) state.micStream.getTracks().forEach(track => track.stop());
     if (state.micSource) { try { state.micSource.disconnect(); } catch (e) {} }
+    stopMicPitchShift();
     stopMicGate();
     state.isMicOn = false;
     btn.classList.remove('active');
@@ -179,6 +180,8 @@ export function toggleGPS() {
 }
 
 let micGateInterval = null;
+let micPitchNode = null;
+let micPitchBypass = null;
 
 export function startMicGate() {
   if (micGateInterval) clearInterval(micGateInterval);
@@ -227,9 +230,58 @@ export function applyMicPreset(name) {
   if (state.micReverbSend) state.micReverbSend.gain.setTargetAtTime(p.reverb, state.audioCtx.currentTime, 0.1);
   if (state.micDry) state.micDry.gain.setTargetAtTime(p.dry, state.audioCtx.currentTime, 0.1);
   if (state.micWet) state.micWet.gain.setTargetAtTime(p.wet, state.audioCtx.currentTime, 0.1);
+  // pitch shift
+  if (p.pitch && p.pitch !== 0) {
+    startMicPitchShift(p.pitch);
+  } else {
+    stopMicPitchShift();
+  }
   // update UI
   document.querySelectorAll('.mic-preset').forEach(b => b.classList.toggle('active', b.dataset.preset === name));
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+export function startMicPitchShift(semitones) {
+  stopMicPitchShift();
+  if (!state.micSource || !state.audioCtx) return;
+  const factor = Math.pow(2, semitones / 12);
+  const bufferSize = 4096;
+  const node = state.audioCtx.createScriptProcessor(bufferSize, 1, 1);
+  const buffer = new Float32Array(bufferSize * 4);
+  let writeIdx = 0;
+  let readIdx = 0;
+  node.onaudioprocess = (e) => {
+    const input = e.inputBuffer.getChannelData(0);
+    const output = e.outputBuffer.getChannelData(0);
+    for (let i = 0; i < input.length; i++) {
+      buffer[writeIdx] = input[i];
+      writeIdx = (writeIdx + 1) % buffer.length;
+    }
+    for (let i = 0; i < output.length; i++) {
+      const idx = Math.floor(readIdx);
+      const frac = readIdx - idx;
+      const a = buffer[idx % buffer.length];
+      const b = buffer[(idx + 1) % buffer.length];
+      output[i] = a + (b - a) * frac;
+      readIdx += factor;
+      if (readIdx >= buffer.length) readIdx -= buffer.length;
+    }
+  };
+  // reconnect: micSource -> pitchNode -> micGainNode
+  try { state.micSource.disconnect(state.micGainNode); } catch (e) {}
+  state.micSource.connect(node);
+  node.connect(state.micGainNode);
+  micPitchNode = node;
+}
+
+export function stopMicPitchShift() {
+  if (micPitchNode) {
+    try { state.micSource.disconnect(micPitchNode); } catch (e) {}
+    try { micPitchNode.disconnect(); } catch (e) {}
+    micPitchNode = null;
+    // reconnect direct
+    try { state.micSource.connect(state.micGainNode); } catch (e) {}
+  }
 }
 
 function setSensorStatus(msg) {

@@ -27,12 +27,18 @@ export async function toggleMemoryCatcher() {
     sub.textContent = 'ON (Gravando Ecos)';
     setSensorStatus('Memory Catcher ativo: capturando fragmentos do subconsciente.');
 
-    state.memCatcherTimer = setInterval(() => {
-      if (state.isPlaying && state.isMicOn && state.isMemCatcherOn) audio.captureAndPlaySubconsciousMemory();
-    }, 16000);
+    const scheduleNext = () => {
+      if (!state.isMemCatcherOn) return;
+      const delay = 8000 + Math.random() * 16000; // 8s-24s variável
+      state.memCatcherTimer = setTimeout(() => {
+        if (state.isPlaying && state.isMicOn && state.isMemCatcherOn) audio.captureAndPlaySubconsciousMemory();
+        scheduleNext();
+      }, delay);
+    };
+    scheduleNext();
   } else {
     state.isMemCatcherOn = false;
-    if (state.memCatcherTimer) { clearInterval(state.memCatcherTimer); state.memCatcherTimer = null; }
+    if (state.memCatcherTimer) { clearTimeout(state.memCatcherTimer); state.memCatcherTimer = null; }
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');
     sub.textContent = 'OFF';

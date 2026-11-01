@@ -16,3 +16,13 @@ export const SYNTH_PRESETS = [
 ];
 
 export const LUCID_MODES = [0, 15, 30, 60]; // minutos
+
+// Progressões de acordes por nível (em semitons relativos à tônica)
+export const CHORD_PROGRESSIONS = [
+  [0, 5, 7, 5],     // 0 Realidade: I-IV-V-IV (alegre)
+  [0, 3, 7, 5],     // 1 Chuva: I-III-V-IV (melancólico)
+  [0, 5, 3, 7],     // 2 Hotel: I-IV-III-V
+  [0, 3, 5, 7],     // 3 Fortaleza: I-III-IV-V
+  [0, 3, 6, 5],     // 4 Limbo: I-III-tritone-IV (dissonante)
+  [0, 7, 5, 3]      // 5 Lúcido: I-V-IV-III (etéreo)
+];
