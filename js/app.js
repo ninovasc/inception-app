@@ -8,7 +8,7 @@ import * as ui from './ui.js';
 import './power.js';
 import * as yt from './youtube.js';
 import * as cap from './capture.js';
-import * as auto from './auto.js';
+import * as auto from './automode.js';
 
 window.__lucidModes = LUCID_MODES;
 

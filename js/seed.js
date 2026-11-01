@@ -108,11 +108,13 @@ export function decodeState(str) {
 
 export function generateFullSeed() {
   const audio = null;
+  const volSynthEl = document.getElementById('volSynth');
+  const vs = (volSynthEl && volSynthEl.value != null) ? parseFloat(volSynthEl.value) : 0.2;
   const volumes = [
-    parseFloat(document.getElementById('vol0').value),
-    parseFloat(document.getElementById('vol1').value),
-    parseFloat(document.getElementById('vol2').value),
-    parseFloat(document.getElementById('volSynth').value)
+    state.worldVolume ? state.worldVolume[0] : 0.2,
+    state.worldVolume ? state.worldVolume[1] : 0.2,
+    state.worldVolume ? state.worldVolume[2] : 0.2,
+    vs
   ];
   const ytLinks = [0, 1, 2].map(i => {
     const input = document.getElementById(`ytUrl${i}`);
