@@ -8,6 +8,7 @@ import * as ui from './ui.js';
 import './power.js';
 import * as yt from './youtube.js';
 import * as cap from './capture.js';
+import * as auto from './auto.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -58,7 +59,22 @@ Object.assign(window, {
   setYouTubeVolume: yt.setYouTubeVolume,
   startCapture: cap.startCapture,
   stopCapture: cap.stopCapture,
-  setCaptureVolume: cap.setCaptureVolume
+  setCaptureVolume: cap.setCaptureVolume,
+  toggleAutoMode: () => {
+    if (auto.isAutoMode()) {
+      auto.stopAutoMode();
+      document.getElementById('btnAutoMode')?.classList.remove('active');
+      document.getElementById('btnAutoMode')?.setAttribute('aria-pressed', 'false');
+      const sub = document.getElementById('autoSub');
+      if (sub) sub.textContent = 'OFF';
+    } else {
+      auto.startAutoMode();
+      document.getElementById('btnAutoMode')?.classList.add('active');
+      document.getElementById('btnAutoMode')?.setAttribute('aria-pressed', 'true');
+      const sub = document.getElementById('autoSub');
+      if (sub) sub.textContent = 'ON';
+    }
+  }
 });
 
 // Service worker
@@ -77,6 +93,12 @@ try {
 
 // Init YouTube API
 yt.initYouTube();
+
+// Desabilitar presets de voz inicialmente (mic off)
+document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(el => {
+  el.style.opacity = '0.4';
+  el.setAttribute('disabled', 'true');
+});
 
 // Initial seed
 seed.generateFullSeed();

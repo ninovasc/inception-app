@@ -392,6 +392,13 @@ input[type="file"] {
   box-shadow: 0 0 6px #fff;
 }
 
+/* Presets de voz desabilitados quando mic off */
+.mic-preset[disabled],
+#voicePanel input[type=range][disabled] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
 @media (max-width: 480px) {
   body { padding: 16px 12px; }
   .app-shell { gap: 18px; }

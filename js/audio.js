@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS } from './config.js';
+import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES } from './config.js';
 
 export function initAudio() {
   if (state.audioCtx) {
@@ -353,6 +353,7 @@ export function selectLevel(idx) {
     state.crossfadeGain.gain.linearRampToValueAtTime(0, now + 0.75);
     setTimeout(() => {
       state.currentLevel = idx;
+  state.currentSynthType = WORLD_SYNTH[idx];
       for (let i = 0; i < 6; i++) {
         const _b = document.getElementById(`lvl${i}`);
     if (_b) {
@@ -382,6 +383,7 @@ export function selectLevel(idx) {
     }, 750);
   } else {
     state.currentLevel = idx;
+  state.currentSynthType = WORLD_SYNTH[idx];
     for (let i = 0; i < 6; i++) {
       const _b = document.getElementById(`lvl${i}`);
     if (_b) {

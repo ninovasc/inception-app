@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v1.20.0</div>
+        <div class="version">v1.21.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -45,6 +45,10 @@
       <button class="menu-item" onclick="triggerKick(true)" aria-label="Disparar O Chute">
         <span>O Chute (Piaf + BRAAAM)</span>
         <span class="sub">Queda Livre</span>
+      </button>
+      <button class="menu-item" id="btnAutoMode" onclick="toggleAutoMode()" aria-pressed="false" aria-label="Modo Automático">
+        <span>Modo Automático (Sensores)</span>
+        <span class="sub" id="autoSub">OFF</span>
       </button>
     </div>
 
@@ -94,11 +98,13 @@
         <span style="color:#fff;">▼</span>
       </div>
       <div id="voicePanel" class="hidden-panel open">
-        <div style="display:flex; gap:4px; flex-wrap:wrap;">
-          <button class="menu-item mic-preset active" data-preset="limpo" onclick="applyMicPreset('limpo')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="true">Limpo</button>
-          <button class="menu-item mic-preset" data-preset="onirico" onclick="applyMicPreset('onirico')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="false">Onírico</button>
-          <button class="menu-item mic-preset" data-preset="abismo" onclick="applyMicPreset('abismo')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="false">Abismo</button>
-          <button class="menu-item mic-preset" data-preset="fantasma" onclick="applyMicPreset('fantasma')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="false">Fantasma</button>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px;">
+          <button class="menu-item mic-preset active" data-preset="Realidade" onclick="applyMicPreset('Realidade')" style="justify-content:center; font-size:0.7rem;" aria-pressed="true">Realidade</button>
+          <button class="menu-item mic-preset" data-preset="Chuva" onclick="applyMicPreset('Chuva')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Chuva</button>
+          <button class="menu-item mic-preset" data-preset="Hotel" onclick="applyMicPreset('Hotel')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Hotel</button>
+          <button class="menu-item mic-preset" data-preset="Fortaleza" onclick="applyMicPreset('Fortaleza')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Fortaleza</button>
+          <button class="menu-item mic-preset" data-preset="Limbo" onclick="applyMicPreset('Limbo')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Limbo</button>
+          <button class="menu-item mic-preset" data-preset="Lúcido" onclick="applyMicPreset('Lúcido')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Lúcido</button>
         </div>
         <div style="display:flex; align-items:center; gap:8px; margin-top:6px; font-size:0.7rem; color:var(--muted); font-family:monospace;">
           <span id="micLed" style="width:8px; height:8px; border-radius:50%; background:#333; display:inline-block;"></span>
@@ -129,7 +135,6 @@
           <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo sintetizadores" aria-pressed="true">Sintetizadores</button>
           <button class="menu-item" id="btnUpload" onclick="setSourceMode('upload')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo meus MP3" aria-pressed="false">MP3</button>
           <button class="menu-item" id="btnYt" onclick="setSourceMode('youtube')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo YouTube" aria-pressed="false">YouTube</button>
-          <button class="menu-item" id="btnCap" onclick="setSourceMode('capture')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Capturar aba" aria-pressed="false">Capturar aba</button>
         </div>
 
         <div id="synthBox" style="display: flex; flex-direction: column; gap: 6px;">
@@ -275,6 +280,9 @@
       <li><strong>3 links do YouTube</strong>: use vídeos do YouTube como camadas sonoras.</li>
       <li><strong>Capturar aba</strong>: captura o áudio de uma aba do navegador (ex.: YouTube) e aplica os efeitos do PASIV.</li>
       </ul>
+
+      <h3>Modo Automático</h3>
+      <p>Usa sensores (GPS, giro, mic) para escolher o melhor mundo e voz automaticamente.</p>
 
       <h3>O Chute (Kick)</h3>
       <p>Dispara uma fanfarra de metais + BRAAAM grave e desce ao Limbo.</p>

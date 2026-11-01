@@ -17,6 +17,21 @@ export const SYNTH_PRESETS = [
 
 export const LUCID_MODES = [0, 15, 30, 60]; // minutos
 
+// Sintetizador associado a cada mundo (índice em SYNTH_PRESETS)
+export const WORLD_SYNTH = [0, 1, 2, 3, 4, 0]; // Realidade→Zimmer, Chuva→Brass, Hotel→Sub Limbo, Fortaleza→Glass, Limbo→Binaural, Lúcido→Zimmer
+
+// Presets de Voz por mundo (mesmos nomes)
+export const WORLD_VOICE_PRESETS = {
+  'Realidade': { gate: -25, delay: 0.06, feedback: 0.03, reverb: 0.08, dry: 0.92, wet: 0.08, pitch: 0 },
+  'Chuva':     { gate: -35, delay: 0.15, feedback: 0.12, reverb: 0.25, dry: 0.80, wet: 0.20, pitch: 0 },
+  'Hotel':     { gate: -40, delay: 0.30, feedback: 0.25, reverb: 0.40, dry: 0.70, wet: 0.30, pitch: 1 },
+  'Fortaleza': { gate: -30, delay: 0.10, feedback: 0.08, reverb: 0.15, dry: 0.85, wet: 0.15, pitch: 0 },
+  'Limbo':     { gate: -50, delay: 0.60, feedback: 0.45, reverb: 0.65, dry: 0.55, wet: 0.45, pitch: 3 },
+  'Lúcido':    { gate: -35, delay: 0.20, feedback: 0.15, reverb: 0.35, dry: 0.75, wet: 0.25, pitch: 1 }
+};
+
+export const WORLD_NAMES = ['Realidade', 'Chuva', 'Hotel', 'Fortaleza', 'Limbo', 'Lúcido'];
+
 // Progressões de acordes por nível (em semitons relativos à tônica)
 export const CHORD_PROGRESSIONS = [
   [0, 5, 7, 5],     // 0 Realidade: I-IV-V-IV (alegre)

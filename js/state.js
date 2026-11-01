@@ -1,8 +1,13 @@
 export const state = {
   audioCtx: null,
   isPlaying: false,
-  sourceMode: 'synth',
+  sourceMode: 'synth', // 'synth' | 'mp3' | 'youtube'
   currentSynthType: 0,
+  autoMode: false,
+  worldSources: { mp3: ['', '', '', '', '', ''], youtube: ['', '', '', '', '', ''] },
+  gpsRain: false,
+  gpsNight: false,
+  motionIntensity: 0,
   currentLevel: 0,
   xyState: { x: 0.65, y: 0.0 },
   masterFilter: null,

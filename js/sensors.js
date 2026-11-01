@@ -21,9 +21,14 @@ export async function toggleMic() {
       btn.setAttribute('aria-pressed', 'true');
       btn.textContent = 'Mic: ON';
       setSensorStatus('Microfone ligado.');
+      // habilitar presets e sliders
+      document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(el => {
+        el.style.opacity = '1';
+        el.removeAttribute('disabled');
+      });
       // Iniciar noise gate + LED
       startMicGate();
-      applyMicPreset(state.micPreset);
+      applyMicPreset(state.micPreset || 'Realidade');
     } catch (e) {
       setSensorStatus('Permissão de microfone negada.');
     }
@@ -37,6 +42,11 @@ export async function toggleMic() {
     btn.setAttribute('aria-pressed', 'false');
     btn.textContent = 'Mic: OFF';
     setSensorStatus('Microfone desligado.');
+    // desabilitar presets e sliders
+    document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(el => {
+      el.style.opacity = '0.4';
+      el.setAttribute('disabled', 'true');
+    });
   }
 }
 
@@ -97,6 +107,7 @@ export function motionHandler(e) {
   }
 
   const intensity = Math.min(1, Math.abs(force - 9.81) / 10);
+  state.motionIntensity = intensity;
   if (intensity > 0.05) {
     const mappedSpeed = 0.5 + intensity * 0.8;
     document.getElementById('sliderSpeed').value = mappedSpeed;
@@ -148,6 +159,8 @@ export function toggleGPS() {
         try {
           const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current=rain,is_day`);
           const data = await res.json();
+          state.gpsRain = data.current.rain > 0;
+          state.gpsNight = data.current.is_day === 0;
           if (data.current.rain > 0) (await import('./audio.js')).selectLevel(1);
           else if (data.current.is_day === 0) (await import('./audio.js')).selectLevel(2);
           else (await import('./audio.js')).selectLevel(0);
@@ -214,10 +227,12 @@ export function stopMicGate() {
 }
 
 export const MIC_PRESETS = {
-  limpo: { gate: -30, delay: 0.08, feedback: 0.05, reverb: 0.10, dry: 0.90, wet: 0.10, pitch: 0 },
-  onirico: { gate: -40, delay: 0.40, feedback: 0.30, reverb: 0.40, dry: 0.70, wet: 0.30, pitch: 1 },
-  abismo: { gate: -50, delay: 0.70, feedback: 0.50, reverb: 0.70, dry: 0.50, wet: 0.50, pitch: 3 },
-  fantasma: { gate: -35, delay: 0.12, feedback: 0.10, reverb: 0.25, dry: 0.80, wet: 0.20, pitch: 3 }
+  'Realidade': { gate: -25, delay: 0.06, feedback: 0.03, reverb: 0.08, dry: 0.92, wet: 0.08, pitch: 0 },
+  'Chuva':     { gate: -35, delay: 0.15, feedback: 0.12, reverb: 0.25, dry: 0.80, wet: 0.20, pitch: 0 },
+  'Hotel':     { gate: -40, delay: 0.30, feedback: 0.25, reverb: 0.40, dry: 0.70, wet: 0.30, pitch: 1 },
+  'Fortaleza': { gate: -30, delay: 0.10, feedback: 0.08, reverb: 0.15, dry: 0.85, wet: 0.15, pitch: 0 },
+  'Limbo':     { gate: -50, delay: 0.60, feedback: 0.45, reverb: 0.65, dry: 0.55, wet: 0.45, pitch: 3 },
+  'Lúcido':    { gate: -35, delay: 0.20, feedback: 0.15, reverb: 0.35, dry: 0.75, wet: 0.25, pitch: 1 }
 };
 
 export function applyMicPreset(name) {
