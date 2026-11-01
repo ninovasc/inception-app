@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v2.5.0</div>
+        <div class="version">v2.6.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -132,6 +132,15 @@
       </div>
       <div id="sourcePanel" class="hidden-panel open">
         <div id="sourceList"></div>
+        <!-- Players ocultos do YouTube (um por mundo) -->
+        <div id="ytPlayers" aria-hidden="true" style="position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;">
+          <div id="ytPlayer0"></div>
+          <div id="ytPlayer1"></div>
+          <div id="ytPlayer2"></div>
+          <div id="ytPlayer3"></div>
+          <div id="ytPlayer4"></div>
+          <div id="ytPlayer5"></div>
+        </div>
       </div>
     </div>
 
@@ -171,7 +180,7 @@
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('dspPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span>Código do Sonho</span>
-        <span style="color:#fff;">▼</span>
+        <span style="color:#fff;">▶</span>
       </div>
       <div id="dspPanel" class="hidden-panel">
         <div style="margin-top: 6px;">
@@ -195,13 +204,14 @@
       <h3>Mundos</h3>
       <p>6 mundos (Realidade → Lúcido) ajustam velocidade, filtro, eco e reverb de uma vez.</p>
 
-      <h3>Fontes sonoras</h3>
+      <h3>Fonte Sonora</h3>
       <ul>
-        <li><strong>1 sintetizador por mundo</strong>: cada mundo usa um synth fixo (Zimmer, Brass, Sub Limbo, Glass, Binaural).</li>
-        <li><strong>MP3 por mundo</strong>: envie um arquivo MP3 para cada mundo.</li>
-        <li><strong>YouTube por mundo</strong>: cole um link do YouTube para cada mundo.</li>
+        <li><strong>Um tipo por mundo</strong>: abra a linha do mundo (▶) e escolha Synth, MP3 ou YouTube.</li>
+        <li><strong>Synth</strong>: escolha entre 5 sintetizadores (Zimmer, Brass, Sub Limbo, Glass, Binaural) e ajuste o volume do mundo.</li>
+        <li><strong>MP3</strong>: envie um arquivo de áudio para o mundo.</li>
+        <li><strong>YouTube</strong>: cole um link do YouTube para o mundo.</li>
+        <li><strong>Volume</strong>: cada mundo tem seu próprio volume.</li>
         <li><strong>Modo Automático</strong>: usa sensores para escolher o melhor mundo e voz.</li>
-      <li><strong>Capturar aba</strong>: captura o áudio de uma aba do navegador (ex.: YouTube) e aplica os efeitos do PASIV.</li>
       </ul>
 
       <h3>Modo Automático</h3>

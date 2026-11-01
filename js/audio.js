@@ -43,8 +43,9 @@ export function initAudio() {
   state.compressor.threshold.value = -15;
 
   state.synthMasterGain = state.audioCtx.createGain();
-  const volSynthEl = document.getElementById('volSynth');
-  state.synthMasterGain.gain.value = volSynthEl ? parseFloat(volSynthEl.value) : 0.2;
+  state.synthMasterGain.gain.value = (state.worldVolume && state.worldVolume[state.currentLevel] != null)
+    ? state.worldVolume[state.currentLevel]
+    : 0.2;
   state.synthMasterGain.connect(state.masterFilter);
 
   for (let i = 0; i < 3; i++) {
@@ -138,53 +139,37 @@ function createImpulse(duration, decay) {
   return buf;
 }
 
+// Compatibilidade: o tipo de fonte agora é definido por mundo em worldSourceType.
 export function setSourceMode(mode) {
-  state.sourceMode = mode;
-  const btnSynth = document.getElementById('btnSynth');
-  const btnUpload = document.getElementById('btnUpload');
-  btnSynth.classList.toggle('active', mode === 'synth');
-  btnUpload.classList.toggle('active', mode === 'upload');
-  btnSynth.setAttribute('aria-pressed', mode === 'synth' ? 'true' : 'false');
-  btnUpload.setAttribute('aria-pressed', mode === 'upload' ? 'true' : 'false');
-  const btnYt = document.getElementById('btnYt');
-  if (btnYt) btnYt.classList.toggle('active', mode === 'youtube');
-  if (btnYt) btnYt.setAttribute('aria-pressed', mode === 'youtube' ? 'true' : 'false');
-  const btnCap = document.getElementById('btnCap');
-  if (btnCap) btnCap.classList.toggle('active', mode === 'capture');
-  if (btnCap) btnCap.setAttribute('aria-pressed', mode === 'capture' ? 'true' : 'false');
-  document.getElementById('synthBox').style.display = mode === 'synth' ? 'flex' : 'none';
-  document.getElementById('uploadBox').style.display = mode === 'upload' ? 'flex' : 'none';
-  const ytBox = document.getElementById('ytBox');
-  if (ytBox) ytBox.style.display = mode === 'youtube' ? 'flex' : 'none';
-  const capBox = document.getElementById('capBox');
-  if (capBox) capBox.style.display = mode === 'capture' ? 'flex' : 'none';
-
-  if (state.isPlaying) {
-    stopStems(); stopSynth(); stopChordProgression();
-    stopMp3World();
-    if (window.stopYouTubeWorld) window.stopYouTubeWorld();
-    if (window.stopCapture) window.stopCapture();
-    if (mode === 'synth') { startSynth(); startChordProgression(); }
-    else if (mode === 'upload') startMp3World();
-    else if (mode === 'youtube') { if (window.startYouTubeWorld) window.startYouTubeWorld(); }
-    else if (mode === 'capture') { if (window.startCapture) window.startCapture(); }
+  const normalized = mode === 'upload' ? 'mp3' : mode;
+  if (!state.worldSourceType) state.worldSourceType = ['synth', 'synth', 'synth', 'synth', 'synth', 'synth'];
+  if (['synth', 'mp3', 'youtube'].includes(normalized)) {
+    state.worldSourceType[state.currentLevel] = normalized;
   }
+  state.sourceMode = normalized === 'upload' ? 'mp3' : normalized;
+  restartWorldAudio();
+  if (typeof window.renderSourceList === 'function') window.renderSourceList();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function selectSynthType(idx) {
   initAudio();
-  state.currentSynthType = idx;
-  for (let i = 0; i < 5; i++) {
-    document.getElementById(`syn${i}`).classList.toggle('active', i === idx);
+  const v = parseInt(idx, 10);
+  if (isNaN(v)) return;
+  if (!state.worldSynth) state.worldSynth = [0, 1, 2, 3, 4, 0];
+  state.worldSynth[state.currentLevel] = v;
+  state.currentSynthType = v;
+  if (state.isPlaying && state.sourceMode === 'synth') {
+    startSynth();
+    startChordProgression();
   }
-  if (state.isPlaying && state.sourceMode === 'synth') startSynth();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setSynthVolume(val) {
   const v = parseFloat(val);
-  document.getElementById('volValSynth').textContent = Math.round(v * 100) + '%';
+  const label = document.getElementById('volValSynth');
+  if (label) label.textContent = Math.round(v * 100) + '%';
   if (state.synthMasterGain && state.audioCtx) {
     state.synthMasterGain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
   }
@@ -218,7 +203,7 @@ export function startSynth(transposeSemitones = 0) {
     osc.connect(g);
     g.connect(state.synthMasterGain);
     osc.start();
-    state.synthNodes.push({ osc, base: freq, isLfo: false });
+    state.synthNodes.push({ osc, base: freq * factor, isLfo: false });
   });
 }
 
@@ -276,7 +261,8 @@ export async function loadWorldMp3(worldIdx, file) {
       state.worldMp3Buffers[worldIdx] = decoded;
       state.worldSources.mp3[worldIdx] = file.name;
       if (label) label.textContent = file.name.slice(0, 20);
-      if (state.isPlaying && state.sourceMode === 'upload' && state.currentLevel === worldIdx) {
+      if (state.isPlaying && state.currentLevel === worldIdx &&
+          state.worldSourceType[worldIdx] === 'mp3') {
         startMp3World();
       }
     }, () => {
@@ -291,14 +277,15 @@ export function startMp3World() {
   stopMp3World();
   const idx = state.currentLevel;
   const buf = state.worldMp3Buffers[idx];
-  if (!buf) return;
+  if (!buf || !state.audioCtx) return;
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
   const src = state.audioCtx.createBufferSource();
   src.buffer = buf;
   src.loop = true;
   src.playbackRate.value = speed;
   const gain = state.audioCtx.createGain();
-  gain.gain.value = state.worldVolume[idx];
+  const vol = (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2;
+  gain.gain.value = vol;
   src.connect(gain);
   gain.connect(state.masterFilter);
   src.start(0);
@@ -307,10 +294,14 @@ export function startMp3World() {
   state.worldMp3Gains[idx] = gain;
 }
 
-export function setWorldSynth(val) {
+// worldIdx opcional: por padrão aplica ao mundo atual (compatibilidade).
+export function setWorldSynth(worldIdx, val) {
+  if (val === undefined) { val = worldIdx; worldIdx = state.currentLevel; }
   const v = parseInt(val, 10);
-  if (!isNaN(v)) {
-    state.worldSynth[state.currentLevel] = v;
+  if (isNaN(v)) return;
+  if (!state.worldSynth) state.worldSynth = [0, 1, 2, 3, 4, 0];
+  state.worldSynth[worldIdx] = v;
+  if (worldIdx === state.currentLevel) {
     state.currentSynthType = v;
     if (state.isPlaying && state.sourceMode === 'synth') {
       startSynth();
@@ -319,8 +310,8 @@ export function setWorldSynth(val) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-export function stopMp3World() {
-  const idx = state.currentLevel;
+export function stopMp3World(index) {
+  const idx = (index === undefined) ? state.currentLevel : index;
   const src = state.worldMp3Sources[idx];
   if (src) {
     try { src.stop(); } catch (e) {}
@@ -328,24 +319,65 @@ export function stopMp3World() {
   }
 }
 
+export function stopAllMp3World() {
+  for (let i = 0; i < 6; i++) stopMp3World(i);
+}
+
 export function setWorldMp3Volume(worldIdx, val) {
+  setWorldVolume(worldIdx, val);
+}
+
+// Aplica volume por mundo: synth, MP3 e YouTube.
+export function setWorldVolume(worldIdx, val) {
+  if (val === undefined) { val = worldIdx; worldIdx = state.currentLevel; }
   const v = parseFloat(val);
+  if (isNaN(v)) return;
+  if (!state.worldVolume) state.worldVolume = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2];
   state.worldVolume[worldIdx] = v;
-  const gain = state.worldMp3Gains[worldIdx];
-  if (gain) gain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+
+  const label = document.getElementById(`worldVolVal${worldIdx}`);
+  if (label) label.textContent = Math.round(v * 100) + '%';
+
+  if (worldIdx === state.currentLevel && state.audioCtx) {
+    if (state.worldMp3Gains[worldIdx]) {
+      state.worldMp3Gains[worldIdx].gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+    }
+    if (state.sourceMode === 'synth' && state.synthMasterGain) {
+      state.synthMasterGain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+    }
+    if (state.sourceMode === 'youtube' && window.setYouTubeVolume) {
+      window.setYouTubeVolume(worldIdx, v);
+    }
+  }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-export function setWorldVolume(val) {
-  const v = parseFloat(val);
-  state.worldVolume[state.currentLevel] = v;
-  const el = document.getElementById('worldVolVal');
-  if (el) el.textContent = Math.round(v * 100) + '%';
-  // update synth gain if in synth mode
-  if (state.sourceMode === 'synth' && state.synthMasterGain) {
-    state.synthMasterGain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+// Reinicia a fonte do mundo atual respeitando o tipo escolhido.
+export function restartWorldAudio() {
+  stopStems();
+  stopSynth();
+  stopChordProgression();
+  stopAllMp3World();
+  if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
+  if (window.stopCapture) window.stopCapture();
+
+  if (!state.isPlaying) return;
+  const type = (state.worldSourceType && state.worldSourceType[state.currentLevel]) || 'synth';
+  state.sourceMode = type;
+  if (type === 'synth') {
+    if (state.synthMasterGain && state.audioCtx) {
+      state.synthMasterGain.gain.setTargetAtTime(
+        state.worldVolume[state.currentLevel], state.audioCtx.currentTime, 0.1);
+    }
+    startSynth();
+    startChordProgression();
+  } else if (type === 'mp3') {
+    startMp3World();
+  } else if (type === 'youtube') {
+    if (window.startYouTubeWorld) window.startYouTubeWorld();
+  } else if (type === 'capture') {
+    if (window.startCapture) window.startCapture();
   }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function startStems() {
@@ -390,11 +422,7 @@ export function toggleMasterPlay() {
 
   if (!state.isPlaying) {
     state.isPlaying = true;
-    const wType = (state.worldSourceType && state.worldSourceType[state.currentLevel]) || 'synth';
-    if (wType === 'synth') { startSynth(); startChordProgression(); }
-    else if (wType === 'mp3') startMp3World();
-    else if (wType === 'youtube') { if (window.startYouTubeWorld) window.startYouTubeWorld(); }
-    else if (wType === 'capture') { if (window.startCapture) window.startCapture(); }
+    restartWorldAudio();
 
     btn.classList.add('active');
     btn.setAttribute('aria-pressed', 'true');
@@ -413,8 +441,8 @@ export function toggleMasterPlay() {
     stopStems();
     stopSynth();
     stopChordProgression();
-    stopMp3World();
-    if (window.stopYouTubeWorld) window.stopYouTubeWorld();
+    stopAllMp3World();
+    if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
     if (window.stopCapture) window.stopCapture();
     stopDeprivationHeartbeat();
     btn.classList.remove('active');
@@ -432,8 +460,72 @@ export function toggleMasterPlay() {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-export function selectLevel(idx) {
+export function selectLevel(idx, preserveParams = false) {
   initAudio();
+
+  const applyLevel = () => {
+    state.currentLevel = idx;
+    state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null)
+      ? state.worldSynth[idx]
+      : WORLD_SYNTH[idx];
+    state.sourceMode = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
+
+    // Volume do mundo atual no synth (o ganho é compartilhado entre mundos)
+    if (state.synthMasterGain && state.audioCtx) {
+      const vol = (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2;
+      state.synthMasterGain.gain.setTargetAtTime(vol, state.audioCtx.currentTime, 0.1);
+    }
+
+    const _colors = ['#ffffff', '#88aaff', '#ffaa88', '#ff8888', '#888888', '#aaffaa'];
+    for (let i = 0; i < 6; i++) {
+      const _b = document.getElementById(`lvl${i}`);
+      if (_b) {
+        _b.classList.toggle('active', i === idx);
+        _b.style.borderLeftColor = i === idx ? _colors[i] : '';
+      }
+    }
+    const topSt = document.getElementById('topStatus');
+    if (topSt) topSt.style.color = _colors[idx];
+
+    const l = LEVELS[idx];
+    const speedEl = document.getElementById('sliderSpeed');
+    const filterEl = document.getElementById('sliderFilter');
+    const delayEl = document.getElementById('sliderDelay');
+    const reverbEl = document.getElementById('sliderReverb');
+    if (!preserveParams) {
+      if (speedEl) speedEl.value = l.speed;
+      if (filterEl) filterEl.value = l.filter;
+      if (delayEl) delayEl.value = l.delay;
+      if (reverbEl) reverbEl.value = l.reverb;
+    }
+    const curSpeed = speedEl ? parseFloat(speedEl.value) : l.speed;
+    const curFilter = filterEl ? parseFloat(filterEl.value) : l.filter;
+    syncXYPadFromSliders(curSpeed, curFilter);
+    applyParameters();
+
+    if (state.isPlaying) {
+      stopSynth();
+      stopChordProgression();
+      stopAllMp3World();
+      if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
+      if (window.stopCapture) window.stopCapture();
+
+      if (state.sourceMode === 'synth') {
+        startSynth();
+        startChordProgression();
+      } else if (state.sourceMode === 'mp3') {
+        startMp3World();
+      } else if (state.sourceMode === 'youtube') {
+        if (window.startYouTubeWorld) window.startYouTubeWorld();
+      } else if (state.sourceMode === 'capture') {
+        if (window.startCapture) window.startCapture();
+      }
+    }
+
+    if (typeof window.syncSourceRow === 'function') window.syncSourceRow(idx);
+    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+  };
+
   // Crossfade: fade out, apply, fade in
   if (state.crossfadeGain) {
     const now = state.audioCtx.currentTime;
@@ -441,87 +533,14 @@ export function selectLevel(idx) {
     state.crossfadeGain.gain.setValueAtTime(state.crossfadeGain.gain.value, now);
     state.crossfadeGain.gain.linearRampToValueAtTime(0, now + 0.75);
     setTimeout(() => {
-      state.currentLevel = idx;
-  state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null) ? state.worldSynth[idx] : WORLD_SYNTH[idx];
-  state.sourceMode = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
-      const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
-      for (let i = 0; i < 6; i++) {
-        const _b = document.getElementById(`lvl${i}`);
-    if (_b) {
-      _b.classList.toggle('active', i === idx);
-      _b.style.borderLeftColor = i === idx ? _colors[i] : '';
-    }
-      }
-      const topSt = document.getElementById('topStatus');
-      if (topSt) topSt.style.color = _colors[idx];
-      const l = LEVELS[idx];
-      // sync world synth select and volume
-      const ws = document.getElementById('worldSynthSelect');
-      if (ws) ws.value = state.worldSynth[idx];
-      const wv = document.getElementById('worldVolSlider');
-      if (wv) wv.value = state.worldVolume[idx];
-      const wvv = document.getElementById('worldVolVal');
-      if (wvv) wvv.textContent = Math.round(state.worldVolume[idx] * 100) + '%';
-      document.getElementById('sliderSpeed').value = l.speed;
-      document.getElementById('sliderFilter').value = l.filter;
-      document.getElementById('sliderDelay').value = l.delay;
-      document.getElementById('sliderReverb').value = l.reverb;
-      syncXYPadFromSliders(l.speed, l.filter);
-      applyParameters();
+      applyLevel();
       const now2 = state.audioCtx.currentTime;
       state.crossfadeGain.gain.cancelScheduledValues(now2);
       state.crossfadeGain.gain.setValueAtTime(0, now2);
       state.crossfadeGain.gain.linearRampToValueAtTime(1, now2 + 0.75);
-      if (state.isPlaying) {
-        if (state.sourceMode === 'synth') {
-          stopChordProgression();
-          startSynth();
-          startChordProgression();
-        } else if (state.sourceMode === 'upload') {
-          stopMp3World();
-          startMp3World();
-        } else if (state.sourceMode === 'youtube') {
-          if (window.stopYouTubeWorld) window.stopYouTubeWorld();
-          if (window.startYouTubeWorld) window.startYouTubeWorld();
-        }
-      }
-      if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
     }, 750);
   } else {
-    state.currentLevel = idx;
-  state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null) ? state.worldSynth[idx] : WORLD_SYNTH[idx];
-  state.sourceMode = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
-    const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
-    for (let i = 0; i < 6; i++) {
-      const _b = document.getElementById(`lvl${i}`);
-    if (_b) {
-      _b.classList.toggle('active', i === idx);
-      _b.style.borderLeftColor = i === idx ? _colors[i] : '';
-    }
-    }
-    const topSt = document.getElementById('topStatus');
-    if (topSt) topSt.style.color = _colors[idx];
-    const l = LEVELS[idx];
-    document.getElementById('sliderSpeed').value = l.speed;
-    document.getElementById('sliderFilter').value = l.filter;
-    document.getElementById('sliderDelay').value = l.delay;
-    document.getElementById('sliderReverb').value = l.reverb;
-    syncXYPadFromSliders(l.speed, l.filter);
-    applyParameters();
-    if (state.isPlaying) {
-      if (state.sourceMode === 'synth') {
-        stopChordProgression();
-        startSynth();
-        startChordProgression();
-      } else if (state.sourceMode === 'upload') {
-        stopMp3World();
-        startMp3World();
-      } else if (state.sourceMode === 'youtube') {
-        if (window.stopYouTubeWorld) window.stopYouTubeWorld();
-        if (window.startYouTubeWorld) window.startYouTubeWorld();
-      }
-    }
-    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+    applyLevel();
   }
 }
 
@@ -557,9 +576,11 @@ export function applyParameters() {
 
   if (state.audioCtx) {
     if (state.masterFilter) state.masterFilter.frequency.setTargetAtTime(filter, state.audioCtx.currentTime, 0.1);
-    if (state.feedbackGain) state.feedbackGain.gain.setTargetAtTime(delay, state.audioCtx.currentTime, 0.1);
+    if (state.feedbackLeft) state.feedbackLeft.gain.setTargetAtTime(delay, state.audioCtx.currentTime, 0.1);
+    if (state.feedbackRight) state.feedbackRight.gain.setTargetAtTime(delay * 0.85, state.audioCtx.currentTime, 0.1);
     if (state.reverbGain) state.reverbGain.gain.setTargetAtTime(reverb, state.audioCtx.currentTime, 0.1);
     state.stemSources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, state.audioCtx.currentTime, 0.1); });
+    state.worldMp3Sources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, state.audioCtx.currentTime, 0.1); });
     state.synthNodes.forEach(s => {
       if (!s.isLfo) s.osc.frequency.setTargetAtTime(s.base * speed, state.audioCtx.currentTime, 0.1);
     });

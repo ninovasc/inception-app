@@ -24,7 +24,9 @@ export function togglePanel(id) {
 }
 
 export function handleXYMove(clientX, clientY) {
+  // X/Y Pad foi removido; mantém a função inofensiva para compatibilidade.
   const xyPad = document.getElementById('xyPad');
+  if (!xyPad) return;
   const rect = xyPad.getBoundingClientRect();
   let x = (clientX - rect.left) / rect.width;
   let y = (clientY - rect.top) / rect.height;

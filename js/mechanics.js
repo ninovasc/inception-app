@@ -250,7 +250,7 @@ export async function enterSensoryDeprivation() {
   setSensorStatus('Estado oculto de Privação Sensorial ativado.');
 
   const audio = await import('./audio.js');
-  audio.selectSynthType(4);
+  audio.setWorldSynth(4, 4); // Limbo usa Binaural Pulse
   audio.selectLevel(4);
 
   if (state.heartbeatInterval) clearInterval(state.heartbeatInterval);

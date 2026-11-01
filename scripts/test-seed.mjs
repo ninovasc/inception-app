@@ -19,7 +19,7 @@ const s = {
   mechanics: { mem: true, auto: false, spatial: true, lucidMin: 30, depr: false },
   lucidModeIdx: 2,
   ytLinks: ['dQw4w9WgXcQ', '', 'abc123def45'],
-  worldSourceType: ['synth', 'upload', 'youtube', 'synth', 'synth', 'synth'],
+  worldSourceType: ['synth', 'mp3', 'youtube', 'synth', 'synth', 'synth'],
   worldSynth: [0, 1, 2, 3, 4, 0],
   worldVolume: [0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
   worldSources: { mp3: ['', '', '', '', '', ''], youtube: ['dQw4w9WgXcQ', '', '', '', '', ''] }
@@ -43,7 +43,9 @@ assert(d.mechanics.spatial === true, 'spatial');
 assert(d.mechanics.lucidMin === 30, 'lucidMin');
 assert(d.mechanics.depr === false, 'depr');
 assert(d.ytLinks && d.ytLinks[0] === 'dQw4w9WgXcQ', 'yt0');
-assert(d.worldSourceType && d.worldSourceType[1] === 'upload', 'wst');
+assert(d.worldSourceType && d.worldSourceType[1] === 'mp3', 'wst mp3');
+assert(d.worldSourceType && d.worldSourceType[2] === 'youtube', 'wst youtube');
+assert(!d.worldSourceType.includes('upload'), 'no legacy upload');
 assert(d.worldSynth && d.worldSynth[2] === 2, 'wsy');
 assert(d.worldVolume && d.worldVolume[3] === 0.5, 'wvl');
 assert(d.worldSources && d.worldSources.youtube && d.worldSources.youtube[0] === 'dQw4w9WgXcQ', 'wsyu');
@@ -55,6 +57,12 @@ assert(seed === seed2, 'round-trip stable');
 
 assert(decodeState('') === null, 'empty null');
 assert(decodeState(null) === null, 'null null');
+
+// MP3 como tipo de fonte (novo modelo)
+const mp3Seed = encodeState({ sourceMode: 'mp3', worldSourceType: ['mp3', 'synth', 'synth', 'synth', 'synth', 'synth'] });
+const mp3Decoded = decodeState(mp3Seed);
+assert(mp3Decoded.sourceMode === 'mp3', 'sourceMode mp3');
+assert(mp3Decoded.worldSourceType[0] === 'mp3', 'world 0 mp3');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail > 0 ? 1 : 0);

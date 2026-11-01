@@ -56,7 +56,7 @@ export function decodeState(str) {
     const json = atob(str);
     const c = JSON.parse(json);
     const out = {};
-    if (c.m !== undefined) out.sourceMode = c.m === 0 ? 'synth' : (c.m === 1 ? 'youtube' : (c.m === 2 ? 'capture' : 'upload'));
+    if (c.m !== undefined) out.sourceMode = c.m === 0 ? 'synth' : (c.m === 1 ? 'youtube' : (c.m === 2 ? 'capture' : 'mp3'));
     if (c.s !== undefined) out.currentSynthType = c.s;
     if (c.l !== undefined) out.currentLevel = c.l;
     if (c.x) out.xyState = { x: c.x[0] / 100, y: c.x[1] / 100 };
@@ -77,7 +77,7 @@ export function decodeState(str) {
     }
     if (c.i !== undefined) out.lucidModeIdx = c.i;
     if (c.y) out.ytLinks = c.y.split(',').map(x => (x === '_' ? '' : x));
-    if (c.t) out.worldSourceType = c.t.split('').map(n => n === '0' ? 'synth' : (n === '1' ? 'youtube' : 'upload'));
+    if (c.t) out.worldSourceType = c.t.split('').map(n => n === '0' ? 'synth' : (n === '1' ? 'youtube' : 'mp3'));
     if (c.w) out.worldSynth = c.w.split('').map(n => parseInt(n, 10));
     if (c.o) out.worldVolume = c.o.map(n => n / 100);
     if (c.u) {
@@ -101,11 +101,17 @@ export function generateFullSeed() {
     vs
   ];
   const worldYt = [0, 1, 2, 3, 4, 5].map(i => {
+    // Se o campo do mundo está aberto, ele é a fonte mais recente.
     const input = document.getElementById(`ytUrl${i}`);
-    const url = input ? input.value.trim() : '';
-    const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
-    return m ? m[1] : '';
+    if (input) {
+      const m = input.value.trim().match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+      return m ? m[1] : '';
+    }
+    // Caso contrário, preserva o link salvo (o campo não existe para mundos recolhidos).
+    return (state.worldSources && state.worldSources.youtube && state.worldSources.youtube[i]) || '';
   });
+  if (!state.worldSources.youtube) state.worldSources.youtube = ['', '', '', '', '', ''];
+  state.worldSources.youtube = worldYt;
   const seed = encodeState({
     sourceMode: state.sourceMode,
     currentSynthType: state.currentSynthType,
@@ -124,12 +130,7 @@ export function generateFullSeed() {
       depr: state.isDeprivationWatchOn
     },
     lucidModeIdx: state.lucidModeIdx,
-    ytLinks: [0, 1, 2].map(i => {
-      const input = document.getElementById(`ytUrl${i}`);
-      const url = input ? input.value.trim() : '';
-      const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
-      return m ? m[1] : '';
-    }),
+    ytLinks: worldYt.slice(0, 3),
     worldSourceType: state.worldSourceType,
     worldSynth: state.worldSynth,
     worldVolume: state.worldVolume,
@@ -168,33 +169,35 @@ export async function applySeed() {
   }
 
   try {
-    if (parsed.sourceMode) audio.setSourceMode(parsed.sourceMode);
-    if (parsed.currentSynthType !== undefined) audio.selectSynthType(parsed.currentSynthType);
-    if (parsed.currentLevel !== undefined) audio.selectLevel(parsed.currentLevel);
-    if (parsed.volumes) {
-      const vs = parsed.volumes[3];
-      const volSynthEl = document.getElementById('volSynth');
-      if (volSynthEl && !isNaN(vs)) { volSynthEl.value = vs; audio.setSynthVolume(vs); }
-    }
-    if (parsed.speed !== undefined) document.getElementById('sliderSpeed').value = parsed.speed;
-    if (parsed.filter !== undefined) document.getElementById('sliderFilter').value = parsed.filter;
-    if (parsed.delay !== undefined) document.getElementById('sliderDelay').value = parsed.delay;
-    if (parsed.reverb !== undefined) document.getElementById('sliderReverb').value = parsed.reverb;
-
-    if (parsed.xyState) {
-      state.xyState = parsed.xyState;
-    }
-
+    // Estado por mundo (fonte da verdade do novo modelo)
     if (parsed.worldSourceType) state.worldSourceType = parsed.worldSourceType;
     if (parsed.worldSynth) state.worldSynth = parsed.worldSynth;
     if (parsed.worldVolume) state.worldVolume = parsed.worldVolume;
     if (parsed.worldSources && parsed.worldSources.youtube) {
       state.worldSources.youtube = parsed.worldSources.youtube;
-      parsed.worldSources.youtube.forEach((id, i) => {
-        const input = document.getElementById(`ytUrl${i}`);
-        if (input) input.value = id ? `https://youtu.be/${id}` : '';
-      });
     }
+
+    // Sliders antes do nível: selectLevel(..., true) preserva os valores salvos.
+    const setVal = (id, value) => {
+      const el = document.getElementById(id);
+      if (el && value !== undefined && value !== null && !isNaN(value)) el.value = value;
+    };
+    setVal('sliderSpeed', parsed.speed);
+    setVal('sliderFilter', parsed.filter);
+    setVal('sliderDelay', parsed.delay);
+    setVal('sliderReverb', parsed.reverb);
+    if (parsed.xyState) state.xyState = parsed.xyState;
+
+    const levelIdx = (parsed.currentLevel !== undefined) ? parsed.currentLevel : state.currentLevel;
+    audio.selectLevel(levelIdx, true);
+
+    // Reflete o estado na UI imediatamente (o áudio aplica após o crossfade).
+    if (typeof window.syncSourceRow === 'function') window.syncSourceRow(levelIdx);
+
+    // Recria os players de YouTube que tenham link salvo.
+    state.worldSources.youtube.forEach((id, i) => {
+      if (id && window.loadYouTube) window.loadYouTube(i, `https://youtu.be/${id}`);
+    });
 
     if (parsed.mechanics) {
       const m = parsed.mechanics;
@@ -216,6 +219,7 @@ export async function applySeed() {
     audio.applyParameters();
     setSensorStatus('Código restaurado com sucesso!');
   } catch (e) {
+    console.error('applySeed:', e);
     alert('Formato de Código inválido.');
   }
 }

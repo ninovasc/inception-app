@@ -31,6 +31,7 @@ Object.assign(window, {
   applyParameters: audio.applyParameters,
   setWorldSynth: audio.setWorldSynth,
   setWorldVolume: audio.setWorldVolume,
+  restartWorldAudio: audio.restartWorldAudio,
   triggerKick: audio.triggerKick,
   toggleMic: sensors.toggleMic,
   applyMicPreset: sensors.applyMicPreset,
@@ -59,6 +60,7 @@ Object.assign(window, {
   stopYouTube: yt.stopYouTube,
   startYouTubeWorld: yt.startYouTubeWorld,
   stopYouTubeWorld: yt.stopYouTubeWorld,
+  stopAllYouTubeWorld: yt.stopAllYouTubeWorld,
   setYouTubeRate: yt.setYouTubeRate,
   loadYouTube: yt.loadYouTube,
   loadWorldMp3: audio.loadWorldMp3,
@@ -110,6 +112,12 @@ document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(
 // Render source list (vertical, one world at a time expanded)
 let activeSourceWorld = 0;
 
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  }[c]));
+}
+
 function renderSourceList() {
   const container = document.getElementById('sourceList');
   if (!container) return;
@@ -130,8 +138,8 @@ function renderSourceList() {
             </select>
             <div style="display:flex; align-items:center; gap:6px;">
               <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
-              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolumeIdx(${i}, this.value)">
-              <span style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
+              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolume(${i}, this.value)">
+              <span id="worldVolVal${i}" style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
             </div>
           </div>
         `;
@@ -140,13 +148,13 @@ function renderSourceList() {
         controls = `
           <div style="margin-top:6px;">
             <label class="file-btn" for="mp3File${i}" style="margin:0; padding:6px 8px; font-size:0.7rem;">
-              <span id="mp3Label${i}">${label}</span><span>📁</span>
+              <span id="mp3Label${i}">${escapeHtml(label)}</span><span>📁</span>
             </label>
             <input type="file" id="mp3File${i}" accept="*" onchange="loadWorldMp3(${i}, this.files[0])" style="display:none;">
             <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
               <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
-              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolumeIdx(${i}, this.value)">
-              <span style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
+              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolume(${i}, this.value)">
+              <span id="worldVolVal${i}" style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
             </div>
           </div>
         `;
@@ -159,8 +167,8 @@ function renderSourceList() {
             <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;margin-bottom:4px;" id="ytLabel${i}">${label}</div>
             <div style="display:flex; align-items:center; gap:6px;">
               <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
-              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolumeIdx(${i}, this.value)">
-              <span style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
+              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolume(${i}, this.value)">
+              <span id="worldVolVal${i}" style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
             </div>
           </div>
         `;
@@ -169,7 +177,7 @@ function renderSourceList() {
     return `
       <div style="border-bottom:1px solid var(--border); padding:8px 0;">
         <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
-          <button class="menu-item" onclick="toggleSourceRow(${i})" style="flex:0 0 auto; background:none; border:none; color:var(--muted); font-size:0.7rem; padding:0; cursor:pointer;">${expanded ? '▼' : '▶'}</button>
+          <button onclick="toggleSourceRow(${i})" aria-label="${expanded ? 'Recolher' : 'Expandir'} ${w}" aria-expanded="${expanded}" style="flex:0 0 auto; width:20px; background:none; border:none; color:var(--muted); font-size:0.7rem; padding:0; cursor:pointer; line-height:1;">${expanded ? '▼' : '▶'}</button>
           <span style="font-size:0.75rem; font-weight:600; flex:1 1 60px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${w}</span>
           <div style="display:flex; gap:2px; flex-shrink:0;">
             <button class="src-type-btn ${type==='synth'?'active':''}" onclick="setWorldSourceType(${i},'synth')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='synth'?'#fff':'transparent'}; color:${type==='synth'?'#000':'#888'}; border-radius:4px; cursor:pointer;">Synth</button>
@@ -183,131 +191,49 @@ function renderSourceList() {
   }).join('');
 }
 
-window.toggleSourceRow = function(idx) {
+function syncSourceRow(idx) {
   activeSourceWorld = idx;
+  renderSourceList();
+}
+
+window.renderSourceList = renderSourceList;
+window.syncSourceRow = syncSourceRow;
+
+window.toggleSourceRow = function(idx) {
+  activeSourceWorld = (activeSourceWorld === idx) ? -1 : idx;
   renderSourceList();
 };
 
+window.selectWorldTab = function(idx) {
+  window.currentWorldTab = idx;
+  syncSourceRow(idx);
+};
+
+// Compatibilidade
+window.currentWorldTab = 0;
+
 window.setWorldSourceType = function(worldIdx, type) {
-  if (!state.worldSourceType) state.worldSourceType = ['synth','synth','synth','synth','synth','synth'];
+  if (!['synth', 'mp3', 'youtube'].includes(type)) return;
+  if (!state.worldSourceType) state.worldSourceType = ['synth', 'synth', 'synth', 'synth', 'synth', 'synth'];
   state.worldSourceType[worldIdx] = type;
   activeSourceWorld = worldIdx;
+
+  if (worldIdx === state.currentLevel) {
+    state.sourceMode = type;
+    audio.restartWorldAudio();
+  }
+
+  // Garante que o player do YouTube exista quando há um link salvo.
+  if (type === 'youtube' && window.loadYouTube) {
+    const id = state.worldSources && state.worldSources.youtube && state.worldSources.youtube[worldIdx];
+    if (id) window.loadYouTube(worldIdx, `https://youtu.be/${id}`);
+  }
+
   renderSourceList();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 };
 
 renderSourceList();
-
-// Initial seed
-seed.generateFullSeed();
-
-// Per-world source state
-window.currentWorldTab = 0;
-
-function renderWorldSource(worldIdx) {
-  const container = document.getElementById('worldSourceContent');
-  if (!container) return;
-  const type = (state.worldSourceType && state.worldSourceType[worldIdx]) || 'synth';
-  const vol = (state.worldVolume && state.worldVolume[worldIdx]) || 0.2;
-  const synthIdx = (state.worldSynth && state.worldSynth[worldIdx]) || 0;
-  const synthNames = ['Zimmer Ambient', 'Brass Drone', 'Sub Limbo', 'Glass Choir', 'Binaural Pulse'];
-  let html = '';
-  if (type === 'synth') {
-    html = `
-      <div class="slider-group">
-        <div class="slider-header"><span>Sintetizador</span></div>
-        <select id="worldSynthSelect" onchange="setWorldSynth(${worldIdx}, this.value)" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.72rem;border-radius:6px;width:100%;">
-          ${synthNames.map((n, i) => `<option value="${i}" ${i === synthIdx ? 'selected' : ''}>${n}</option>`).join('')}
-        </select>
-      </div>
-      <div class="slider-group">
-        <div class="slider-header"><span>Volume</span><span id="worldVolVal${worldIdx}">${Math.round(vol * 100)}%</span></div>
-        <input type="range" id="worldVol${worldIdx}" min="0" max="1" step="0.05" value="${vol}" oninput="setWorldVolumeIdx(${worldIdx}, this.value)">
-      </div>
-    `;
-  } else if (type === 'mp3') {
-    html = `
-      <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-        <label class="file-btn" for="mp3File${worldIdx}" style="flex:1; margin:0; padding:6px 8px; font-size:0.7rem;">
-          <span id="mp3Label${worldIdx}">[Selecionar MP3]</span><span>📁</span>
-        </label>
-        <input type="file" id="mp3File${worldIdx}" accept="*" onchange="loadWorldMp3(${worldIdx}, this.files[0])" style="display:none;">
-      </div>
-      <div class="slider-group">
-        <div class="slider-header"><span>Volume</span><span id="worldVolVal${worldIdx}">${Math.round(vol * 100)}%</span></div>
-        <input type="range" id="worldVol${worldIdx}" min="0" max="1" step="0.05" value="${vol}" oninput="setWorldVolumeIdx(${worldIdx}, this.value)">
-      </div>
-    `;
-  } else if (type === 'youtube') {
-    html = `
-      <input type="text" id="ytUrl${worldIdx}" placeholder="Link YouTube" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.72rem;border-radius:6px;width:100%;margin-bottom:4px;" onchange="loadYouTube(${worldIdx}, this.value)">
-      <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;margin-bottom:4px;" id="ytLabel${worldIdx}">[sem link]</div>
-      <div class="slider-group">
-        <div class="slider-header"><span>Volume</span><span id="worldVolVal${worldIdx}">${Math.round(vol * 100)}%</span></div>
-        <input type="range" id="worldVol${worldIdx}" min="0" max="1" step="0.05" value="${vol}" oninput="setWorldVolumeIdx(${worldIdx}, this.value)">
-      </div>
-    `;
-  }
-  container.innerHTML = html;
-  // restore mp3 label if file loaded
-  if (type === 'mp3' && state.worldSources.mp3[worldIdx]) {
-    const label = document.getElementById(`mp3Label${worldIdx}`);
-    if (label) label.textContent = state.worldSources.mp3[worldIdx].slice(0, 20);
-  }
-  if (type === 'youtube' && state.worldSources.youtube[worldIdx]) {
-    const input = document.getElementById(`ytUrl${worldIdx}`);
-    if (input) input.value = 'https://youtu.be/' + state.worldSources.youtube[worldIdx];
-    const label = document.getElementById(`ytLabel${worldIdx}`);
-    if (label) label.textContent = state.worldSources.youtube[worldIdx];
-  }
-}
-
-window.selectWorldTab = function(idx) {
-  window.currentWorldTab = idx;
-  document.querySelectorAll('.world-tab').forEach((b, i) => {
-    b.classList.toggle('active', i === idx);
-    b.setAttribute('aria-pressed', i === idx ? 'true' : 'false');
-  });
-  activeSourceWorld = idx;
-  renderSourceList();
-};
-
-window.setWorldSourceType = function(worldIdx, type) {
-  if (!state.worldSourceType) state.worldSourceType = ['synth','synth','synth','synth','synth','synth'];
-  state.worldSourceType[worldIdx] = type;
-  // update type buttons
-  document.querySelectorAll('.src-type').forEach(b => {
-    b.classList.toggle('active', b.dataset.type === type);
-    b.setAttribute('aria-pressed', b.dataset.type === type ? 'true' : 'false');
-  });
-  renderSourceList();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-};
-
-window.setWorldSynth = function(worldIdx, val) {
-  if (!state.worldSynth) state.worldSynth = [0,1,2,3,4,0];
-  state.worldSynth[worldIdx] = parseInt(val, 10);
-  if (worldIdx === state.currentLevel && state.sourceMode === 'synth') {
-    audio.startSynth();
-  }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-};
-
-window.setWorldVolumeIdx = function(worldIdx, val) {
-  const v = parseFloat(val);
-  if (!state.worldVolume) state.worldVolume = [0.2,0.2,0.2,0.2,0.2,0.2];
-  state.worldVolume[worldIdx] = v;
-  const el = document.getElementById(`worldVolVal${worldIdx}`);
-  if (el) el.textContent = Math.round(v * 100) + '%';
-  if (worldIdx === state.currentLevel && state.sourceMode === 'upload') {
-    const gain = state.worldMp3Gains[worldIdx];
-    if (gain) gain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
-  }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-};
-
-// render initial
-renderWorldSource(0);
 
 // Initial seed
 seed.generateFullSeed();

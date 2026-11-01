@@ -2,6 +2,7 @@ import { state } from './state.js';
 
 const players = [null, null, null, null, null, null];
 const ready = [false, false, false, false, false, false];
+const playerIds = ['', '', '', '', '', ''];
 let apiLoaded = false;
 let apiReady = false;
 const pending = [];
@@ -21,8 +22,12 @@ function loadApi() {
 
 function extractId(url) {
   if (!url) return null;
-  const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+  const m = String(url).trim().match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
   return m ? m[1] : null;
+}
+
+function worldVolume(index) {
+  return (state.worldVolume && state.worldVolume[index] != null) ? state.worldVolume[index] : 0.2;
 }
 
 export function initYouTube() {
@@ -30,23 +35,37 @@ export function initYouTube() {
 }
 
 export function loadYouTube(index, url) {
-  // index can be 0-2 (legacy) or world index 0-5
   loadApi();
   const id = extractId(url);
   if (!id) {
     setLabel(index, 'Link inválido');
     return;
   }
-  // destroy previous
+
+  // Guarda o vínculo do mundo (fonte da verdade para a seed e para o play).
+  if (!state.worldSources.youtube) state.worldSources.youtube = ['', '', '', '', '', ''];
+  state.worldSources.youtube[index] = id;
+
+  // Já existe um player pronto para este vídeo: não recria.
+  if (players[index] && playerIds[index] === id && ready[index]) {
+    setLabel(index, `YouTube: ${id}`);
+    return;
+  }
+
   if (players[index]) {
     try { players[index].destroy(); } catch (e) {}
     players[index] = null;
     ready[index] = false;
   }
+  playerIds[index] = id;
   setLabel(index, 'Carregando...');
+
   const create = () => {
     const container = document.getElementById(`ytPlayer${index}`);
-    if (!container) return;
+    if (!container) {
+      setLabel(index, 'Player indisponível');
+      return;
+    }
     container.innerHTML = '';
     players[index] = new YT.Player(container, {
       videoId: id,
@@ -63,9 +82,12 @@ export function loadYouTube(index, url) {
       events: {
         onReady: (e) => {
           ready[index] = true;
-          try { e.target.setVolume(Math.round(parseFloat(document.getElementById(`ytVol${index}`)?.value || 0.3) * 100)); } catch (err) {}
-          setLabel(index, `YouTube ${index + 1}: ${id}`);
-          if (state.isPlaying && state.sourceMode === 'youtube') {
+          try { e.target.setVolume(Math.round(worldVolume(index) * 100)); } catch (err) {}
+          setLabel(index, id);
+          const isCurrentYouTube = state.isPlaying &&
+            state.currentLevel === index &&
+            state.worldSourceType[index] === 'youtube';
+          if (isCurrentYouTube) {
             try { e.target.playVideo(); } catch (err) {}
           }
         },
@@ -84,20 +106,32 @@ function setLabel(index, text) {
 
 export function startYouTubeWorld() {
   const idx = state.currentLevel;
-  const p = players[idx];
-  if (p && ready[idx]) {
-    try { p.playVideo(); } catch (e) {}
+  const storedId = state.worldSources && state.worldSources.youtube && state.worldSources.youtube[idx];
+
+  // Player ainda não criado, mas existe link salvo: cria (o onReady inicia).
+  if (!players[idx] && storedId) {
+    loadYouTube(idx, `https://youtu.be/${storedId}`);
+    return;
   }
+
+  const p = players[idx];
+  if (!p || !ready[idx]) return;
+  try { p.setVolume(Math.round(worldVolume(idx) * 100)); } catch (e) {}
+  try { p.playVideo(); } catch (e) {}
   const rate = parseFloat(document.getElementById('sliderSpeed')?.value || 1);
-  try { if (p && ready[idx]) p.setPlaybackRate(rate); } catch (e) {}
+  try { p.setPlaybackRate(rate); } catch (e) {}
 }
 
-export function stopYouTubeWorld() {
-  const idx = state.currentLevel;
+export function stopYouTubeWorld(index) {
+  const idx = (index === undefined) ? state.currentLevel : index;
   const p = players[idx];
   if (p && ready[idx]) {
     try { p.pauseVideo(); } catch (e) {}
   }
+}
+
+export function stopAllYouTubeWorld() {
+  for (let i = 0; i < 6; i++) stopYouTubeWorld(i);
 }
 
 // legacy wrappers
@@ -115,7 +149,7 @@ export function setYouTubeVolume(index, val) {
 }
 
 export function setYouTubeRate(rate) {
-  for (let i = 0; i < 3; i++) {
+  for (let i = 0; i < 6; i++) {
     if (players[i] && ready[i]) {
       try { players[i].setPlaybackRate(rate); } catch (e) {}
     }
