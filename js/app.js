@@ -88,6 +88,17 @@ Object.assign(window, {
 
 // Service worker
 if ('serviceWorker' in navigator) {
+  // Se já havia um SW controlando a página, um SW novo assumindo indica
+  // que houve deploy: recarrega uma única vez para evitar arquivos misturados
+  // (index.html novo com JS antigo do cache).
+  const hadController = !!navigator.serviceWorker.controller;
+  let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!hadController || reloading) return;
+    reloading = true;
+    window.location.reload();
+  });
+
   window.addEventListener('load', () => {
     // updateViaCache 'none': o navegador não pode servir um sw.js antigo
     // do cache HTTP — é o que garantia versões misturadas após o deploy.
