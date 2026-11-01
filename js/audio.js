@@ -7,26 +7,34 @@ export function initAudio() {
     return;
   }
   const AudioCtx = window.AudioContext || window.webkitAudioContext;
-  state.audioCtx = new AudioCtx();
+  // 'playback' usa buffers maiores: evita estalos/queda de áudio no celular.
+  try {
+    state.audioCtx = new AudioCtx({ latencyHint: 'playback' });
+  } catch (e) {
+    state.audioCtx = new AudioCtx();
+  }
 
   state.masterFilter = state.audioCtx.createBiquadFilter();
   state.masterFilter.type = 'lowpass';
   state.masterFilter.frequency.value = 18000;
 
-  // Delay estéreo: left e right com tempos diferentes
+  // Delay estéreo: left e right com tempos diferentes.
+  // O slider controla a quantidade de eco (wet); o feedback fica fixo e seguro.
   state.delayLeft = state.audioCtx.createDelay(5.0);
   state.delayLeft.delayTime.value = 0.35;
   state.delayRight = state.audioCtx.createDelay(5.0);
   state.delayRight.delayTime.value = 0.50;
+  state.delayWet = state.audioCtx.createGain();
+  state.delayWet.gain.value = 0.06;
   state.feedbackLeft = state.audioCtx.createGain();
-  state.feedbackLeft.gain.value = 0.12;
+  state.feedbackLeft.gain.value = 0.32;
   state.feedbackRight = state.audioCtx.createGain();
-  state.feedbackRight.gain.value = 0.10;
+  state.feedbackRight.gain.value = 0.28;
 
   state.convolverNode = state.audioCtx.createConvolver();
-  state.convolverNode.buffer = createImpulse(3.5, 2.5);
+  state.convolverNode.buffer = createImpulse(2.4, 2.2);
   state.reverbGain = state.audioCtx.createGain();
-  state.reverbGain.gain.value = 0.30;
+  state.reverbGain.gain.value = 0.15;
 
   state.dryGain = state.audioCtx.createGain();
   state.dryGain.gain.value = 0.90;
@@ -40,7 +48,15 @@ export function initAudio() {
   state.crossfadeGain.gain.value = 1.0;
 
   state.compressor = state.audioCtx.createDynamicsCompressor();
+  // Compressor suave: evita "bombeamento" quando o eco/reverb acumulam.
   state.compressor.threshold.value = -15;
+  state.compressor.knee.value = 24;
+  state.compressor.ratio.value = 4;
+  state.compressor.attack.value = 0.01;
+  state.compressor.release.value = 0.25;
+
+  state.masterOut = state.audioCtx.createGain();
+  state.masterOut.gain.value = 0.9;
 
   state.synthMasterGain = state.audioCtx.createGain();
   state.synthMasterGain.gain.value = (state.worldVolume && state.worldVolume[state.currentLevel] != null)
@@ -59,16 +75,18 @@ export function initAudio() {
   state.masterFilter.connect(state.dryGain);
   state.dryGain.connect(state.stereoPanner);
 
-  // Delay estéreo com feedback
+  // Delay estéreo com feedback (feedback fixo; volume do eco vem de delayWet)
   state.masterFilter.connect(state.delayLeft);
   state.delayLeft.connect(state.feedbackLeft);
   state.feedbackLeft.connect(state.delayLeft);
-  state.delayLeft.connect(state.stereoPanner);
+  state.delayLeft.connect(state.delayWet);
 
   state.masterFilter.connect(state.delayRight);
   state.delayRight.connect(state.feedbackRight);
   state.feedbackRight.connect(state.delayRight);
-  state.delayRight.connect(state.stereoPanner);
+  state.delayRight.connect(state.delayWet);
+
+  state.delayWet.connect(state.stereoPanner);
 
   state.masterFilter.connect(state.convolverNode);
   state.convolverNode.connect(state.reverbGain);
@@ -76,7 +94,8 @@ export function initAudio() {
 
   state.stereoPanner.connect(state.crossfadeGain);
   state.crossfadeGain.connect(state.compressor);
-  state.compressor.connect(state.audioCtx.destination);
+  state.compressor.connect(state.masterOut);
+  state.masterOut.connect(state.audioCtx.destination);
 
   // Evolução temporal: LFO lento (respiração) modulando filtro e volume
   state.breathLfo = state.audioCtx.createOscillator();
@@ -160,7 +179,6 @@ export function selectSynthType(idx) {
   state.worldSynth[state.currentLevel] = v;
   state.currentSynthType = v;
   if (state.isPlaying && state.sourceMode === 'synth') {
-    startSynth();
     startChordProgression();
   }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
@@ -176,18 +194,22 @@ export function setSynthVolume(val) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-export function startSynth(transposeSemitones = 0) {
-  stopSynth();
+export function startSynth(transposeSemitones = 0, fadeMs = 40) {
+  if (!state.audioCtx) return;
   const preset = SYNTH_PRESETS[state.currentSynthType];
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
   const factor = Math.pow(2, transposeSemitones / 12);
+  const now = state.audioCtx.currentTime;
+  const fade = Math.max(0.01, fadeMs / 1000);
 
   preset.freqs.forEach((freq, idx) => {
     const osc = state.audioCtx.createOscillator();
     const g = state.audioCtx.createGain();
     osc.type = preset.types[idx];
     osc.frequency.value = freq * speed * factor;
-    g.gain.value = preset.gains[idx];
+    // Fade-in curto: evita o estalo do corte seco ao iniciar.
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.linearRampToValueAtTime(preset.gains[idx], now + fade);
 
     if (preset.lfo > 0) {
       const lfo = state.audioCtx.createOscillator();
@@ -196,34 +218,64 @@ export function startSynth(transposeSemitones = 0) {
       lfoGain.gain.value = freq * 0.015;
       lfo.connect(lfoGain);
       lfoGain.connect(osc.frequency);
-      lfo.start();
+      lfo.start(now);
       state.synthNodes.push({ osc: lfo, base: preset.lfo, isLfo: true });
     }
 
     osc.connect(g);
     g.connect(state.synthMasterGain);
-    osc.start();
-    state.synthNodes.push({ osc, base: freq * factor, isLfo: false });
+    osc.start(now);
+    state.synthNodes.push({ osc, base: freq * factor, isLfo: false, gain: g });
   });
 }
 
-export function stopSynth() {
-  state.synthNodes.forEach(s => { try { s.osc.stop(); } catch (e) {} });
+export function stopSynth(fadeMs = 60) {
+  const nodes = state.synthNodes;
   state.synthNodes = [];
+  if (!nodes.length) return;
+  const ctx = state.audioCtx;
+  if (!ctx) {
+    nodes.forEach(s => { try { s.osc.stop(); } catch (e) {} });
+    return;
+  }
+  const now = ctx.currentTime;
+  const fade = Math.max(0.01, fadeMs / 1000);
+  nodes.forEach(s => {
+    if (s.isLfo || !s.gain) return;
+    try {
+      const p = s.gain.gain;
+      p.cancelScheduledValues(now);
+      p.setValueAtTime(Math.max(0.0001, p.value), now);
+      p.linearRampToValueAtTime(0.0001, now + fade);
+    } catch (e) {}
+  });
+  setTimeout(() => {
+    nodes.forEach(s => {
+      try { s.osc.stop(); } catch (e) {}
+      if (s.gain) { try { s.gain.disconnect(); } catch (e) {} }
+    });
+  }, Math.round(fade * 1000) + 80);
+}
+
+// Troca o synth atual por outro com fade (sem corte seco).
+export function restartSynth(transposeSemitones = 0, fadeMs = 80) {
+  stopSynth(fadeMs);
+  startSynth(transposeSemitones, fadeMs);
 }
 
 export function startChordProgression() {
   stopChordProgression();
   const prog = CHORD_PROGRESSIONS[state.currentLevel] || CHORD_PROGRESSIONS[0];
   state.chordIndex = 0;
-  // play first chord immediately
+  // play first chord immediately (com fade, sem sobrepor camadas)
   if (state.sourceMode === 'synth' && state.isPlaying) {
-    startSynth(prog[0]);
+    restartSynth(prog[0], 400);
   }
   state.chordInterval = setInterval(() => {
     if (!state.isPlaying || state.sourceMode !== 'synth') return;
     state.chordIndex = (state.chordIndex + 1) % prog.length;
-    startSynth(prog[state.chordIndex]);
+    // Crossfade longo: evita o "pulo" a cada troca de acorde.
+    restartSynth(prog[state.chordIndex], 1400);
   }, 8000);
 }
 
@@ -274,21 +326,25 @@ export async function loadWorldMp3(worldIdx, file) {
 }
 
 export function startMp3World() {
-  stopMp3World();
+  stopMp3World(state.currentLevel, 80);
   const idx = state.currentLevel;
   const buf = state.worldMp3Buffers[idx];
   if (!buf || !state.audioCtx) return;
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
+  const now = state.audioCtx.currentTime;
   const src = state.audioCtx.createBufferSource();
   src.buffer = buf;
   src.loop = true;
   src.playbackRate.value = speed;
   const gain = state.audioCtx.createGain();
   const vol = (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2;
-  gain.gain.value = vol;
+  // Fade-in curto: evita estalo ao iniciar/trocar de mundo.
+  gain.gain.setValueAtTime(0.0001, now);
+  gain.gain.linearRampToValueAtTime(Math.max(0.0001, vol), now + 0.08);
   src.connect(gain);
   gain.connect(state.masterFilter);
-  src.start(0);
+  src.start(now);
+  src.onended = () => { try { gain.disconnect(); } catch (e) {} };
   state.worldMp3Sources[idx] = src;
   state.worldMp3Gains = state.worldMp3Gains || [];
   state.worldMp3Gains[idx] = gain;
@@ -304,18 +360,33 @@ export function setWorldSynth(worldIdx, val) {
   if (worldIdx === state.currentLevel) {
     state.currentSynthType = v;
     if (state.isPlaying && state.sourceMode === 'synth') {
-      startSynth();
+      restartSynth(0, 300);
     }
   }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-export function stopMp3World(index) {
+export function stopMp3World(index, fadeMs = 70) {
   const idx = (index === undefined) ? state.currentLevel : index;
   const src = state.worldMp3Sources[idx];
-  if (src) {
+  if (!src) return;
+  const gain = state.worldMp3Gains ? state.worldMp3Gains[idx] : null;
+  state.worldMp3Sources[idx] = null;
+  if (gain && state.audioCtx) {
+    state.worldMp3Gains[idx] = null;
+    const now = state.audioCtx.currentTime;
+    try {
+      const p = gain.gain;
+      p.cancelScheduledValues(now);
+      p.setValueAtTime(Math.max(0.0001, p.value), now);
+      p.linearRampToValueAtTime(0.0001, now + fadeMs / 1000);
+    } catch (e) {}
+    setTimeout(() => {
+      try { src.stop(); } catch (e) {}
+      try { gain.disconnect(); } catch (e) {}
+    }, fadeMs + 80);
+  } else {
     try { src.stop(); } catch (e) {}
-    state.worldMp3Sources[idx] = null;
   }
 }
 
@@ -369,7 +440,6 @@ export function restartWorldAudio() {
       state.synthMasterGain.gain.setTargetAtTime(
         state.worldVolume[state.currentLevel], state.audioCtx.currentTime, 0.1);
     }
-    startSynth();
     startChordProgression();
   } else if (type === 'mp3') {
     startMp3World();
@@ -504,14 +574,13 @@ export function selectLevel(idx, preserveParams = false) {
     applyParameters();
 
     if (state.isPlaying) {
-      stopSynth();
+      stopSynth(500);
       stopChordProgression();
       stopAllMp3World();
       if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
       if (window.stopCapture) window.stopCapture();
 
       if (state.sourceMode === 'synth') {
-        startSynth();
         startChordProgression();
       } else if (state.sourceMode === 'mp3') {
         startMp3World();
@@ -575,14 +644,15 @@ export function applyParameters() {
   document.getElementById('valReverb').textContent = Math.round(reverb * 100) + '%';
 
   if (state.audioCtx) {
-    if (state.masterFilter) state.masterFilter.frequency.setTargetAtTime(filter, state.audioCtx.currentTime, 0.1);
-    if (state.feedbackLeft) state.feedbackLeft.gain.setTargetAtTime(delay, state.audioCtx.currentTime, 0.1);
-    if (state.feedbackRight) state.feedbackRight.gain.setTargetAtTime(delay * 0.85, state.audioCtx.currentTime, 0.1);
-    if (state.reverbGain) state.reverbGain.gain.setTargetAtTime(reverb, state.audioCtx.currentTime, 0.1);
-    state.stemSources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, state.audioCtx.currentTime, 0.1); });
-    state.worldMp3Sources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, state.audioCtx.currentTime, 0.1); });
+    const now = state.audioCtx.currentTime;
+    if (state.masterFilter) state.masterFilter.frequency.setTargetAtTime(filter, now, 0.05);
+    // Slider vira quantidade de eco (wet). O feedback permanece fixo e estável.
+    if (state.delayWet) state.delayWet.gain.setTargetAtTime(Math.min(0.45, delay * 0.5), now, 0.08);
+    if (state.reverbGain) state.reverbGain.gain.setTargetAtTime(Math.min(0.5, reverb * 0.5), now, 0.08);
+    state.stemSources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
+    state.worldMp3Sources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
     state.synthNodes.forEach(s => {
-      if (!s.isLfo) s.osc.frequency.setTargetAtTime(s.base * speed, state.audioCtx.currentTime, 0.1);
+      if (!s.isLfo) s.osc.frequency.setTargetAtTime(s.base * speed, now, 0.05);
     });
   }
 

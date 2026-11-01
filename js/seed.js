@@ -91,7 +91,21 @@ export function decodeState(str) {
   }
 }
 
-export function generateFullSeed() {
+let seedTimer = null;
+
+// Gera o código do sonho com throttle: durante o arrasto de sliders,
+// evita reescrever o textarea (e refazer layout) dezenas de vezes por segundo.
+export function generateFullSeed(immediate = false) {
+  if (immediate) {
+    if (seedTimer) { clearTimeout(seedTimer); seedTimer = null; }
+    buildSeed();
+    return;
+  }
+  if (seedTimer) return;
+  seedTimer = setTimeout(() => { seedTimer = null; buildSeed(); }, 250);
+}
+
+function buildSeed() {
   const volSynthEl = document.getElementById('volSynth');
   const vs = (volSynthEl && volSynthEl.value != null) ? parseFloat(volSynthEl.value) : 0.2;
   const volumes = [
@@ -217,6 +231,8 @@ export async function applySeed() {
     }
 
     audio.applyParameters();
+    // Atualiza o código na hora após restaurar (sem esperar o throttle).
+    generateFullSeed(true);
     setSensorStatus('Código restaurado com sucesso!');
   } catch (e) {
     console.error('applySeed:', e);

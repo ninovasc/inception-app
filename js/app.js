@@ -236,4 +236,4 @@ window.setWorldSourceType = function(worldIdx, type) {
 renderSourceList();
 
 // Initial seed
-seed.generateFullSeed();
+seed.generateFullSeed(true);
