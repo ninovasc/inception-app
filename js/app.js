@@ -168,10 +168,10 @@ function renderSourceList() {
     }
     return `
       <div style="border-bottom:1px solid var(--border); padding:8px 0;">
-        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
           <button class="menu-item" onclick="toggleSourceRow(${i})" style="flex:0 0 auto; background:none; border:none; color:var(--muted); font-size:0.7rem; padding:0; cursor:pointer;">${expanded ? '▼' : '▶'}</button>
-          <span style="font-size:0.75rem; font-weight:600; flex:1;">${w}</span>
-          <div style="display:flex; gap:2px;">
+          <span style="font-size:0.75rem; font-weight:600; flex:1 1 60px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${w}</span>
+          <div style="display:flex; gap:2px; flex-shrink:0;">
             <button class="src-type-btn ${type==='synth'?'active':''}" onclick="setWorldSourceType(${i},'synth')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='synth'?'#fff':'transparent'}; color:${type==='synth'?'#000':'#888'}; border-radius:4px; cursor:pointer;">Synth</button>
             <button class="src-type-btn ${type==='mp3'?'active':''}" onclick="setWorldSourceType(${i},'mp3')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='mp3'?'#fff':'transparent'}; color:${type==='mp3'?'#000':'#888'}; border-radius:4px; cursor:pointer;">MP3</button>
             <button class="src-type-btn ${type==='youtube'?'active':''}" onclick="setWorldSourceType(${i},'youtube')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='youtube'?'#fff':'transparent'}; color:${type==='youtube'?'#000':'#888'}; border-radius:4px; cursor:pointer;">YT</button>
