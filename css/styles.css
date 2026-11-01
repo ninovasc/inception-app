@@ -62,6 +62,15 @@ header {
   color: var(--text);
 }
 
+.breathing {
+  animation: breathe 4s ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1.0; }
+}
+
 .version {
   font-size: 0.55rem;
   color: var(--muted);

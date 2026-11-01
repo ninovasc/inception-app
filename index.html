@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v1.19.0</div>
+        <div class="version">v1.20.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -50,7 +50,7 @@
 
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('sensorPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Sensores Reais (Ligar / Desligar)</span>
+        <span>Sensores (Ligar / Desligar)</span>
         <span style="color:#fff;">▼</span>
       </div>
       <div id="sensorPanel" class="hidden-panel open">
@@ -126,7 +126,7 @@
       </div>
       <div id="sourcePanel" class="hidden-panel open">
         <div style="display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
-          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo sintetizadores" aria-pressed="true">Synths</button>
+          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo sintetizadores" aria-pressed="true">Sintetizadores</button>
           <button class="menu-item" id="btnUpload" onclick="setSourceMode('upload')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo meus MP3" aria-pressed="false">MP3</button>
           <button class="menu-item" id="btnYt" onclick="setSourceMode('youtube')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo YouTube" aria-pressed="false">YouTube</button>
           <button class="menu-item" id="btnCap" onclick="setSourceMode('capture')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Capturar aba" aria-pressed="false">Capturar aba</button>
@@ -135,19 +135,19 @@
         <div id="synthBox" style="display: flex; flex-direction: column; gap: 6px;">
           <div class="synth-grid">
             <button class="menu-item active" id="syn0" onclick="selectSynthType(0)" style="font-size:0.85rem;">
-              <span>1. Zimmer Ambient</span><span class="sub">Senoidal Suave</span>
+              <span>Zimmer Ambient</span><span class="sub">Senoidal Suave</span>
             </button>
             <button class="menu-item" id="syn1" onclick="selectSynthType(1)" style="font-size:0.85rem;">
-              <span>2. Brass Drone</span><span class="sub">Metais Densos</span>
+              <span>Brass Drone</span><span class="sub">Metais Densos</span>
             </button>
             <button class="menu-item" id="syn2" onclick="selectSynthType(2)" style="font-size:0.85rem;">
-              <span>3. Sub Limbo</span><span class="sub">Abismo LFO</span>
+              <span>Sub Limbo</span><span class="sub">Abismo LFO</span>
             </button>
             <button class="menu-item" id="syn3" onclick="selectSynthType(3)" style="font-size:0.85rem;">
-              <span>4. Glass Choir</span><span class="sub">Coral Cristalino</span>
+              <span>Glass Choir</span><span class="sub">Coral Cristalino</span>
             </button>
             <button class="menu-item" id="syn4" onclick="selectSynthType(4)" style="font-size:0.85rem;">
-              <span>5. Binaural Pulse</span><span class="sub">Psicoacústico</span>
+              <span>Binaural Pulse</span><span class="sub">Psicoacústico</span>
             </button>
           </div>
 
@@ -210,22 +210,22 @@
 
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('mechPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Mecânicas Psicoacústicas (Itens 2 a 6)</span>
+        <span>Mecânicas do Sonho</span>
         <span style="color:#fff;">▼</span>
       </div>
       <div id="mechPanel" class="hidden-panel open">
         <button class="menu-item" id="btnMemCatcher" onclick="toggleMemoryCatcher()" style="font-size:0.88rem;">
-          <span>Memory Catcher (Ecos Reversos)</span>
+          <span>Ecos do Ambiente</span>
           <span class="sub" id="subMemCatcher">OFF</span>
         </button>
 
         <button class="menu-item" id="btnAutoKick" onclick="toggleAutoKick()" style="font-size:0.88rem;">
-          <span>Auto-Kick (Queda Livre Física)</span>
+          <span>Chute Automático (Queda Livre)</span>
           <span class="sub" id="subAutoKick">OFF</span>
         </button>
 
         <button class="menu-item" id="btnSpatial3D" onclick="toggleSpatial3D()" style="font-size:0.88rem;">
-          <span>Áudio Espacial 3D (Bússola)</span>
+          <span>Som 3D (Bússola)</span>
           <span class="sub" id="subSpatial3D">OFF (Centro)</span>
         </button>
 
@@ -235,7 +235,7 @@
         </button>
 
         <button class="menu-item" id="btnDeprivation" onclick="toggleDeprivationWatch()" style="font-size:0.88rem;">
-          <span>Privação Sensorial (Silêncio + Virar)</span>
+          <span>Privação Sensorial (Silêncio)</span>
           <span class="sub" id="subDeprivation">OFF</span>
         </button>
       </div>
@@ -243,12 +243,12 @@
 
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('dspPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Seed (Hash)</span>
+        <span>Código do Sonho</span>
         <span style="color:#fff;">▼</span>
       </div>
       <div id="dspPanel" class="hidden-panel open">
         <div style="margin-top: 6px;">
-          <div class="menu-title" style="margin-bottom:4px;">Seed Completa (Salva todas as opções)</div>
+          <div class="menu-title" style="margin-bottom:4px;">Código Completo (Salva todas as opções)</div>
           <div class="seed-box">
             <input type="text" id="seedInput" placeholder="Cole a seed aqui..." inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false">
             <button onclick="copySeed()">Copiar</button>
@@ -279,23 +279,23 @@
       <h3>O Chute (Kick)</h3>
       <p>Dispara uma fanfarra de metais + BRAAAM grave e desce ao Limbo.</p>
 
-      <h3>Sensores reais</h3>
+      <h3>Sensores</h3>
       <ul>
         <li><strong>Mic</strong>: entrada de áudio e detecção de silêncio.</li>
         <li><strong>Giro</strong>: modula a velocidade e detecta queda livre (Auto-Kick).</li>
         <li><strong>GPS</strong>: sincroniza o nível com o clima (chuva/noite/dia).</li>
       </ul>
 
-      <h3>Mecânicas psicoacústicas</h3>
+      <h3>Mecânicas do Sonho</h3>
       <ul>
-        <li><strong>Memory Catcher</strong>: grava ecos do ambiente e os projeta (às vezes invertidos).</li>
-        <li><strong>Auto-Kick</strong>: dispara O Chute ao detectar queda livre.</li>
-        <li><strong>Áudio 3D</strong>: pan estéreo controlado pela bússola.</li>
+        <li><strong>Ecos do Ambiente</strong>: grava ecos do ambiente e os projeta (às vezes invertidos).</li>
+        <li><strong>Chute Automático</strong>: dispara O Chute ao detectar queda livre.</li>
+        <li><strong>Som 3D</strong>: pan estéreo controlado pela bússola.</li>
         <li><strong>Timer Lúcido</strong>: descida progressiva até o Limbo com despertar ao fim.</li>
         <li><strong>Privação Sensorial</strong>: após 15s de silêncio com o celular virado, entra em modo batimento.</li>
       </ul>
 
-      <h3>Seed</h3>
+      <h3>Código do Sonho</h3>
       <p>Serializa todo o estado em uma string. Use <em>Copiar</em> para compartilhar e <em>Carregar</em> para restaurar.</p>
 
       <h3>Instalação (PWA)</h3>

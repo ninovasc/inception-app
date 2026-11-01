@@ -312,6 +312,8 @@ export function toggleMasterPlay() {
     btn.setAttribute('aria-pressed', 'true');
     sub.textContent = 'ATIVO';
     topSt.textContent = 'SONHANDO';
+    const logo = document.querySelector('.logo');
+    if (logo) logo.classList.add('breathing');
 
     import('./power.js').then(p => {
       p.setupMediaSession();
@@ -330,6 +332,8 @@ export function toggleMasterPlay() {
     btn.setAttribute('aria-pressed', 'false');
     sub.textContent = 'OFF';
     topSt.textContent = 'PARADO';
+    const logo = document.querySelector('.logo');
+    if (logo) logo.classList.remove('breathing');
 
     import('./power.js').then(p => {
       p.releaseWakeLock();
@@ -350,8 +354,15 @@ export function selectLevel(idx) {
     setTimeout(() => {
       state.currentLevel = idx;
       for (let i = 0; i < 6; i++) {
-        document.getElementById(`lvl${i}`).classList.toggle('active', i === idx);
+        const _b = document.getElementById(`lvl${i}`);
+    if (_b) {
+      _b.classList.toggle('active', i === idx);
+      const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
+      _b.style.borderLeftColor = i === idx ? _colors[i] : '';
+    }
       }
+      const topSt = document.getElementById('topStatus');
+      if (topSt) topSt.style.color = _colors[idx];
       const l = LEVELS[idx];
       document.getElementById('sliderSpeed').value = l.speed;
       document.getElementById('sliderFilter').value = l.filter;
@@ -372,8 +383,15 @@ export function selectLevel(idx) {
   } else {
     state.currentLevel = idx;
     for (let i = 0; i < 6; i++) {
-      document.getElementById(`lvl${i}`).classList.toggle('active', i === idx);
+      const _b = document.getElementById(`lvl${i}`);
+    if (_b) {
+      _b.classList.toggle('active', i === idx);
+      const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
+      _b.style.borderLeftColor = i === idx ? _colors[i] : '';
     }
+    }
+    const topSt = document.getElementById('topStatus');
+    if (topSt) topSt.style.color = _colors[idx];
     const l = LEVELS[idx];
     document.getElementById('sliderSpeed').value = l.speed;
     document.getElementById('sliderFilter').value = l.filter;
