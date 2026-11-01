@@ -1,4 +1,5 @@
 import { encodeState, decodeState } from '../js/seed.js';
+import { normalizeSourceType } from '../js/config.js';
 
 let pass = 0, fail = 0;
 function assert(cond, msg) {
@@ -63,6 +64,12 @@ const mp3Seed = encodeState({ sourceMode: 'mp3', worldSourceType: ['mp3', 'synth
 const mp3Decoded = decodeState(mp3Seed);
 assert(mp3Decoded.sourceMode === 'mp3', 'sourceMode mp3');
 assert(mp3Decoded.worldSourceType[0] === 'mp3', 'world 0 mp3');
+
+// YouTube desativado: normalização para Synth (código do player preservado)
+assert(normalizeSourceType('youtube') === 'synth', 'youtube -> synth (disabled)');
+assert(normalizeSourceType('upload') === 'mp3', 'legacy upload -> mp3');
+assert(normalizeSourceType('mp3') === 'mp3', 'mp3 stays');
+assert(normalizeSourceType('lixo') === 'synth', 'invalid -> synth');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail > 0 ? 1 : 0);

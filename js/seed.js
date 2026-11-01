@@ -1,4 +1,5 @@
 import { state } from './state.js';
+import { normalizeSourceType } from './config.js';
 
 // Compact key mapping for cipher
 const KEYMAP = {
@@ -184,7 +185,9 @@ export async function applySeed() {
 
   try {
     // Estado por mundo (fonte da verdade do novo modelo)
-    if (parsed.worldSourceType) state.worldSourceType = parsed.worldSourceType;
+    if (parsed.worldSourceType) {
+      state.worldSourceType = parsed.worldSourceType.map(normalizeSourceType);
+    }
     if (parsed.worldSynth) state.worldSynth = parsed.worldSynth;
     if (parsed.worldVolume) state.worldVolume = parsed.worldVolume;
     if (parsed.worldSources && parsed.worldSources.youtube) {

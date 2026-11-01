@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES } from './config.js';
+import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from './config.js';
 
 export function initAudio() {
   if (state.audioCtx) {
@@ -160,12 +160,10 @@ function createImpulse(duration, decay) {
 
 // Compatibilidade: o tipo de fonte agora é definido por mundo em worldSourceType.
 export function setSourceMode(mode) {
-  const normalized = mode === 'upload' ? 'mp3' : mode;
+  const normalized = normalizeSourceType(mode);
   if (!state.worldSourceType) state.worldSourceType = ['synth', 'synth', 'synth', 'synth', 'synth', 'synth'];
-  if (['synth', 'mp3', 'youtube'].includes(normalized)) {
-    state.worldSourceType[state.currentLevel] = normalized;
-  }
-  state.sourceMode = normalized === 'upload' ? 'mp3' : normalized;
+  state.worldSourceType[state.currentLevel] = normalized;
+  state.sourceMode = normalized;
   restartWorldAudio();
   if (typeof window.renderSourceList === 'function') window.renderSourceList();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
@@ -433,7 +431,9 @@ export function restartWorldAudio() {
   if (window.stopCapture) window.stopCapture();
 
   if (!state.isPlaying) return;
-  const type = (state.worldSourceType && state.worldSourceType[state.currentLevel]) || 'synth';
+  const rawType = (state.worldSourceType && state.worldSourceType[state.currentLevel]) || 'synth';
+  const type = normalizeSourceType(rawType);
+  state.worldSourceType[state.currentLevel] = type;
   state.sourceMode = type;
   if (type === 'synth') {
     if (state.synthMasterGain && state.audioCtx) {
@@ -538,7 +538,9 @@ export function selectLevel(idx, preserveParams = false) {
     state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null)
       ? state.worldSynth[idx]
       : WORLD_SYNTH[idx];
-    state.sourceMode = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
+    const rawType = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
+    state.sourceMode = normalizeSourceType(rawType);
+    if (state.worldSourceType) state.worldSourceType[idx] = state.sourceMode;
 
     // Volume do mundo atual no synth (o ganho é compartilhado entre mundos)
     if (state.synthMasterGain && state.audioCtx) {

@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS, LUCID_MODES } from './config.js';
+import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType } from './config.js';
 import * as audio from './audio.js';
 import * as sensors from './sensors.js';
 import * as mechanics from './mechanics.js';
@@ -100,8 +100,13 @@ try {
   }
 } catch (e) {}
 
-// Init YouTube API
-yt.initYouTube();
+// Init YouTube API (somente se o recurso estiver habilitado)
+if (YOUTUBE_ENABLED) yt.initYouTube();
+
+// YouTube desativado: mundos salvos como YouTube voltam para Synth.
+if (state.worldSourceType) {
+  state.worldSourceType = state.worldSourceType.map(normalizeSourceType);
+}
 
 // Desabilitar presets de voz inicialmente (mic off)
 document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(el => {
@@ -182,7 +187,7 @@ function renderSourceList() {
           <div style="display:flex; gap:2px; flex-shrink:0;">
             <button class="src-type-btn ${type==='synth'?'active':''}" onclick="setWorldSourceType(${i},'synth')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='synth'?'#fff':'transparent'}; color:${type==='synth'?'#000':'#888'}; border-radius:4px; cursor:pointer;">Synth</button>
             <button class="src-type-btn ${type==='mp3'?'active':''}" onclick="setWorldSourceType(${i},'mp3')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='mp3'?'#fff':'transparent'}; color:${type==='mp3'?'#000':'#888'}; border-radius:4px; cursor:pointer;">MP3</button>
-            <button class="src-type-btn ${type==='youtube'?'active':''}" onclick="setWorldSourceType(${i},'youtube')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='youtube'?'#fff':'transparent'}; color:${type==='youtube'?'#000':'#888'}; border-radius:4px; cursor:pointer;">YT</button>
+            ${YOUTUBE_ENABLED ? `<button class="src-type-btn ${type==='youtube'?'active':''}" onclick="setWorldSourceType(${i},'youtube')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='youtube'?'#fff':'transparent'}; color:${type==='youtube'?'#000':'#888'}; border-radius:4px; cursor:pointer;">YT</button>` : ''}
           </div>
         </div>
         ${expanded ? controls : ''}
@@ -214,6 +219,8 @@ window.currentWorldTab = 0;
 
 window.setWorldSourceType = function(worldIdx, type) {
   if (!['synth', 'mp3', 'youtube'].includes(type)) return;
+  // YouTube desativado: ignora qualquer chamada (inclusive links antigos).
+  if (type === 'youtube' && !YOUTUBE_ENABLED) return;
   if (!state.worldSourceType) state.worldSourceType = ['synth', 'synth', 'synth', 'synth', 'synth', 'synth'];
   state.worldSourceType[worldIdx] = type;
   activeSourceWorld = worldIdx;

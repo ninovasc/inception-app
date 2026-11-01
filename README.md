@@ -8,7 +8,7 @@ App web estático, mobile-first, instalável como PWA, publicado via GitHub Page
 ## Funcionalidades
 
 - **6 níveis de sonho** (Realidade, Chuva, Hotel, Fortaleza, Limbo, Lúcido) que ajustam velocidade, filtro, delay e reverb.
-- **Fonte sonora por mundo**: cada mundo escolhe entre 5 sintetizadores (Zimmer Ambient, Brass Drone, Sub Limbo, Glass Choir, Binaural Pulse), um MP3 próprio ou um link do YouTube, com volume independente.
+- **Fonte sonora por mundo**: cada mundo escolhe entre 5 sintetizadores (Zimmer Ambient, Brass Drone, Sub Limbo, Glass Choir, Binaural Pulse) ou um MP3 próprio, com volume independente. (A fonte YouTube está temporariamente indisponível; o código do player foi preservado em `js/youtube.js`.)
 - **Efeitos DSP** via Web Audio API: lowpass, delay com feedback, convolver reverb, dry/wet, stereo panner, compressor.
 - **"O Chute" (Kick)**: fanfarra de metais + BRAAAM grave.
 - **Sensores reais** (opt-in): microfone, giroscópio e GPS (clima via Open-Meteo).

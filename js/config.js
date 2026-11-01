@@ -32,6 +32,19 @@ export const WORLD_VOICE_PRESETS = {
 
 export const WORLD_NAMES = ['Realidade', 'Chuva', 'Hotel', 'Fortaleza', 'Limbo', 'Lúcido'];
 
+// YouTube está temporariamente indisponível para o usuário.
+// Todo o código do player permanece em js/youtube.js — basta mudar para true
+// para reativar o botão "YT" na Fonte Sonora.
+export const YOUTUBE_ENABLED = false;
+
+// Normaliza o tipo de fonte salvo em seeds antigas/estados legados.
+// 'upload' era o nome antigo de MP3; YouTube cai para Synth enquanto desativado.
+export function normalizeSourceType(type) {
+  const t = (type === 'upload') ? 'mp3' : type;
+  if (t === 'youtube' && !YOUTUBE_ENABLED) return 'synth';
+  return ['synth', 'mp3', 'youtube'].includes(t) ? t : 'synth';
+}
+
 // Progressões de acordes por nível (em semitons relativos à tônica)
 export const CHORD_PROGRESSIONS = [
   [0, 5, 7, 5],     // 0 Realidade: I-IV-V-IV (alegre)
