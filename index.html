@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v2.0.1</div>
+        <div class="version">v2.1.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -70,12 +70,31 @@
     <div class="menu-section">
       <div class="menu-title">Mundos</div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-        <button class="menu-item active" id="lvl0" onclick="selectLevel(0)" style="font-size: 0.85rem;" aria-label="Realidade">Realidade</button>
-        <button class="menu-item" id="lvl1" onclick="selectLevel(1)" style="font-size: 0.85rem;" aria-label="Chuva">Chuva</button>
-        <button class="menu-item" id="lvl2" onclick="selectLevel(2)" style="font-size: 0.85rem;" aria-label="Hotel">Hotel</button>
-        <button class="menu-item" id="lvl3" onclick="selectLevel(3)" style="font-size: 0.85rem;" aria-label="Fortaleza">Fortaleza</button>
-        <button class="menu-item" id="lvl4" onclick="selectLevel(4)" style="font-size: 0.85rem;" aria-label="Limbo">Limbo</button>
-        <button class="menu-item" id="lvl5" onclick="selectLevel(5)" style="font-size: 0.85rem;" aria-label="Lúcido">Lúcido</button>
+        <button class="menu-item active" id="lvl0" onclick="selectLevel(0)" style="font-size: 0.7rem;" aria-label="Realidade">Realidade</button>
+        <button class="menu-item" id="lvl1" onclick="selectLevel(1)" style="font-size: 0.7rem;" aria-label="Chuva">Chuva</button>
+        <button class="menu-item" id="lvl2" onclick="selectLevel(2)" style="font-size: 0.7rem;" aria-label="Hotel">Hotel</button>
+        <button class="menu-item" id="lvl3" onclick="selectLevel(3)" style="font-size: 0.7rem;" aria-label="Fortaleza">Fortaleza</button>
+        <button class="menu-item" id="lvl4" onclick="selectLevel(4)" style="font-size: 0.7rem;" aria-label="Limbo">Limbo</button>
+        <button class="menu-item" id="lvl5" onclick="selectLevel(5)" style="font-size: 0.7rem;" aria-label="Lúcido">Lúcido</button>
+      </div>
+
+      <!-- Fonte do mundo selecionado -->
+      <div style="margin-top:10px;">
+        <div class="menu-title" style="margin-bottom:4px;">Fonte do Mundo</div>
+        <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
+          <select id="worldSynthSelect" onchange="setWorldSynth(this.value)" style="flex:1; background:#0a0a0a; border:1px solid var(--border); color:#fff; padding:6px 8px; font-size:0.72rem; border-radius:6px;">
+            <option value="0">Zimmer Ambient</option>
+            <option value="1">Brass Drone</option>
+            <option value="2">Sub Limbo</option>
+            <option value="3">Glass Choir</option>
+            <option value="4">Binaural Pulse</option>
+          </select>
+          <div style="display:flex; align-items:center; gap:4px;">
+            <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
+            <input type="range" id="worldVolSlider" min="0" max="1" step="0.05" value="0.20" style="width:80px;" oninput="setWorldVolume(this.value)">
+            <span id="worldVolVal" style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">20%</span>
+          </div>
+        </div>
       </div>
 
       <!-- Parâmetros da arquitetura (sliders) -->
@@ -210,7 +229,7 @@
         <div style="margin-top: 6px;">
           <div class="menu-title" style="margin-bottom:4px;">Código Completo (Salva todas as opções)</div>
           <div class="seed-box">
-            <input type="text" id="seedInput" placeholder="Cole a seed aqui..." inputmode="text" autocomplete="off" autocapitalize="none" spellcheck="false" style="font-size:0.85rem; padding:10px 12px; min-height:40px;">
+            <textarea id="seedInput" placeholder="Cole a seed aqui..." autocomplete="off" autocapitalize="none" spellcheck="false" style="font-size:0.85rem; padding:10px 12px; min-height:40px; width:100%; resize:vertical; background:#0a0a0a; border:1px solid var(--border); color:#fff; border-radius:6px; font-family:monospace;" oninput="autoResizeSeed()"></textarea>
             <button onclick="copySeed()">Copiar</button>
             <button onclick="applySeed()">Carregar</button>
           </div>

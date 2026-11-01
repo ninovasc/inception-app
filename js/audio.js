@@ -307,6 +307,18 @@ export function startMp3World() {
   state.worldMp3Gains[idx] = gain;
 }
 
+export function setWorldSynth(val) {
+  const v = parseInt(val, 10);
+  if (!isNaN(v)) {
+    state.worldSynth[state.currentLevel] = v;
+    state.currentSynthType = v;
+    if (state.isPlaying && state.sourceMode === 'synth') {
+      startSynth();
+    }
+  }
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
 export function stopMp3World() {
   const idx = state.currentLevel;
   const src = state.worldMp3Sources[idx];
@@ -321,6 +333,18 @@ export function setWorldMp3Volume(worldIdx, val) {
   state.worldVolume[worldIdx] = v;
   const gain = state.worldMp3Gains[worldIdx];
   if (gain) gain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+export function setWorldVolume(val) {
+  const v = parseFloat(val);
+  state.worldVolume[state.currentLevel] = v;
+  const el = document.getElementById('worldVolVal');
+  if (el) el.textContent = Math.round(v * 100) + '%';
+  // update synth gain if in synth mode
+  if (state.sourceMode === 'synth' && state.synthMasterGain) {
+    state.synthMasterGain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+  }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
@@ -429,6 +453,13 @@ export function selectLevel(idx) {
       const topSt = document.getElementById('topStatus');
       if (topSt) topSt.style.color = _colors[idx];
       const l = LEVELS[idx];
+      // sync world synth select and volume
+      const ws = document.getElementById('worldSynthSelect');
+      if (ws) ws.value = state.worldSynth[idx];
+      const wv = document.getElementById('worldVolSlider');
+      if (wv) wv.value = state.worldVolume[idx];
+      const wvv = document.getElementById('worldVolVal');
+      if (wvv) wvv.textContent = Math.round(state.worldVolume[idx] * 100) + '%';
       document.getElementById('sliderSpeed').value = l.speed;
       document.getElementById('sliderFilter').value = l.filter;
       document.getElementById('sliderDelay').value = l.delay;

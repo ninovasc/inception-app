@@ -18,7 +18,11 @@ const s = {
   reverb: 0.6,
   mechanics: { mem: true, auto: false, spatial: true, lucidMin: 30, depr: false },
   lucidModeIdx: 2,
-  ytLinks: ['dQw4w9WgXcQ', '', 'abc123def45']
+  ytLinks: ['dQw4w9WgXcQ', '', 'abc123def45'],
+  worldSourceType: ['synth', 'upload', 'youtube', 'synth', 'synth', 'synth'],
+  worldSynth: [0, 1, 2, 3, 4, 0],
+  worldVolume: [0.2, 0.3, 0.4, 0.5, 0.6, 0.7],
+  worldSources: { mp3: ['', '', '', '', '', ''], youtube: ['dQw4w9WgXcQ', '', '', '', '', ''] }
 };
 const seed = encodeState(s);
 console.log('seed:', seed);
@@ -39,28 +43,16 @@ assert(d.mechanics.spatial === true, 'spatial');
 assert(d.mechanics.lucidMin === 30, 'lucidMin');
 assert(d.mechanics.depr === false, 'depr');
 assert(d.ytLinks && d.ytLinks[0] === 'dQw4w9WgXcQ', 'yt0');
-assert(d.ytLinks && d.ytLinks[1] === '', 'yt1');
-assert(d.ytLinks && d.ytLinks[2] === 'abc123def45', 'yt2');
+assert(d.worldSourceType && d.worldSourceType[1] === 'upload', 'wst');
+assert(d.worldSynth && d.worldSynth[2] === 2, 'wsy');
+assert(d.worldVolume && d.worldVolume[3] === 0.5, 'wvl');
+assert(d.worldSources && d.worldSources.youtube && d.worldSources.youtube[0] === 'dQw4w9WgXcQ', 'wsyu');
 
-// round-trip encode
-const s2 = {
-  sourceMode: d.sourceMode,
-  currentSynthType: d.currentSynthType,
-  currentLevel: d.currentLevel,
-  xyState: d.xyState,
-  volumes: d.volumes,
-  speed: d.speed,
-  filter: d.filter,
-  delay: d.delay,
-  reverb: d.reverb,
-  mechanics: d.mechanics,
-  lucidModeIdx: [0,15,30,60].indexOf(d.mechanics.lucidMin),
-  ytLinks: d.ytLinks
-};
+// round-trip
+const s2 = { ...s, ytLinks: d.ytLinks, worldSourceType: d.worldSourceType, worldSynth: d.worldSynth, worldVolume: d.worldVolume, worldSources: d.worldSources };
 const seed2 = encodeState(s2);
 assert(seed === seed2, 'round-trip stable');
 
-// invalid
 assert(decodeState('') === null, 'empty null');
 assert(decodeState(null) === null, 'null null');
 
