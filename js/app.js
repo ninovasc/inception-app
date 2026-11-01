@@ -136,5 +136,118 @@ function renderWorldSources() {
 }
 renderWorldSources();
 
+// Per-world source state
+window.currentWorldTab = 0;
+
+function renderWorldSource(worldIdx) {
+  const container = document.getElementById('worldSourceContent');
+  if (!container) return;
+  const type = (state.worldSourceType && state.worldSourceType[worldIdx]) || 'synth';
+  const vol = (state.worldVolume && state.worldVolume[worldIdx]) || 0.2;
+  const synthIdx = (state.worldSynth && state.worldSynth[worldIdx]) || 0;
+  const synthNames = ['Zimmer Ambient', 'Brass Drone', 'Sub Limbo', 'Glass Choir', 'Binaural Pulse'];
+  let html = '';
+  if (type === 'synth') {
+    html = `
+      <div class="slider-group">
+        <div class="slider-header"><span>Sintetizador</span></div>
+        <select id="worldSynthSelect" onchange="setWorldSynth(${worldIdx}, this.value)" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.72rem;border-radius:6px;width:100%;">
+          ${synthNames.map((n, i) => `<option value="${i}" ${i === synthIdx ? 'selected' : ''}>${n}</option>`).join('')}
+        </select>
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span>Volume</span><span id="worldVolVal${worldIdx}">${Math.round(vol * 100)}%</span></div>
+        <input type="range" id="worldVol${worldIdx}" min="0" max="1" step="0.05" value="${vol}" oninput="setWorldVolumeIdx(${worldIdx}, this.value)">
+      </div>
+    `;
+  } else if (type === 'mp3') {
+    html = `
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+        <label class="file-btn" for="mp3File${worldIdx}" style="flex:1; margin:0; padding:6px 8px; font-size:0.7rem;">
+          <span id="mp3Label${worldIdx}">[Selecionar MP3]</span><span>📁</span>
+        </label>
+        <input type="file" id="mp3File${worldIdx}" accept="*" onchange="loadWorldMp3(${worldIdx}, this.files[0])" style="display:none;">
+      </div>
+      <div class="slider-group">
+        <div class="slider-header"><span>Volume</span><span id="worldVolVal${worldIdx}">${Math.round(vol * 100)}%</span></div>
+        <input type="range" id="worldVol${worldIdx}" min="0" max="1" step="0.05" value="${vol}" oninput="setWorldVolumeIdx(${worldIdx}, this.value)">
+      </div>
+    `;
+  } else if (type === 'youtube') {
+    html = `
+      <input type="text" id="ytUrl${worldIdx}" placeholder="Link YouTube" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.72rem;border-radius:6px;width:100%;margin-bottom:4px;" onchange="loadYouTube(${worldIdx}, this.value)">
+      <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;margin-bottom:4px;" id="ytLabel${worldIdx}">[sem link]</div>
+      <div class="slider-group">
+        <div class="slider-header"><span>Volume</span><span id="worldVolVal${worldIdx}">${Math.round(vol * 100)}%</span></div>
+        <input type="range" id="worldVol${worldIdx}" min="0" max="1" step="0.05" value="${vol}" oninput="setWorldVolumeIdx(${worldIdx}, this.value)">
+      </div>
+    `;
+  }
+  container.innerHTML = html;
+  // restore mp3 label if file loaded
+  if (type === 'mp3' && state.worldSources.mp3[worldIdx]) {
+    const label = document.getElementById(`mp3Label${worldIdx}`);
+    if (label) label.textContent = state.worldSources.mp3[worldIdx].slice(0, 20);
+  }
+  if (type === 'youtube' && state.worldSources.youtube[worldIdx]) {
+    const input = document.getElementById(`ytUrl${worldIdx}`);
+    if (input) input.value = 'https://youtu.be/' + state.worldSources.youtube[worldIdx];
+    const label = document.getElementById(`ytLabel${worldIdx}`);
+    if (label) label.textContent = state.worldSources.youtube[worldIdx];
+  }
+}
+
+window.selectWorldTab = function(idx) {
+  window.currentWorldTab = idx;
+  document.querySelectorAll('.world-tab').forEach((b, i) => {
+    b.classList.toggle('active', i === idx);
+    b.setAttribute('aria-pressed', i === idx ? 'true' : 'false');
+  });
+  // update type buttons
+  const type = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
+  document.querySelectorAll('.src-type').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+    b.setAttribute('aria-pressed', b.dataset.type === type ? 'true' : 'false');
+  });
+  renderWorldSource(idx);
+};
+
+window.setWorldSourceType = function(worldIdx, type) {
+  if (!state.worldSourceType) state.worldSourceType = ['synth','synth','synth','synth','synth','synth'];
+  state.worldSourceType[worldIdx] = type;
+  // update type buttons
+  document.querySelectorAll('.src-type').forEach(b => {
+    b.classList.toggle('active', b.dataset.type === type);
+    b.setAttribute('aria-pressed', b.dataset.type === type ? 'true' : 'false');
+  });
+  renderWorldSource(worldIdx);
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+};
+
+window.setWorldSynth = function(worldIdx, val) {
+  if (!state.worldSynth) state.worldSynth = [0,1,2,3,4,0];
+  state.worldSynth[worldIdx] = parseInt(val, 10);
+  if (worldIdx === state.currentLevel && state.sourceMode === 'synth') {
+    audio.startSynth();
+  }
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+};
+
+window.setWorldVolumeIdx = function(worldIdx, val) {
+  const v = parseFloat(val);
+  if (!state.worldVolume) state.worldVolume = [0.2,0.2,0.2,0.2,0.2,0.2];
+  state.worldVolume[worldIdx] = v;
+  const el = document.getElementById(`worldVolVal${worldIdx}`);
+  if (el) el.textContent = Math.round(v * 100) + '%';
+  if (worldIdx === state.currentLevel && state.sourceMode === 'upload') {
+    const gain = state.worldMp3Gains[worldIdx];
+    if (gain) gain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+  }
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+};
+
+// render initial
+renderWorldSource(0);
+
 // Initial seed
 seed.generateFullSeed();

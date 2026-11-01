@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v2.2.0</div>
+        <div class="version">v2.3.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -76,25 +76,6 @@
         <button class="menu-item" id="lvl3" onclick="selectLevel(3)" style="font-size: 0.7rem;" aria-label="Fortaleza">Fortaleza</button>
         <button class="menu-item" id="lvl4" onclick="selectLevel(4)" style="font-size: 0.7rem;" aria-label="Limbo">Limbo</button>
         <button class="menu-item" id="lvl5" onclick="selectLevel(5)" style="font-size: 0.7rem;" aria-label="Lúcido">Lúcido</button>
-      </div>
-
-      <!-- Fonte do mundo selecionado -->
-      <div style="margin-top:10px;">
-        <div class="menu-title" style="margin-bottom:4px;">Fonte do Mundo</div>
-        <div style="display:flex; gap:6px; align-items:center; margin-bottom:6px;">
-          <select id="worldSynthSelect" onchange="setWorldSynth(this.value)" style="flex:1; background:#0a0a0a; border:1px solid var(--border); color:#fff; padding:6px 8px; font-size:0.72rem; border-radius:6px;">
-            <option value="0">Zimmer Ambient</option>
-            <option value="1">Brass Drone</option>
-            <option value="2">Sub Limbo</option>
-            <option value="3">Glass Choir</option>
-            <option value="4">Binaural Pulse</option>
-          </select>
-          <div style="display:flex; align-items:center; gap:4px;">
-            <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
-            <input type="range" id="worldVolSlider" min="0" max="1" step="0.05" value="0.20" style="width:80px;" oninput="setWorldVolume(this.value)">
-            <span id="worldVolVal" style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">20%</span>
-          </div>
-        </div>
       </div>
 
       <!-- Parâmetros da arquitetura (sliders) -->
@@ -150,40 +131,25 @@
         <span style="color:#fff;">▼</span>
       </div>
       <div id="sourcePanel" class="hidden-panel open">
-        <div style="display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap;">
-          <button class="menu-item active" id="btnSynth" onclick="setSourceMode('synth')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo sintetizadores" aria-pressed="true">Sintetizadores</button>
-          <button class="menu-item" id="btnUpload" onclick="setSourceMode('upload')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo meus MP3" aria-pressed="false">MP3</button>
-          <button class="menu-item" id="btnYt" onclick="setSourceMode('youtube')" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Modo YouTube" aria-pressed="false">YouTube</button>
+        <!-- Abas por mundo -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px; margin-bottom:8px;" id="worldTabs">
+          <button class="menu-item world-tab active" data-world="0" onclick="selectWorldTab(0)" style="justify-content:center; font-size:0.7rem;" aria-pressed="true">Realidade</button>
+          <button class="menu-item world-tab" data-world="1" onclick="selectWorldTab(1)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Chuva</button>
+          <button class="menu-item world-tab" data-world="2" onclick="selectWorldTab(2)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Hotel</button>
+          <button class="menu-item world-tab" data-world="3" onclick="selectWorldTab(3)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Fortaleza</button>
+          <button class="menu-item world-tab" data-world="4" onclick="selectWorldTab(4)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Limbo</button>
+          <button class="menu-item world-tab" data-world="5" onclick="selectWorldTab(5)" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Lúcido</button>
         </div>
 
-        <div id="synthBox" style="display: flex; flex-direction: column; gap: 6px;">
-          <div style="font-size:0.7rem; color:var(--muted);">Cada mundo usa seu sintetizador (Zimmer, Brass, Sub Limbo, Glass, Binaural). Volume global:</div>
-          <div class="slider-group">
-            <div class="slider-header"><span>Volume do Sintetizador</span><span id="volValSynth">20%</span></div>
-            <input type="range" id="volSynth" min="0" max="1" step="0.05" value="0.20" oninput="setSynthVolume(this.value)">
-          </div>
+        <!-- Seletor de tipo por mundo -->
+        <div style="display:flex; gap:4px; margin-bottom:8px;">
+          <button class="menu-item src-type active" data-type="synth" onclick="setWorldSourceType(currentWorldTab, 'synth')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="true">Synth</button>
+          <button class="menu-item src-type" data-type="mp3" onclick="setWorldSourceType(currentWorldTab, 'mp3')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="false">MP3</button>
+          <button class="menu-item src-type" data-type="youtube" onclick="setWorldSourceType(currentWorldTab, 'youtube')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="false">YouTube</button>
         </div>
 
-        <div id="uploadBox" style="display: none; flex-direction: column; gap: 6px;">
-          <div style="font-size:0.7rem; color:var(--muted);">Um MP3 por mundo. Selecione o arquivo para cada mundo.</div>
-          <div id="mp3Worlds"></div>
-        </div>
-
-        <!-- YOUTUBE POR MUNDO -->
-        <div id="ytBox" style="display: none; flex-direction: column; gap: 6px;">
-          <div style="font-size:0.7rem; color:var(--muted);">Um link do YouTube por mundo.</div>
-          <div id="ytWorlds"></div>
-        </div>
-
-        <!-- CAPTURA DE ABA (áudio com efeitos) -->
-        <div id="capBox" style="display: none; flex-direction: column; gap: 6px;">
-          <div style="font-size:0.7rem; color:var(--muted);">Captura o áudio de uma aba do navegador (ex.: YouTube) e roteia pelos efeitos do PASIV.</div>
-          <button class="menu-item" onclick="startCapture()" style="justify-content:center; font-size:0.8rem;" aria-label="Iniciar captura">Iniciar captura</button>
-          <button class="menu-item" onclick="stopCapture()" style="justify-content:center; font-size:0.8rem;" aria-label="Parar captura">Parar captura</button>
-          <div class="slider-group"><div class="slider-header"><span>Vol. Captura</span><span id="capVolVal">50%</span></div>
-          <input type="range" id="capVol" min="0" max="1" step="0.05" value="0.50" oninput="setCaptureVolume(this.value)"></div>
-          <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;" id="capStatus">Selecione a aba e marque "Compartilhar áudio".</div>
-        </div>
+        <!-- Controles dinâmicos -->
+        <div id="worldSourceContent"></div>
       </div>
     </div>
 

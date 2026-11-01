@@ -1,4 +1,4 @@
-const CACHE = 'pasiv-v33';
+const CACHE = 'pasiv-v34';
 const ASSETS = [
   './',
   './index.html',
