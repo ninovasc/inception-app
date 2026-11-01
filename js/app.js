@@ -89,7 +89,9 @@ Object.assign(window, {
 // Service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    // updateViaCache 'none': o navegador não pode servir um sw.js antigo
+    // do cache HTTP — é o que garantia versões misturadas após o deploy.
+    navigator.serviceWorker.register('./sw.js', { updateViaCache: 'none' }).catch(() => {});
   });
 }
 

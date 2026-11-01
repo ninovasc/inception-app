@@ -1,4 +1,4 @@
-const CACHE = 'pasiv-v39';
+const CACHE = 'pasiv-v40';
 const ASSETS = [
   './',
   './index.html',
@@ -23,7 +23,22 @@ const ASSETS = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(() => {}));
+  e.waitUntil(
+    caches.open(CACHE).then(async (c) => {
+      // Busca sempre da rede, ignorando o cache HTTP do navegador.
+      // Sem isso, um deploy novo podia misturar index.html novo com JS antigo.
+      await Promise.all(ASSETS.map(async (url) => {
+        try {
+          const req = new Request(url + '?v=' + CACHE, { cache: 'reload' });
+          const res = await fetch(req);
+          if (res && (res.ok || res.type === 'opaque')) {
+            // Guarda com a URL limpa, para o fetch normal encontrar no cache.
+            await c.put(url, res);
+          }
+        } catch (err) {}
+      }));
+    }).catch(() => {})
+  );
   self.skipWaiting();
 });
 
