@@ -390,19 +390,21 @@ export function selectLevel(idx) {
 }
 
 export function syncXYPadFromSliders(speed, filter) {
+  // X/Y Pad removido; manter função como no-op para compatibilidade
   const x = Math.max(0, Math.min(1, (speed - 0.25) / 1.15));
   const y = Math.max(0, Math.min(1, 1 - (filter - 160) / (18000 - 160)));
   state.xyState = { x, y };
-  const cursor = document.getElementById('xyCursor');
-  cursor.style.left = (x * 100) + '%';
-  cursor.style.top = (y * 100) + '%';
-  document.getElementById('xyCoords').textContent = `X: ${Math.round(x * 100)}% | Y: ${Math.round((1 - y) * 100)}%`;
 }
 
 export function updateFromSliders(syncXY) {
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
   const filter = parseFloat(document.getElementById('sliderFilter').value);
   if (syncXY) syncXYPadFromSliders(speed, filter);
+  // lose level highlight (custom override)
+  for (let i = 0; i < 6; i++) {
+    const b = document.getElementById(`lvl${i}`);
+    if (b) b.classList.remove('active');
+  }
   applyParameters();
 }
 

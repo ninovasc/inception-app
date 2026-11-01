@@ -236,8 +236,50 @@ export function applyMicPreset(name) {
   } else {
     stopMicPitchShift();
   }
+  // update sliders to preset values
+  const gateEl = document.getElementById('micGate');
+  const delayEl = document.getElementById('micDelaySlider');
+  const fbEl = document.getElementById('micFb');
+  const revEl = document.getElementById('micRev');
+  const dwEl = document.getElementById('micDw');
+  if (gateEl) { gateEl.value = p.gate; document.getElementById('micGateVal').textContent = p.gate + ' dB'; }
+  if (delayEl) { delayEl.value = p.delay; document.getElementById('micDelayVal').textContent = p.delay.toFixed(2) + 's'; }
+  if (fbEl) { fbEl.value = p.feedback; document.getElementById('micFbVal').textContent = Math.round(p.feedback * 100) + '%'; }
+  if (revEl) { revEl.value = p.reverb; document.getElementById('micRevVal').textContent = Math.round(p.reverb * 100) + '%'; }
+  if (dwEl) { dwEl.value = p.wet; document.getElementById('micDwVal').textContent = Math.round(p.dry * 100) + '/' + Math.round(p.wet * 100); }
   // update UI
   document.querySelectorAll('.mic-preset').forEach(b => b.classList.toggle('active', b.dataset.preset === name));
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+export function setMicParam(param, val) {
+  const v = parseFloat(val);
+  // switch to custom (deactivate presets)
+  state.micPreset = 'custom';
+  document.querySelectorAll('.mic-preset').forEach(b => b.classList.remove('active'));
+  switch (param) {
+    case 'gate':
+      state.micGateThreshold = v;
+      document.getElementById('micGateVal').textContent = v + ' dB';
+      break;
+    case 'delay':
+      if (state.micDelay) state.micDelay.delayTime.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+      document.getElementById('micDelayVal').textContent = v.toFixed(2) + 's';
+      break;
+    case 'feedback':
+      if (state.micFeedback) state.micFeedback.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+      document.getElementById('micFbVal').textContent = Math.round(v * 100) + '%';
+      break;
+    case 'reverb':
+      if (state.micReverbSend) state.micReverbSend.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+      document.getElementById('micRevVal').textContent = Math.round(v * 100) + '%';
+      break;
+    case 'dw':
+      if (state.micDry) state.micDry.gain.setTargetAtTime(1 - v, state.audioCtx.currentTime, 0.1);
+      if (state.micWet) state.micWet.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+      document.getElementById('micDwVal').textContent = Math.round((1 - v) * 100) + '/' + Math.round(v * 100);
+      break;
+  }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 

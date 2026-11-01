@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v1.17.0</div>
+        <div class="version">v1.18.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -49,25 +49,26 @@
     </div>
 
     <div class="menu-section">
-      <div class="menu-title">Arquitetura de Níveis</div>
+      <div class="menu-title">Mundos</div>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
-        <button class="menu-item active" id="lvl0" onclick="selectLevel(0)" style="font-size: 0.85rem;" aria-label="Nível 0 Realidade">0. Realidade</button>
-        <button class="menu-item" id="lvl1" onclick="selectLevel(1)" style="font-size: 0.85rem;" aria-label="Nível 1 Chuva">1. Chuva</button>
-        <button class="menu-item" id="lvl2" onclick="selectLevel(2)" style="font-size: 0.85rem;" aria-label="Nível 2 Hotel">2. Hotel</button>
-        <button class="menu-item" id="lvl3" onclick="selectLevel(3)" style="font-size: 0.85rem;" aria-label="Nível 3 Fortaleza">3. Fortaleza</button>
-        <button class="menu-item" id="lvl4" onclick="selectLevel(4)" style="font-size: 0.85rem;" aria-label="Nível 4 Limbo">4. Limbo</button>
-        <button class="menu-item" id="lvl5" onclick="selectLevel(5)" style="font-size: 0.85rem;" aria-label="Nível 5 Lúcido">5. Lúcido</button>
+        <button class="menu-item active" id="lvl0" onclick="selectLevel(0)" style="font-size: 0.85rem;" aria-label="Realidade">Realidade</button>
+        <button class="menu-item" id="lvl1" onclick="selectLevel(1)" style="font-size: 0.85rem;" aria-label="Chuva">Chuva</button>
+        <button class="menu-item" id="lvl2" onclick="selectLevel(2)" style="font-size: 0.85rem;" aria-label="Hotel">Hotel</button>
+        <button class="menu-item" id="lvl3" onclick="selectLevel(3)" style="font-size: 0.85rem;" aria-label="Fortaleza">Fortaleza</button>
+        <button class="menu-item" id="lvl4" onclick="selectLevel(4)" style="font-size: 0.85rem;" aria-label="Limbo">Limbo</button>
+        <button class="menu-item" id="lvl5" onclick="selectLevel(5)" style="font-size: 0.85rem;" aria-label="Lúcido">Lúcido</button>
       </div>
-    </div>
 
-    <div class="menu-section">
-      <div class="menu-title" style="display:flex; justify-content:space-between;">
-        <span>X/Y Pad (Toque Livre)</span>
-        <span style="color:#fff; font-family:monospace;" id="xyCoords">X: 65% | Y: 100%</span>
-      </div>
-      <div id="xyPad">
-        <div class="xy-cursor" id="xyCursor" style="left:65%; top:0%;"></div>
-        <div class="xy-label">Eixo X: Velocidade | Eixo Y: Filtro Subaquático</div>
+      <!-- Parâmetros da arquitetura (sliders) -->
+      <div style="margin-top:10px;">
+        <div class="slider-group"><div class="slider-header"><span>Velocidade</span><span id="valSpeed">1.00x</span></div>
+        <input type="range" id="sliderSpeed" min="0.25" max="1.4" step="0.01" value="1.00" oninput="updateFromSliders(true)"></div>
+        <div class="slider-group"><div class="slider-header"><span>Filtro</span><span id="valFilter">18000 Hz</span></div>
+        <input type="range" id="sliderFilter" min="160" max="18000" step="10" value="18000" oninput="updateFromSliders(true)"></div>
+        <div class="slider-group"><div class="slider-header"><span>Eco (Delay)</span><span id="valDelay">12%</span></div>
+        <input type="range" id="sliderDelay" min="0" max="0.85" step="0.02" value="0.12" oninput="updateFromSliders(false)"></div>
+        <div class="slider-group"><div class="slider-header"><span>Reverb</span><span id="valReverb">30%</span></div>
+        <input type="range" id="sliderReverb" min="0" max="1" step="0.02" value="0.30" oninput="updateFromSliders(false)"></div>
       </div>
     </div>
 
@@ -174,7 +175,7 @@
         <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus">Toque em um sensor para ligar ou desligar.</div>
 
         <div style="margin-top:8px;">
-          <div class="menu-title" style="margin-bottom:4px;">Canal de Microfone (preset)</div>
+          <div class="menu-title" style="margin-bottom:4px;">Voz</div>
           <div style="display:flex; gap:4px; flex-wrap:wrap;">
             <button class="menu-item mic-preset active" data-preset="limpo" onclick="applyMicPreset('limpo')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="true">Limpo</button>
             <button class="menu-item mic-preset" data-preset="onirico" onclick="applyMicPreset('onirico')" style="flex:1; justify-content:center; font-size:0.7rem;" aria-pressed="false">Onírico</button>
@@ -184,6 +185,20 @@
           <div style="display:flex; align-items:center; gap:8px; margin-top:6px; font-size:0.7rem; color:var(--muted); font-family:monospace;">
             <span id="micLed" style="width:8px; height:8px; border-radius:50%; background:#333; display:inline-block;"></span>
             <span id="micLedLabel">LED: silêncio</span>
+          </div>
+
+          <!-- Sliders do canal de voz (valores do preset) -->
+          <div style="margin-top:8px;">
+            <div class="slider-group"><div class="slider-header"><span>Gate</span><span id="micGateVal">-30 dB</span></div>
+            <input type="range" id="micGate" min="-60" max="-10" step="1" value="-30" oninput="setMicParam('gate', this.value)"></div>
+            <div class="slider-group"><div class="slider-header"><span>Delay</span><span id="micDelayVal">0.08s</span></div>
+            <input type="range" id="micDelaySlider" min="0.01" max="1.0" step="0.01" value="0.08" oninput="setMicParam('delay', this.value)"></div>
+            <div class="slider-group"><div class="slider-header"><span>Feedback</span><span id="micFbVal">5%</span></div>
+            <input type="range" id="micFb" min="0" max="0.8" step="0.01" value="0.05" oninput="setMicParam('feedback', this.value)"></div>
+            <div class="slider-group"><div class="slider-header"><span>Reverb</span><span id="micRevVal">10%</span></div>
+            <input type="range" id="micRev" min="0" max="1" step="0.01" value="0.10" oninput="setMicParam('reverb', this.value)"></div>
+            <div class="slider-group"><div class="slider-header"><span>Dry/Wet</span><span id="micDwVal">85/15</span></div>
+            <input type="range" id="micDw" min="0" max="1" step="0.01" value="0.15" oninput="setMicParam('dw', this.value)"></div>
           </div>
         </div>
       </div>
@@ -224,19 +239,10 @@
 
     <div class="menu-section">
       <div class="menu-title" onclick="togglePanel('dspPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Parâmetros &amp; Hash/Seed</span>
+        <span>Seed (Hash)</span>
         <span style="color:#fff;">▼</span>
       </div>
       <div id="dspPanel" class="hidden-panel open">
-        <div class="slider-group"><div class="slider-header"><span>Velocidade</span><span id="valSpeed">1.00x</span></div>
-        <input type="range" id="sliderSpeed" min="0.25" max="1.4" step="0.01" value="1.00" oninput="updateFromSliders(true)"></div>
-        <div class="slider-group"><div class="slider-header"><span>Filtro Subaquático</span><span id="valFilter">18000 Hz</span></div>
-        <input type="range" id="sliderFilter" min="160" max="18000" step="10" value="18000" oninput="updateFromSliders(true)"></div>
-        <div class="slider-group"><div class="slider-header"><span>Eco (Delay)</span><span id="valDelay">12%</span></div>
-        <input type="range" id="sliderDelay" min="0" max="0.85" step="0.02" value="0.12" oninput="updateFromSliders(false)"></div>
-        <div class="slider-group"><div class="slider-header"><span>Reverb</span><span id="valReverb">30%</span></div>
-        <input type="range" id="sliderReverb" min="0" max="1" step="0.02" value="0.30" oninput="updateFromSliders(false)"></div>
-
         <div style="margin-top: 6px;">
           <div class="menu-title" style="margin-bottom:4px;">Seed Completa (Salva todas as opções)</div>
           <div class="seed-box">
@@ -255,8 +261,8 @@
       <h2>PASIV Engine</h2>
       <p>Motor de áudio psicoacústico inspirado nos níveis de sonho de <em>Inception</em>. Crie paisagens sonoras, use sensores do celular e compartilhe configurações via Seed.</p>
 
-      <h3>Níveis de sonho</h3>
-      <p>6 níveis (Realidade → Lúcido) ajustam velocidade, filtro, eco e reverb de uma vez.</p>
+      <h3>Mundos</h3>
+      <p>6 mundos (Realidade → Lúcido) ajustam velocidade, filtro, eco e reverb de uma vez.</p>
 
       <h3>Fontes sonoras</h3>
       <ul>
@@ -265,9 +271,6 @@
       <li><strong>3 links do YouTube</strong>: use vídeos do YouTube como camadas sonoras.</li>
       <li><strong>Capturar aba</strong>: captura o áudio de uma aba do navegador (ex.: YouTube) e aplica os efeitos do PASIV.</li>
       </ul>
-
-      <h3>X/Y Pad</h3>
-      <p>Toque e arraste: eixo X controla velocidade, eixo Y o filtro subaquático.</p>
 
       <h3>O Chute (Kick)</h3>
       <p>Dispara uma fanfarra de metais + BRAAAM grave e desce ao Limbo.</p>

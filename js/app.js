@@ -31,6 +31,7 @@ Object.assign(window, {
   triggerKick: audio.triggerKick,
   toggleMic: sensors.toggleMic,
   applyMicPreset: sensors.applyMicPreset,
+  setMicParam: sensors.setMicParam,
   toggleMotion: sensors.toggleMotion,
   motionHandler: sensors.motionHandler,
   orientationHandler: sensors.orientationHandler,
@@ -60,17 +61,6 @@ Object.assign(window, {
   setCaptureVolume: cap.setCaptureVolume
 });
 
-// Wire X/Y pad
-const xyPad = document.getElementById('xyPad');
-let isDragging = false;
-xyPad.addEventListener('pointerdown', (e) => { isDragging = true; xyPad.setPointerCapture(e.pointerId); ui.handleXYMove(e.clientX, e.clientY); });
-window.addEventListener('pointermove', (e) => { if (isDragging) ui.handleXYMove(e.clientX, e.clientY); });
-window.addEventListener('pointerup', () => { isDragging = false; });
-window.addEventListener('pointercancel', () => { isDragging = false; });
-
-// Deprivation checker interval registration is handled inside toggle; but interval callback needs global
-// Ensure checkSensoryDeprivation runs if watch on (interval already set in toggle). Nothing extra.
-
 // Service worker
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -90,6 +80,3 @@ yt.initYouTube();
 
 // Initial seed
 seed.generateFullSeed();
-
-// Prevent default touch behaviors on pad
-xyPad.addEventListener('touchmove', (e) => e.preventDefault(), { passive: false });
