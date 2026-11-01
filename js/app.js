@@ -196,12 +196,6 @@ window.setWorldSourceType = function(worldIdx, type) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 };
 
-// override selectWorldTab to use new render
-window.selectWorldTab = function(idx) {
-  activeSourceWorld = idx;
-  renderSourceList();
-};
-
 renderSourceList();
 
 // Initial seed
@@ -274,13 +268,8 @@ window.selectWorldTab = function(idx) {
     b.classList.toggle('active', i === idx);
     b.setAttribute('aria-pressed', i === idx ? 'true' : 'false');
   });
-  // update type buttons
-  const type = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
-  document.querySelectorAll('.src-type').forEach(b => {
-    b.classList.toggle('active', b.dataset.type === type);
-    b.setAttribute('aria-pressed', b.dataset.type === type ? 'true' : 'false');
-  });
-  renderWorldSource(idx);
+  activeSourceWorld = idx;
+  renderSourceList();
 };
 
 window.setWorldSourceType = function(worldIdx, type) {
@@ -291,7 +280,7 @@ window.setWorldSourceType = function(worldIdx, type) {
     b.classList.toggle('active', b.dataset.type === type);
     b.setAttribute('aria-pressed', b.dataset.type === type ? 'true' : 'false');
   });
-  renderWorldSource(worldIdx);
+  renderSourceList();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 };
 
