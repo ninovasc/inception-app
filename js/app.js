@@ -256,7 +256,7 @@ function triggerOptions(current, allowOff) {
     ? `<option value="-1" ${current === -1 ? 'selected' : ''}>— desativado</option>`
     : '';
   return off + WORLD_NAMES.map((name, i) =>
-    `<option value="${i}" ${current === i ? 'selected' : ''}>${i}. ${name}</option>`
+    `<option value="${i}" ${current === i ? 'selected' : ''}>${name}</option>`
   ).join('');
 }
 
