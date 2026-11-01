@@ -150,15 +150,15 @@ Aplica-se **apenas** quando a Fonte Sonora é MP3 do usuário. O synth gerativo 
 
 Cada fase termina com: testes verdes → atualizar "ESTADO ATUAL" deste arquivo → commit com prefixo `fase N:`. Trabalhar na branch `v3-13-mundos` (criada na Fase 0) para não expor estados intermediários.
 
-### Fase 0 — Preparação ✅/☐
-- [ ] Criar branch `v3-13-mundos`
-- [ ] (Opcional) tag `v2.9.1-rollback` em `ce5af79`
-- [ ] Confirmar `node scripts/test-seed.mjs` → 46/46
-- [ ] Commit: `fase 0: plano v3.0.0 13 mundos` (este arquivo)
+### Fase 0 — Preparação ✅
+- [x] Criar branch `v3-13-mundos`
+- [x] (Opcional) tag `v2.9.1-rollback` em `ce5af79`
+- [x] Confirmar `node scripts/test-seed.mjs` → 46/46
+- [x] Commit: `fase 0: plano v3.0.0 13 mundos` (este arquivo)
 
-### Fase 1 — Dados: 13 mundos + seed v3 ☐
+### Fase 1 — Dados: 13 mundos + seed v3 ✅
 Arquivos: `config.js`, `state.js`, `seed.js`, `scripts/test-seed.mjs`
-- [ ] `LEVELS` com 13 entradas (ordem 2.1), `WORLD_NAMES`, `WORLD_SYNTH` (13, usando o vocabulário **atual** do motor), `WORLD_VOICE_PRESETS` (13), `CHORD_PROGRESSIONS` (13)
+- [x] `LEVELS` com 13 entradas (ordem 2.1), `WORLD_NAMES`, `WORLD_SYNTH` (13, usando o vocabulário **atual** do motor), `WORLD_VOICE_PRESETS` (13), `CHORD_PROGRESSIONS` (13)
 - [ ] `SYNTH_PRESETS` já com campos novos (pluck/pulse/noise/detune/binaural/bpm) como dados — audio.js só os consome na Fase 2 (campos desconhecidos são ignorados hoje: forward-compatible)
 - [ ] `TRIGGER_DEFS` → 13 regras (tabela 2.5) com sensor, threshold, hold, destino padrão
 - [ ] `CURATED_PRIORITY` (2.2) + defaults/normalização para 13
@@ -251,6 +251,6 @@ Arquivos: `mechanics.js`, demais pontas
 
 ## ESTADO ATUAL
 
-> **Fase concluída:** planejamento aprovado (com ajuste: MP3 inteligente, seção 2.9)
-> **Próximo passo:** executar Fase 0 e seguir até a Fase 7 sem parar; retorno ao usuário só no final, com v3.0.0 em produção
-> **Última atualização:** 2026-11-01 (ajuste MP3 aprovado; execução iniciada)
+> **Fase concluída:** 0 e 1 (dados de 13 mundos + seed v3 com migração; testes 89/89)
+> **Próximo passo:** Fase 2 — motor de áudio (camadas + 13 presets + MP3 inteligente) em `audio.js`
+> **Última atualização:** 2026-11-01 (Fase 1 commitada)

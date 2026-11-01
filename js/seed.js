@@ -3,11 +3,22 @@ import {
   normalizeSourceType,
   normalizeWorldTriggers,
   DEFAULT_TRIGGER_MOTION,
-  DEFAULT_TRIGGER_SILENCE_SEC
+  DEFAULT_TRIGGER_SILENCE_SEC,
+  WORLD_SYNTH,
+  SYNTH_PRESETS,
+  TRIGGER_DEFS,
+  OLD6_TO_NEW13,
+  LEGACY_TRIGGER_KEYS
 } from './config.js';
+
+// v3.0.0: seeds carregam a versão do schema (V:3) e arrays de 13 mundos.
+// Seeds legadas (sem V) são migradas automaticamente ao decodificar.
+const SCHEMA_VERSION = 3;
+const N = 13;
 
 // Compact key mapping for cipher
 const KEYMAP = {
+  schemaVersion: 'V',
   sourceMode: 'm',
   currentSynthType: 's',
   currentLevel: 'l',
@@ -28,9 +39,66 @@ const KEYMAP = {
   worldTriggers: 'g'
 };
 
+// worldSynth em base36 com 2 caracteres por mundo (suporta >9 presets).
+function encodeSynthString13(arr) {
+  const out = [];
+  for (let i = 0; i < N; i++) {
+    const v = (arr && Number.isInteger(arr[i])) ? arr[i] : WORLD_SYNTH[i];
+    out.push(Math.max(0, v).toString(36).padStart(2, '0'));
+  }
+  return out.join('');
+}
+
+function decodeSynthString13(str) {
+  if (typeof str !== 'string' || str.length !== N * 2) return [...WORLD_SYNTH];
+  const out = [];
+  for (let i = 0; i < N; i++) {
+    const v = parseInt(str.substr(i * 2, 2), 36);
+    out.push((Number.isInteger(v) && v >= 0 && v < SYNTH_PRESETS.length) ? v : WORLD_SYNTH[i]);
+  }
+  return out;
+}
+
+function encodeTypeString13(arr) {
+  const out = [];
+  for (let i = 0; i < N; i++) {
+    const t = (arr && arr[i]) || 'synth';
+    out.push(t === 'synth' ? '0' : (t === 'youtube' ? '1' : '2'));
+  }
+  return out.join('');
+}
+
+function decodeTypeString13(str) {
+  if (typeof str !== 'string') return null;
+  const out = [];
+  for (let i = 0; i < N; i++) {
+    const ch = str[i] || '0';
+    out.push(ch === '1' ? 'youtube' : (ch === '2' ? 'mp3' : 'synth'));
+  }
+  return out;
+}
+
+function padArray(arr, len, fill) {
+  const out = Array.isArray(arr) ? arr.slice(0, len) : [];
+  while (out.length < len) out.push(fill);
+  return out;
+}
+
+// Remapeia um array legado de 6 mundos para 13 (posições novas recebem o padrão).
+function remapLegacyArray(oldArr, defaultFor) {
+  const out = [];
+  for (let i = 0; i < N; i++) out.push(defaultFor(i));
+  if (Array.isArray(oldArr)) {
+    const len = Math.min(oldArr.length, OLD6_TO_NEW13.length);
+    for (let j = 0; j < len; j++) out[OLD6_TO_NEW13[j]] = oldArr[j];
+  }
+  return out;
+}
+
 // Pure encode: stateObj -> cipher string (base64 of compact JSON)
 export function encodeState(s) {
   const compact = {};
+  compact[KEYMAP.schemaVersion] = SCHEMA_VERSION;
   if (s.sourceMode !== undefined) compact[KEYMAP.sourceMode] = s.sourceMode === 'synth' ? 0 : (s.sourceMode === 'youtube' ? 1 : (s.sourceMode === 'capture' ? 2 : 3));
   if (s.currentSynthType !== undefined) compact[KEYMAP.currentSynthType] = s.currentSynthType;
   if (s.currentLevel !== undefined) compact[KEYMAP.currentLevel] = s.currentLevel;
@@ -47,17 +115,22 @@ export function encodeState(s) {
   }
   if (s.lucidModeIdx !== undefined) compact[KEYMAP.lucidModeIdx] = s.lucidModeIdx;
   if (s.ytLinks && s.ytLinks.some(x => x)) compact[KEYMAP.ytLinks] = s.ytLinks.map(x => x || '_').join(',');
-  if (s.worldSourceType) compact[KEYMAP.worldSourceType] = s.worldSourceType.map(t => t === 'synth' ? 0 : (t === 'youtube' ? 1 : 2)).join('');
-  if (s.worldSynth) compact[KEYMAP.worldSynth] = s.worldSynth.join('');
-  if (s.worldVolume) compact[KEYMAP.worldVolume] = s.worldVolume.map(v => Math.round(v * 100));
-  if (s.worldSources && s.worldSources.youtube && s.worldSources.youtube.some(x => x)) compact[KEYMAP.worldSources] = s.worldSources.youtube.map(x => x || '_').join(',');
+  if (s.worldSourceType) compact[KEYMAP.worldSourceType] = encodeTypeString13(s.worldSourceType);
+  if (s.worldSynth) compact[KEYMAP.worldSynth] = encodeSynthString13(s.worldSynth);
+  if (s.worldVolume) compact[KEYMAP.worldVolume] = padArray(s.worldVolume, N, 0.2).map(v => Math.round(v * 100));
+  if (s.worldSources && s.worldSources.youtube && s.worldSources.youtube.some(x => x)) {
+    compact[KEYMAP.worldSources] = padArray(s.worldSources.youtube, N, '').map(x => x || '_').join(',');
+  }
   if (s.autoMode !== undefined) compact[KEYMAP.autoMode] = s.autoMode ? 1 : 0;
   if (s.worldTriggers) {
     const t = s.worldTriggers;
     const motion = (s.triggerMotion != null) ? s.triggerMotion : DEFAULT_TRIGGER_MOTION;
     const silence = (s.triggerSilenceSec != null) ? s.triggerSilenceSec : DEFAULT_TRIGGER_SILENCE_SEC;
     compact[KEYMAP.worldTriggers] = [
-      t.freefall, t.rain, t.night, t.silence, t.motion, t.fallback,
+      ...TRIGGER_DEFS.map(def => {
+        const v = t[def.key];
+        return (v === undefined) ? -1 : v;
+      }),
       Math.round(motion * 100), Math.round(silence)
     ];
   }
@@ -65,7 +138,7 @@ export function encodeState(s) {
   return btoa(json);
 }
 
-// Pure decode: cipher string -> object or null
+// Pure decode: cipher string -> object (sempre no modelo de 13 mundos) or null
 export function decodeState(str) {
   if (!str || typeof str !== 'string') return null;
   str = str.trim();
@@ -74,6 +147,8 @@ export function decodeState(str) {
     const json = atob(str);
     const c = JSON.parse(json);
     const out = {};
+    const isV3 = c.V === SCHEMA_VERSION;
+
     if (c.m !== undefined) out.sourceMode = c.m === 0 ? 'synth' : (c.m === 1 ? 'youtube' : (c.m === 2 ? 'capture' : 'mp3'));
     if (c.s !== undefined) out.currentSynthType = c.s;
     if (c.l !== undefined) out.currentLevel = c.l;
@@ -95,20 +170,62 @@ export function decodeState(str) {
     }
     if (c.i !== undefined) out.lucidModeIdx = c.i;
     if (c.y) out.ytLinks = c.y.split(',').map(x => (x === '_' ? '' : x));
-    if (c.t) out.worldSourceType = c.t.split('').map(n => n === '0' ? 'synth' : (n === '1' ? 'youtube' : 'mp3'));
-    if (c.w) out.worldSynth = c.w.split('').map(n => parseInt(n, 10));
-    if (c.o) out.worldVolume = c.o.map(n => n / 100);
+    if (c.a !== undefined) out.autoMode = !!c.a;
+
+    if (isV3) {
+      if (c.t !== undefined) out.worldSourceType = decodeTypeString13(c.t);
+      if (c.w !== undefined) out.worldSynth = decodeSynthString13(c.w);
+      if (c.o) out.worldVolume = padArray(c.o, N, 20).map(n => n / 100);
+      if (c.u) {
+        const ids = padArray(c.u.split(',').map(x => (x === '_' ? '' : x)), N, '');
+        if (!out.worldSources) out.worldSources = { mp3: Array(N).fill(''), youtube: Array(N).fill('') };
+        out.worldSources.youtube = ids;
+      }
+      if (Array.isArray(c.g)) {
+        const raw = {};
+        TRIGGER_DEFS.forEach((def, i) => { if (i < c.g.length) raw[def.key] = c.g[i]; });
+        out.worldTriggers = normalizeWorldTriggers(raw);
+        const motion = Number(c.g[TRIGGER_DEFS.length]);
+        if (!isNaN(motion)) out.triggerMotion = Math.max(0, Math.min(1, motion / 100));
+        const silence = Number(c.g[TRIGGER_DEFS.length + 1]);
+        if (!isNaN(silence)) out.triggerSilenceSec = Math.max(5, Math.min(300, silence));
+      }
+      return out;
+    }
+
+    // ---- Seeds legadas (v2.x, 6 mundos): decodifica e migra para 13 ----
+    if (c.t) out.worldSourceType = remapLegacyArray(
+      c.t.split('').map(n => n === '0' ? 'synth' : (n === '1' ? 'youtube' : 'mp3')),
+      () => 'synth'
+    );
+    if (c.w) {
+      out.worldSynth = remapLegacyArray(
+        c.w.split('').map(n => parseInt(n, 10)),
+        (i) => WORLD_SYNTH[i]
+      ).map((v, i) => (Number.isInteger(v) && v >= 0 && v < SYNTH_PRESETS.length) ? v : WORLD_SYNTH[i]);
+    }
+    if (c.o) out.worldVolume = remapLegacyArray(c.o, () => 20).map(n => n / 100);
     if (c.u) {
       const ids = c.u.split(',').map(x => (x === '_' ? '' : x));
-      if (!out.worldSources) out.worldSources = { mp3: ['', '', '', '', '', ''], youtube: ['', '', '', '', '', ''] };
-      out.worldSources.youtube = ids;
+      if (!out.worldSources) out.worldSources = { mp3: Array(N).fill(''), youtube: Array(N).fill('') };
+      out.worldSources.youtube = remapLegacyArray(ids, () => '');
     }
-    if (c.a !== undefined) out.autoMode = !!c.a;
-    if (c.g) {
-      out.worldTriggers = normalizeWorldTriggers({
-        freefall: c.g[0], rain: c.g[1], night: c.g[2],
-        silence: c.g[3], motion: c.g[4], fallback: c.g[5]
-      });
+    // Nível atual legado aponta para o mundo novo equivalente.
+    if (Number.isInteger(out.currentLevel) && out.currentLevel >= 0 && out.currentLevel < OLD6_TO_NEW13.length) {
+      out.currentLevel = OLD6_TO_NEW13[out.currentLevel];
+    } else if (out.currentLevel !== undefined && (!Number.isInteger(out.currentLevel) || out.currentLevel < 0 || out.currentLevel >= N)) {
+      delete out.currentLevel;
+    }
+    // Gatilhos legados: destinos 0–5 → mundos novos; regras novas ficam no padrão.
+    if (Array.isArray(c.g)) {
+      const mapped = {};
+      for (let i = 0; i < LEGACY_TRIGGER_KEYS.length; i++) {
+        const v = c.g[i];
+        if (v === -1) { mapped[LEGACY_TRIGGER_KEYS[i]] = -1; continue; }
+        mapped[LEGACY_TRIGGER_KEYS[i]] = (Number.isInteger(v) && v >= 0 && v < OLD6_TO_NEW13.length)
+          ? OLD6_TO_NEW13[v] : v;
+      }
+      out.worldTriggers = normalizeWorldTriggers(mapped);
       const motion = Number(c.g[6]);
       if (!isNaN(motion)) out.triggerMotion = Math.max(0, Math.min(1, motion / 100));
       const silence = Number(c.g[7]);
@@ -143,17 +260,20 @@ function buildSeed() {
     state.worldVolume ? state.worldVolume[2] : 0.2,
     vs
   ];
-  const worldYt = [0, 1, 2, 3, 4, 5].map(i => {
+  const ytCount = (state.worldSources && state.worldSources.youtube && state.worldSources.youtube.length) || N;
+  const worldYt = [];
+  for (let i = 0; i < ytCount; i++) {
     // Se o campo do mundo está aberto, ele é a fonte mais recente.
     const input = document.getElementById(`ytUrl${i}`);
     if (input) {
       const m = input.value.trim().match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
-      return m ? m[1] : '';
+      worldYt.push(m ? m[1] : '');
+    } else {
+      // Caso contrário, preserva o link salvo (o campo não existe para mundos recolhidos).
+      worldYt.push((state.worldSources && state.worldSources.youtube && state.worldSources.youtube[i]) || '');
     }
-    // Caso contrário, preserva o link salvo (o campo não existe para mundos recolhidos).
-    return (state.worldSources && state.worldSources.youtube && state.worldSources.youtube[i]) || '';
-  });
-  if (!state.worldSources.youtube) state.worldSources.youtube = ['', '', '', '', '', ''];
+  }
+  if (!state.worldSources.youtube) state.worldSources.youtube = Array(N).fill('');
   state.worldSources.youtube = worldYt;
   const seed = encodeState({
     sourceMode: state.sourceMode,
@@ -246,7 +366,7 @@ export async function applySeed() {
     if (parsed.xyState) state.xyState = parsed.xyState;
 
     const levelIdx = (parsed.currentLevel !== undefined) ? parsed.currentLevel : state.currentLevel;
-    audio.selectLevel(levelIdx, true);
+    audio.selectLevel(Math.max(0, Math.min(N - 1, levelIdx)), true);
 
     // Reflete o estado na UI imediatamente (o áudio aplica após o crossfade).
     if (typeof window.syncSourceRow === 'function') window.syncSourceRow(levelIdx);
