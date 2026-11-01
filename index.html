@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v1.21.0</div>
+        <div class="version">v2.0.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -138,24 +138,7 @@
         </div>
 
         <div id="synthBox" style="display: flex; flex-direction: column; gap: 6px;">
-          <div class="synth-grid">
-            <button class="menu-item active" id="syn0" onclick="selectSynthType(0)" style="font-size:0.85rem;">
-              <span>Zimmer Ambient</span><span class="sub">Senoidal Suave</span>
-            </button>
-            <button class="menu-item" id="syn1" onclick="selectSynthType(1)" style="font-size:0.85rem;">
-              <span>Brass Drone</span><span class="sub">Metais Densos</span>
-            </button>
-            <button class="menu-item" id="syn2" onclick="selectSynthType(2)" style="font-size:0.85rem;">
-              <span>Sub Limbo</span><span class="sub">Abismo LFO</span>
-            </button>
-            <button class="menu-item" id="syn3" onclick="selectSynthType(3)" style="font-size:0.85rem;">
-              <span>Glass Choir</span><span class="sub">Coral Cristalino</span>
-            </button>
-            <button class="menu-item" id="syn4" onclick="selectSynthType(4)" style="font-size:0.85rem;">
-              <span>Binaural Pulse</span><span class="sub">Psicoacústico</span>
-            </button>
-          </div>
-
+          <div style="font-size:0.7rem; color:var(--muted);">Cada mundo usa seu sintetizador (Zimmer, Brass, Sub Limbo, Glass, Binaural). Volume global:</div>
           <div class="slider-group">
             <div class="slider-header"><span>Volume do Sintetizador</span><span id="volValSynth">20%</span></div>
             <input type="range" id="volSynth" min="0" max="1" step="0.05" value="0.20" oninput="setSynthVolume(this.value)">
@@ -163,42 +146,14 @@
         </div>
 
         <div id="uploadBox" style="display: none; flex-direction: column; gap: 6px;">
-          <label class="file-btn" for="file0"><span id="label0">Camada 1: [Selecionar MP3]</span><span>📁</span></label>
-          <input type="file" id="file0" accept="*" onchange="loadStem(0, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 1</span><span id="volVal0">20%</span></div>
-          <input type="range" id="vol0" min="0" max="1" step="0.05" value="0.20" oninput="setVolume(0, this.value)"></div>
-
-          <label class="file-btn" for="file1"><span id="label1">Camada 2: [Selecionar MP3]</span><span>📁</span></label>
-          <input type="file" id="file1" accept="*" onchange="loadStem(1, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 2</span><span id="volVal1">20%</span></div>
-          <input type="range" id="vol1" min="0" max="1" step="0.05" value="0.20" oninput="setVolume(1, this.value)"></div>
-
-          <label class="file-btn" for="file2"><span id="label2">Camada 3: [Selecionar MP3]</span><span>📁</span></label>
-          <input type="file" id="file2" accept="*" onchange="loadStem(2, this.files[0])">
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 3</span><span id="volVal2">20%</span></div>
-          <input type="range" id="vol2" min="0" max="1" step="0.05" value="0.20" oninput="setVolume(2, this.value)"></div>
+          <div style="font-size:0.7rem; color:var(--muted);">Um MP3 por mundo. Selecione o arquivo para cada mundo.</div>
+          <div id="mp3Worlds"></div>
         </div>
 
-        <!-- YOUTUBE 3 LINKS -->
+        <!-- YOUTUBE POR MUNDO -->
         <div id="ytBox" style="display: none; flex-direction: column; gap: 6px;">
-          <div style="font-size:0.7rem; color:var(--muted);">Cole links do YouTube (3 camadas). O áudio toca via player do YouTube.</div>
-          <input type="text" id="ytUrl0" placeholder="Link YouTube camada 1" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.72rem;border-radius:6px;" onchange="loadYouTube(0, this.value)">
-          <div id="ytPlayer0" style="display:none;"></div>
-          <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;" id="ytLabel0">Camada 1: [sem link]</div>
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 1</span><span id="ytVolVal0">30%</span></div>
-          <input type="range" id="ytVol0" min="0" max="1" step="0.05" value="0.30" oninput="setYouTubeVolume(0, this.value)"></div>
-
-          <input type="text" id="ytUrl1" placeholder="Link YouTube camada 2" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.72rem;border-radius:6px;" onchange="loadYouTube(1, this.value)">
-          <div id="ytPlayer1" style="display:none;"></div>
-          <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;" id="ytLabel1">Camada 2: [sem link]</div>
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 2</span><span id="ytVolVal1">30%</span></div>
-          <input type="range" id="ytVol1" min="0" max="1" step="0.05" value="0.30" oninput="setYouTubeVolume(1, this.value)"></div>
-
-          <input type="text" id="ytUrl2" placeholder="Link YouTube camada 3" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.72rem;border-radius:6px;" onchange="loadYouTube(2, this.value)">
-          <div id="ytPlayer2" style="display:none;"></div>
-          <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;" id="ytLabel2">Camada 3: [sem link]</div>
-          <div class="slider-group"><div class="slider-header"><span>Vol. Camada 3</span><span id="ytVolVal2">30%</span></div>
-          <input type="range" id="ytVol2" min="0" max="1" step="0.05" value="0.30" oninput="setYouTubeVolume(2, this.value)"></div>
+          <div style="font-size:0.7rem; color:var(--muted);">Um link do YouTube por mundo.</div>
+          <div id="ytWorlds"></div>
         </div>
 
         <!-- CAPTURA DE ABA (áudio com efeitos) -->
@@ -276,8 +231,7 @@
       <h3>Fontes sonoras</h3>
       <ul>
         <li><strong>5 sintetizadores</strong>: Zimmer Ambient, Brass Drone, Sub Limbo, Glass Choir, Binaural Pulse.</li>
-        <li><strong>3 camadas MP3</strong>: envie seus próprios arquivos, com volume individual.</li>
-      <li><strong>3 links do YouTube</strong>: use vídeos do YouTube como camadas sonoras.</li>
+        <li><strong>Fonte por mundo</strong>: cada mundo tem seu sintetizador e pode ter um MP3 ou link do YouTube associado.</li>
       <li><strong>Capturar aba</strong>: captura o áudio de uma aba do navegador (ex.: YouTube) e aplica os efeitos do PASIV.</li>
       </ul>
 

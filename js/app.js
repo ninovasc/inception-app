@@ -54,9 +54,13 @@ Object.assign(window, {
   toggleHelp: ui.toggleHelp,
   startYouTube: yt.startYouTube,
   stopYouTube: yt.stopYouTube,
+  startYouTubeWorld: yt.startYouTubeWorld,
+  stopYouTubeWorld: yt.stopYouTubeWorld,
   setYouTubeRate: yt.setYouTubeRate,
   loadYouTube: yt.loadYouTube,
+  loadWorldMp3: audio.loadWorldMp3,
   setYouTubeVolume: yt.setYouTubeVolume,
+  setWorldMp3Volume: audio.setWorldMp3Volume,
   startCapture: cap.startCapture,
   stopCapture: cap.stopCapture,
   setCaptureVolume: cap.setCaptureVolume,
@@ -99,6 +103,35 @@ document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(
   el.style.opacity = '0.4';
   el.setAttribute('disabled', 'true');
 });
+
+// Render per-world source inputs
+function renderWorldSources() {
+  const worlds = ['Realidade', 'Chuva', 'Hotel', 'Fortaleza', 'Limbo', 'Lúcido'];
+  const mp3Container = document.getElementById('mp3Worlds');
+  const ytContainer = document.getElementById('ytWorlds');
+  if (mp3Container) {
+    mp3Container.innerHTML = worlds.map((w, i) => `
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+        <span style="font-size:0.7rem; color:var(--muted); width:70px;">${w}</span>
+        <label class="file-btn" for="mp3File${i}" style="flex:1; margin:0; padding:6px 8px; font-size:0.7rem;">
+          <span id="mp3Label${i}">[Selecionar MP3]</span><span>📁</span>
+        </label>
+        <input type="file" id="mp3File${i}" accept="*" onchange="loadWorldMp3(${i}, this.files[0])" style="display:none;">
+        <input type="range" id="mp3Vol${i}" min="0" max="1" step="0.05" value="0.20" style="width:60px;" oninput="setWorldMp3Volume(${i}, this.value)">
+      </div>
+    `).join('');
+  }
+  if (ytContainer) {
+    ytContainer.innerHTML = worlds.map((w, i) => `
+      <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+        <span style="font-size:0.7rem; color:var(--muted); width:70px;">${w}</span>
+        <input type="text" id="ytUrl${i}" placeholder="Link YouTube" style="flex:1; background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.7rem;border-radius:6px;" onchange="loadYouTube(${i}, this.value)">
+        <input type="range" id="ytVol${i}" min="0" max="1" step="0.05" value="0.30" style="width:60px;" oninput="setYouTubeVolume(${i}, this.value)">
+      </div>
+    `).join('');
+  }
+}
+renderWorldSources();
 
 // Initial seed
 seed.generateFullSeed();

@@ -23,6 +23,19 @@ export function encodeState(s) {
   if (s.ytLinks && s.ytLinks.some(x => x)) {
     seed += `-YT${s.ytLinks.map(x => x || '_').join(',')}`;
   }
+  // per-world source types
+  if (s.worldSourceType) {
+    seed += `-WST${s.worldSourceType.join(',')}`;
+  }
+  if (s.worldSynth) {
+    seed += `-WSY${s.worldSynth.join(',')}`;
+  }
+  if (s.worldVolume) {
+    seed += `-WVL${s.worldVolume.map(v => Math.round(v * 100)).join(',')}`;
+  }
+  if (s.worldSources && s.worldSources.youtube && s.worldSources.youtube.some(x => x)) {
+    seed += `-WSYU${s.worldSources.youtube.map(x => x || '_').join(',')}`;
+  }
   return seed;
 }
 
@@ -36,6 +49,10 @@ export function decodeState(str) {
       let key, data;
       if (part.startsWith('XY')) { key = 'XY'; data = part.slice(2); }
       else if (part.startsWith('YT')) { key = 'YT'; data = part.slice(2); }
+      else if (part.startsWith('WST')) { key = 'WST'; data = part.slice(3); }
+      else if (part.startsWith('WSY')) { key = 'WSY'; data = part.slice(3); }
+      else if (part.startsWith('WVL')) { key = 'WVL'; data = part.slice(3); }
+      else if (part.startsWith('WSYU')) { key = 'WSYU'; data = part.slice(4); }
       else { key = part.slice(0, 3); data = part.slice(3); }
       tokens[key] = data;
     });
@@ -69,6 +86,20 @@ export function decodeState(str) {
       const ids = tokens.YT.split(',').map(x => (x === '_' ? '' : x));
       out.ytLinks = ids;
     }
+    if (tokens.WST) {
+      out.worldSourceType = tokens.WST.split(',');
+    }
+    if (tokens.WSY) {
+      out.worldSynth = tokens.WSY.split(',').map(n => parseInt(n, 10));
+    }
+    if (tokens.WVL) {
+      out.worldVolume = tokens.WVL.split(',').map(n => parseInt(n, 10) / 100);
+    }
+    if (tokens.WSYU) {
+      const ids = tokens.WSYU.split(',').map(x => (x === '_' ? '' : x));
+      if (!out.worldSources) out.worldSources = { mp3: ['', '', '', '', '', ''], youtube: ['', '', '', '', '', ''] };
+      out.worldSources.youtube = ids;
+    }
     return out;
   } catch (e) {
     return null;
@@ -84,6 +115,13 @@ export function generateFullSeed() {
     parseFloat(document.getElementById('volSynth').value)
   ];
   const ytLinks = [0, 1, 2].map(i => {
+    const input = document.getElementById(`ytUrl${i}`);
+    const url = input ? input.value.trim() : '';
+    const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
+    return m ? m[1] : '';
+  });
+  // per-world youtube urls
+  const worldYt = [0,1,2,3,4,5].map(i => {
     const input = document.getElementById(`ytUrl${i}`);
     const url = input ? input.value.trim() : '';
     const m = url.match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
@@ -107,7 +145,11 @@ export function generateFullSeed() {
       depr: state.isDeprivationWatchOn
     },
     lucidModeIdx: state.lucidModeIdx,
-    ytLinks
+    ytLinks,
+    worldSourceType: state.worldSourceType,
+    worldSynth: state.worldSynth,
+    worldVolume: state.worldVolume,
+    worldSources: { mp3: state.worldSources.mp3, youtube: worldYt }
   });
   const input = document.getElementById('seedInput');
   if (input) input.value = seed;
@@ -160,6 +202,17 @@ export async function applySeed() {
         const input = document.getElementById(`ytUrl${i}`);
         if (input) input.value = id ? `https://youtu.be/${id}` : '';
         if (id) yt.loadYouTube(i, `https://youtu.be/${id}`);
+      });
+    }
+    if (parsed.worldSourceType) state.worldSourceType = parsed.worldSourceType;
+    if (parsed.worldSynth) state.worldSynth = parsed.worldSynth;
+    if (parsed.worldVolume) state.worldVolume = parsed.worldVolume;
+    if (parsed.worldSources && parsed.worldSources.youtube) {
+      state.worldSources.youtube = parsed.worldSources.youtube;
+      // restore inputs
+      parsed.worldSources.youtube.forEach((id, i) => {
+        const input = document.getElementById(`ytUrl${i}`);
+        if (input) input.value = id ? `https://youtu.be/${id}` : '';
       });
     }
 

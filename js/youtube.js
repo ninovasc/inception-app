@@ -1,7 +1,7 @@
 import { state } from './state.js';
 
-const players = [null, null, null];
-const ready = [false, false, false];
+const players = [null, null, null, null, null, null];
+const ready = [false, false, false, false, false, false];
 let apiLoaded = false;
 let apiReady = false;
 const pending = [];
@@ -30,6 +30,7 @@ export function initYouTube() {
 }
 
 export function loadYouTube(index, url) {
+  // index can be 0-2 (legacy) or world index 0-5
   loadApi();
   const id = extractId(url);
   if (!id) {
@@ -81,23 +82,27 @@ function setLabel(index, text) {
   if (el) el.textContent = text;
 }
 
-export function startYouTube() {
-  for (let i = 0; i < 3; i++) {
-    if (players[i] && ready[i]) {
-      try { players[i].playVideo(); } catch (e) {}
-    }
+export function startYouTubeWorld() {
+  const idx = state.currentLevel;
+  const p = players[idx];
+  if (p && ready[idx]) {
+    try { p.playVideo(); } catch (e) {}
   }
   const rate = parseFloat(document.getElementById('sliderSpeed')?.value || 1);
-  setYouTubeRate(rate);
+  try { if (p && ready[idx]) p.setPlaybackRate(rate); } catch (e) {}
 }
 
-export function stopYouTube() {
-  for (let i = 0; i < 3; i++) {
-    if (players[i] && ready[i]) {
-      try { players[i].pauseVideo(); } catch (e) {}
-    }
+export function stopYouTubeWorld() {
+  const idx = state.currentLevel;
+  const p = players[idx];
+  if (p && ready[idx]) {
+    try { p.pauseVideo(); } catch (e) {}
   }
 }
+
+// legacy wrappers
+export function startYouTube() { startYouTubeWorld(); }
+export function stopYouTube() { stopYouTubeWorld(); }
 
 export function setYouTubeVolume(index, val) {
   const v = parseFloat(val);

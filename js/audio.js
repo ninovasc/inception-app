@@ -159,11 +159,12 @@ export function setSourceMode(mode) {
 
   if (state.isPlaying) {
     stopStems(); stopSynth(); stopChordProgression();
-    if (window.stopYouTube) window.stopYouTube();
+    stopMp3World();
+    if (window.stopYouTubeWorld) window.stopYouTubeWorld();
     if (window.stopCapture) window.stopCapture();
     if (mode === 'synth') { startSynth(); startChordProgression(); }
-    else if (mode === 'upload') startStems();
-    else if (mode === 'youtube') { if (window.startYouTube) window.startYouTube(); }
+    else if (mode === 'upload') startMp3World();
+    else if (mode === 'youtube') { if (window.startYouTubeWorld) window.startYouTubeWorld(); }
     else if (mode === 'capture') { if (window.startCapture) window.startCapture(); }
   }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
@@ -246,19 +247,79 @@ export function stopChordProgression() {
 export async function loadStem(index, file) {
   if (!file) return;
   initAudio();
-  document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: Lendo...`;
+  const label = document.getElementById(`label${index}`);
+  if (label) label.textContent = `Camada ${index + 1}: Lendo...`;
   try {
     const buf = await file.arrayBuffer();
     state.audioCtx.decodeAudioData(buf, (decoded) => {
       state.stemBuffers[index] = decoded;
-      document.getElementById(`label${index}`).textContent = `Camada ${index + 1}: ${file.name.slice(0, 14)}`;
+      if (label) label.textContent = `Camada ${index + 1}: ${file.name.slice(0, 14)}`;
       if (state.isPlaying && state.sourceMode === 'upload') startStems();
     }, () => {
-      document.getElementById(`label${index}`).textContent = 'Erro ao carregar';
+      if (label) label.textContent = 'Erro ao carregar';
     });
   } catch (e) {
-    document.getElementById(`label${index}`).textContent = 'Erro ao carregar';
+    if (label) label.textContent = 'Erro ao carregar';
   }
+}
+
+export async function loadWorldMp3(worldIdx, file) {
+  if (!file) return;
+  initAudio();
+  const label = document.getElementById(`mp3Label${worldIdx}`);
+  if (label) label.textContent = 'Lendo...';
+  try {
+    const buf = await file.arrayBuffer();
+    state.audioCtx.decodeAudioData(buf, (decoded) => {
+      state.worldMp3Buffers[worldIdx] = decoded;
+      state.worldSources.mp3[worldIdx] = file.name;
+      if (label) label.textContent = file.name.slice(0, 20);
+      if (state.isPlaying && state.sourceMode === 'upload' && state.currentLevel === worldIdx) {
+        startMp3World();
+      }
+    }, () => {
+      if (label) label.textContent = 'Erro';
+    });
+  } catch (e) {
+    if (label) label.textContent = 'Erro';
+  }
+}
+
+export function startMp3World() {
+  stopMp3World();
+  const idx = state.currentLevel;
+  const buf = state.worldMp3Buffers[idx];
+  if (!buf) return;
+  const speed = parseFloat(document.getElementById('sliderSpeed').value);
+  const src = state.audioCtx.createBufferSource();
+  src.buffer = buf;
+  src.loop = true;
+  src.playbackRate.value = speed;
+  const gain = state.audioCtx.createGain();
+  gain.gain.value = state.worldVolume[idx];
+  src.connect(gain);
+  gain.connect(state.masterFilter);
+  src.start(0);
+  state.worldMp3Sources[idx] = src;
+  state.worldMp3Gains = state.worldMp3Gains || [];
+  state.worldMp3Gains[idx] = gain;
+}
+
+export function stopMp3World() {
+  const idx = state.currentLevel;
+  const src = state.worldMp3Sources[idx];
+  if (src) {
+    try { src.stop(); } catch (e) {}
+    state.worldMp3Sources[idx] = null;
+  }
+}
+
+export function setWorldMp3Volume(worldIdx, val) {
+  const v = parseFloat(val);
+  state.worldVolume[worldIdx] = v;
+  const gain = state.worldMp3Gains[worldIdx];
+  if (gain) gain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function startStems() {
@@ -304,8 +365,8 @@ export function toggleMasterPlay() {
   if (!state.isPlaying) {
     state.isPlaying = true;
     if (state.sourceMode === 'synth') { startSynth(); startChordProgression(); }
-    else if (state.sourceMode === 'upload') startStems();
-    else if (state.sourceMode === 'youtube') { if (window.startYouTube) window.startYouTube(); }
+    else if (state.sourceMode === 'upload') startMp3World();
+    else if (state.sourceMode === 'youtube') { if (window.startYouTubeWorld) window.startYouTubeWorld(); }
     else if (state.sourceMode === 'capture') { if (window.startCapture) window.startCapture(); }
 
     btn.classList.add('active');
@@ -325,7 +386,8 @@ export function toggleMasterPlay() {
     stopStems();
     stopSynth();
     stopChordProgression();
-    if (window.stopYouTube) window.stopYouTube();
+    stopMp3World();
+    if (window.stopYouTubeWorld) window.stopYouTubeWorld();
     if (window.stopCapture) window.stopCapture();
     stopDeprivationHeartbeat();
     btn.classList.remove('active');
@@ -353,7 +415,7 @@ export function selectLevel(idx) {
     state.crossfadeGain.gain.linearRampToValueAtTime(0, now + 0.75);
     setTimeout(() => {
       state.currentLevel = idx;
-  state.currentSynthType = WORLD_SYNTH[idx];
+  state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null) ? state.worldSynth[idx] : WORLD_SYNTH[idx];
       for (let i = 0; i < 6; i++) {
         const _b = document.getElementById(`lvl${i}`);
     if (_b) {
@@ -375,15 +437,24 @@ export function selectLevel(idx) {
       state.crossfadeGain.gain.cancelScheduledValues(now2);
       state.crossfadeGain.gain.setValueAtTime(0, now2);
       state.crossfadeGain.gain.linearRampToValueAtTime(1, now2 + 0.75);
-      if (state.isPlaying && state.sourceMode === 'synth') {
-        stopChordProgression();
-        startChordProgression();
+      if (state.isPlaying) {
+        if (state.sourceMode === 'synth') {
+          stopChordProgression();
+          startSynth();
+          startChordProgression();
+        } else if (state.sourceMode === 'upload') {
+          stopMp3World();
+          startMp3World();
+        } else if (state.sourceMode === 'youtube') {
+          if (window.stopYouTubeWorld) window.stopYouTubeWorld();
+          if (window.startYouTubeWorld) window.startYouTubeWorld();
+        }
       }
       if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
     }, 750);
   } else {
     state.currentLevel = idx;
-  state.currentSynthType = WORLD_SYNTH[idx];
+  state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null) ? state.worldSynth[idx] : WORLD_SYNTH[idx];
     for (let i = 0; i < 6; i++) {
       const _b = document.getElementById(`lvl${i}`);
     if (_b) {
@@ -401,9 +472,18 @@ export function selectLevel(idx) {
     document.getElementById('sliderReverb').value = l.reverb;
     syncXYPadFromSliders(l.speed, l.filter);
     applyParameters();
-    if (state.isPlaying && state.sourceMode === 'synth') {
-      stopChordProgression();
-      startChordProgression();
+    if (state.isPlaying) {
+      if (state.sourceMode === 'synth') {
+        stopChordProgression();
+        startSynth();
+        startChordProgression();
+      } else if (state.sourceMode === 'upload') {
+        stopMp3World();
+        startMp3World();
+      } else if (state.sourceMode === 'youtube') {
+        if (window.stopYouTubeWorld) window.stopYouTubeWorld();
+        if (window.startYouTubeWorld) window.startYouTubeWorld();
+      }
     }
     if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
   }
