@@ -43,12 +43,14 @@ export function initAudio() {
   state.compressor.threshold.value = -15;
 
   state.synthMasterGain = state.audioCtx.createGain();
-  state.synthMasterGain.gain.value = parseFloat(document.getElementById('volSynth').value);
+  const volSynthEl = document.getElementById('volSynth');
+  state.synthMasterGain.gain.value = volSynthEl ? parseFloat(volSynthEl.value) : 0.2;
   state.synthMasterGain.connect(state.masterFilter);
 
   for (let i = 0; i < 3; i++) {
     state.stemGains[i] = state.audioCtx.createGain();
-    state.stemGains[i].gain.value = parseFloat(document.getElementById(`vol${i}`).value);
+    const el = document.getElementById(`vol${i}`);
+    state.stemGains[i].gain.value = el ? parseFloat(el.value) : 0.2;
     state.stemGains[i].connect(state.masterFilter);
   }
 
@@ -416,11 +418,11 @@ export function selectLevel(idx) {
     setTimeout(() => {
       state.currentLevel = idx;
   state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null) ? state.worldSynth[idx] : WORLD_SYNTH[idx];
+      const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
       for (let i = 0; i < 6; i++) {
         const _b = document.getElementById(`lvl${i}`);
     if (_b) {
       _b.classList.toggle('active', i === idx);
-      const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
       _b.style.borderLeftColor = i === idx ? _colors[i] : '';
     }
       }
@@ -455,11 +457,11 @@ export function selectLevel(idx) {
   } else {
     state.currentLevel = idx;
   state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null) ? state.worldSynth[idx] : WORLD_SYNTH[idx];
+    const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
     for (let i = 0; i < 6; i++) {
       const _b = document.getElementById(`lvl${i}`);
     if (_b) {
       _b.classList.toggle('active', i === idx);
-      const _colors = ['#ffffff','#88aaff','#ffaa88','#ff8888','#888888','#aaffaa'];
       _b.style.borderLeftColor = i === idx ? _colors[i] : '';
     }
     }
