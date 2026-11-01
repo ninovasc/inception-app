@@ -87,6 +87,14 @@ export const state = {
   isPhoneFaceDown: false,
   silenceSeconds: 0,
   micSilenceSec: 0,
+  // Gatilhos novos (v3): chuva intensa (mic), palmas (mic), orientação
+  // invertida/apoiada (giro) e velocidade de veículo (GPS).
+  micRainIntenseSec: 0,
+  lastClapTime: 0,
+  invertedSince: null,
+  isInvertedHold: false,
+  flatSince: null,
+  isFlatHold: false,
   deprivationCheckInterval: null,
   heartbeatInterval: null,
   isDragging: false,

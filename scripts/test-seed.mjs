@@ -1,5 +1,7 @@
 import { encodeState, decodeState } from '../js/seed.js';
-import { normalizeSourceType, normalizeWorldTriggers, WORLD_SYNTH, WORLD_NAMES } from '../js/config.js';
+import { normalizeSourceType, normalizeWorldTriggers, WORLD_SYNTH, WORLD_NAMES, DEFAULT_WORLD_TRIGGERS } from '../js/config.js';
+import { state } from '../js/state.js';
+import { decideWorld } from '../js/automode.js';
 
 let pass = 0, fail = 0;
 function assert(cond, msg) {
@@ -167,6 +169,56 @@ assert(WORLD_NAMES.length === 13, '13 mundos');
 assert(WORLD_SYNTH.length === 13, '13 synth padrão');
 assert(WORLD_SYNTH.every((v, i) => v >= 0 && v < 18), 'índices de synth válidos');
 assert(new Set(WORLD_NAMES).size === 13, 'nomes únicos');
+
+// ---------- Automode: prioridade curada e exclusividade ----------
+function resetAuto() {
+  state.worldTriggers = { ...DEFAULT_WORLD_TRIGGERS };
+  state.gpsRain = false; state.gpsNight = false; state.gpsSpeedMps = 0;
+  state.motionIntensity = 0; state.micSilenceSec = 0; state.silenceSeconds = 0;
+  state.micRainIntenseSec = 0; state.lastClapTime = 0; state.freefallTimestamp = 0;
+  state.lastKickTime = 0; state.isInvertedHold = false; state.isFlatHold = false;
+  state.triggerMotion = 0.6; state.triggerSilenceSec = 30; state.isAutoKickOn = true;
+}
+resetAuto();
+assert(decideWorld() === 0, 'automode sem sinais -> fallback (HRD)');
+state.gpsRain = true;
+assert(decideWorld() === 4, 'automode chuva -> Old Souls');
+state.micRainIntenseSec = 6;
+assert(decideWorld() === 12, 'automode chuva intensa vence -> Bonus Track');
+state.micRainIntenseSec = 0;
+state.lastClapTime = Date.now() - 1000;
+assert(decideWorld() === 5, 'automode palmas -> 528491');
+state.lastClapTime = 0;
+state.isInvertedHold = true;
+assert(decideWorld() === 10, 'automode invertido -> Paradox');
+state.isInvertedHold = false;
+state.motionIntensity = 0.7;
+assert(decideWorld() === 6, 'automode movimento -> Mombasa');
+state.motionIntensity = 0;
+state.gpsSpeedMps = 8;
+assert(decideWorld() === 3, 'automode veículo -> Radical Notion');
+state.gpsSpeedMps = 0;
+state.micSilenceSec = 30;
+assert(decideWorld() === 8, 'automode silêncio -> Dream Within a Dream');
+state.micSilenceSec = 0;
+state.gpsRain = false;
+state.gpsNight = true;
+assert(decideWorld() === 9, 'automode noite -> Waiting for a Train');
+state.gpsNight = false;
+state.isFlatHold = true;
+assert(decideWorld() === 1, 'automode apoiado -> We Built Our Own World');
+state.isFlatHold = false;
+// Exclusividade + remapeamento: chuva remapeada para Mombasa.
+state.worldTriggers.rain = 6;
+state.gpsRain = true; state.gpsNight = true;
+assert(decideWorld() === 6, 'automode remapeado: chuva -> Mombasa (antes da noite)');
+state.gpsRain = false;
+assert(decideWorld() === 9, 'automode remapeado: noite permanece');
+// Regra desativada (-1) é ignorada.
+resetAuto();
+state.worldTriggers.silence = -1;
+state.micSilenceSec = 30;
+assert(decideWorld() === 0, 'automode regra desativada -> fallback');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail > 0 ? 1 : 0);

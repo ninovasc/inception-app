@@ -179,15 +179,15 @@ Arquivos: `audio.js`
 - [x] `node --check` + testes
 - [x] Commit: `fase 2: motor de synth com camadas, 13 presets e MP3 inteligente`
 
-### Fase 3 — Automode: prioridade curada + novos sensores ☐
+### Fase 3 — Automode: prioridade curada + novos sensores ✅
 Arquivos: `automode.js`, `sensors.js`
-- [ ] `decideWorld()`: iterar `CURATED_PRIORITY`, primeira verdadeira vence; fallback HRD
-- [ ] Novos detectores: palmas duplas no mic (transientes), orientação invertida, aparelho plano, GPS veículo, janela de início de sessão, recompensa one-shot Time (20 min → 60–90 s)
-- [ ] Histerese/hold por regra; manter detecções existentes (freefall, chuva, noite, silêncio, motion)
-- [ ] Sincronizar voz ao trocar de mundo (comportamento v2.9 mantido)
-- [ ] `MIC_PRESETS`: migrar chaves para os 13 nomes novos (mantendo os valores equivalentes + presets para os novos mundos)
-- [ ] `node --check` + testes
-- [ ] Commit: `fase 3: automode com prioridade curada e 13 gatilhos exclusivos`
+- [x] `decideWorld()`: iterar `CURATED_PRIORITY`, primeira verdadeira vence; fallback HRD
+- [x] Novos detectores: palmas duplas no mic (transientes), orientação invertida, aparelho plano, GPS veículo, janela de início de sessão, recompensa one-shot Time (20 min → 60–90 s)
+- [x] Histerese/hold por regra; manter detecções existentes (freefall, chuva, noite, silêncio, motion)
+- [x] Sincronizar voz ao trocar de mundo (comportamento v2.9 mantido)
+- [x] `MIC_PRESETS`: migrar chaves para os 13 nomes novos (mantendo os valores equivalentes + presets para os novos mundos)
+- [x] `node --check` + testes (102/102, incluindo decideWorld)
+- [x] Commit: `fase 3: automode com prioridade curada e 13 gatilhos exclusivos`
 
 ### Fase 4 — UI: lista única, vozes em dropdown, gatilhos por sensor ☐
 Arquivos: `app.js`, `index.html`
@@ -251,6 +251,6 @@ Arquivos: `mechanics.js`, demais pontas
 
 ## ESTADO ATUAL
 
-> **Fase concluída:** 0, 1 e 2 (dados + seed v3 + motor de áudio com MP3 inteligente)
-> **Próximo passo:** Fase 3 — automode com prioridade curada e novos sensores (`automode.js`, `sensors.js`)
-> **Última atualização:** 2026-11-01 (Fase 2 commitada)
+> **Fase concluída:** 0–3 (dados, seed v3, motor de áudio + MP3 inteligente, automode 13 regras; testes 102/102)
+> **Próximo passo:** Fase 4 — UI única de 13 mundos (`app.js`, `index.html`)
+> **Última atualização:** 2026-11-01 (Fase 3 commitada)
