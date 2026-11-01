@@ -87,65 +87,6 @@ export function decodeState(str) {
     }
     return out;
   } catch (e) {
-    // Fallback: try old token format
-    return decodeLegacy(str);
-  }
-}
-
-function decodeLegacy(str) {
-  try {
-    const tokens = {};
-    str.trim().split('-').forEach(part => {
-      let key, data;
-      if (part.startsWith('XY')) { key = 'XY'; data = part.slice(2); }
-      else if (part.startsWith('YT')) { key = 'YT'; data = part.slice(2); }
-      else if (part.startsWith('WST')) { key = 'WST'; data = part.slice(3); }
-      else if (part.startsWith('WSY')) { key = 'WSY'; data = part.slice(3); }
-      else if (part.startsWith('WVL')) { key = 'WVL'; data = part.slice(3); }
-      else if (part.startsWith('WSYU')) { key = 'WSYU'; data = part.slice(4); }
-      else { key = part.slice(0, 3); data = part.slice(3); }
-      tokens[key] = data;
-    });
-    const out = {};
-    if (tokens.MOD) out.sourceMode = tokens.MOD === 'S' ? 'synth' : (tokens.MOD === 'Y' ? 'youtube' : (tokens.MOD === 'C' ? 'capture' : 'upload'));
-    if (tokens.SYN !== undefined) out.currentSynthType = parseInt(tokens.SYN, 10);
-    if (tokens.LVL !== undefined) out.currentLevel = parseInt(tokens.LVL, 10);
-    if (tokens.XY) {
-      const [xx, yy] = tokens.XY.split(',').map(n => parseInt(n, 10) / 100);
-      if (!isNaN(xx) && !isNaN(yy)) out.xyState = { x: xx, y: yy };
-    }
-    if (tokens.VOL) {
-      const parts = tokens.VOL.split(',').map(n => parseInt(n, 10) / 100);
-      if (parts.length === 4 && parts.every(n => !isNaN(n))) out.volumes = parts;
-    }
-    if (tokens.SPD) out.speed = parseFloat(tokens.SPD);
-    if (tokens.FLT) out.filter = parseFloat(tokens.FLT);
-    if (tokens.DLY) out.delay = parseFloat(tokens.DLY);
-    if (tokens.REV) out.reverb = parseFloat(tokens.REV);
-    if (tokens.MCH) {
-      const m = tokens.MCH;
-      out.mechanics = {
-        mem: m.charAt(0) === '1',
-        auto: m.charAt(1) === '1',
-        spatial: m.charAt(2) === '1',
-        lucidMin: parseInt(m.slice(3, m.length - 1), 10),
-        depr: m.charAt(m.length - 1) === '1'
-      };
-    }
-    if (tokens.YT) {
-      const ids = tokens.YT.split(',').map(x => (x === '_' ? '' : x));
-      out.ytLinks = ids;
-    }
-    if (tokens.WST) out.worldSourceType = tokens.WST.split(',');
-    if (tokens.WSY) out.worldSynth = tokens.WSY.split(',').map(n => parseInt(n, 10));
-    if (tokens.WVL) out.worldVolume = tokens.WVL.split(',').map(n => parseInt(n, 10) / 100);
-    if (tokens.WSYU) {
-      const ids = tokens.WSYU.split(',').map(x => (x === '_' ? '' : x));
-      if (!out.worldSources) out.worldSources = { mp3: ['', '', '', '', '', ''], youtube: ['', '', '', '', '', ''] };
-      out.worldSources.youtube = ids;
-    }
-    return out;
-  } catch (e) {
     return null;
   }
 }
