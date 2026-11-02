@@ -139,7 +139,7 @@ function renderWorldSelect() {
   const sel = document.getElementById('worldSelect');
   if (!sel) return;
   sel.innerHTML = WORLD_NAMES.map((w, i) =>
-    `<option value="${i}" ${i === state.currentLevel ? 'selected' : ''}>${t(`world.${w}`)}</option>`
+    `<option value="${i}" ${i === state.currentLevel ? 'selected' : ''}>${w}</option>`
   ).join('');
 }
 window.renderWorldSelect = renderWorldSelect;
@@ -152,7 +152,7 @@ function renderVoicePresets() {
   // Usa a ordem dos mundos (chaves numéricas como "528491" viriam antes
   // na iteração de objeto).
   const names = WORLD_NAMES.filter(n => presets[n]);
-  sel.innerHTML = names.map(n => `<option value="${n}">${t(`world.${n}`)}</option>`).join('')
+  sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('')
     + `<option value="custom">${t('voice.custom')}</option>`;
   sel.value = names.includes(state.micPreset) ? state.micPreset : 'custom';
 }
@@ -276,7 +276,7 @@ function triggerOptions(current, allowOff) {
     ? `<option value="-1" ${current === -1 ? 'selected' : ''}>${t('trigger.disabled')}</option>`
     : '';
   return off + WORLD_NAMES.map((name, i) =>
-    `<option value="${i}" ${current === i ? 'selected' : ''}>${t(`world.${name}`)}</option>`
+    `<option value="${i}" ${current === i ? 'selected' : ''}>${name}</option>`
   ).join('');
 }
 
@@ -287,7 +287,7 @@ function updateTriggerIndicator() {
   const d = auto.getActiveTrigger();
   if (d && d.key) {
     const def = TRIGGER_DEFS.find(x => x.key === d.key);
-    el.textContent = t('trigger.active', { label: t(`trigger.label.${def.key}`), world: t(`world.${WORLD_NAMES[d.world]}`) });
+    el.textContent = t('trigger.active', { label: t(`trigger.label.${def.key}`), world: WORLD_NAMES[d.world] });
   } else {
     el.textContent = t('trigger.none');
   }

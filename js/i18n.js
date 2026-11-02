@@ -55,22 +55,6 @@ const translations = {
     'trigger.label.sessionLong': 'Long Session (Reward)',
     'trigger.label.fallback': 'No Trigger',
 
-    // Worlds
-    'worlds.title': 'Worlds',
-    'world.Half Remembered Dream': 'Half Remembered Dream',
-    'world.We Built Our Own World': 'We Built Our Own World',
-    'world.Dream Is Collapsing': 'Dream Is Collapsing',
-    'world.Radical Notion': 'Radical Notion',
-    'world.Old Souls': 'Old Souls',
-    'world.528491': '528491',
-    'world.Mombasa': 'Mombasa',
-    'world.One Simple Idea': 'One Simple Idea',
-    'world.Dream Within a Dream': 'Dream Within a Dream',
-    'world.Waiting for a Train': 'Waiting for a Train',
-    'world.Paradox': 'Paradox',
-    'world.Time': 'Time',
-    'world.Bonus Track': 'Bonus Track',
-
     // Voice
     'voice.title': 'Voice',
     'voice.desc': 'Each world has its own voice; Auto Mode switches together.',
@@ -234,21 +218,6 @@ const translations = {
     'trigger.label.sessionLong': 'Sesión Larga (Recompensa)',
     'trigger.label.fallback': 'Sin Gatillo',
 
-    'worlds.title': 'Mundos',
-    'world.Half Remembered Dream': 'Half Remembered Dream',
-    'world.We Built Our Own World': 'We Built Our Own World',
-    'world.Dream Is Collapsing': 'Dream Is Collapsing',
-    'world.Radical Notion': 'Radical Notion',
-    'world.Old Souls': 'Old Souls',
-    'world.528491': '528491',
-    'world.Mombasa': 'Mombasa',
-    'world.One Simple Idea': 'One Simple Idea',
-    'world.Dream Within a Dream': 'Dream Within a Dream',
-    'world.Waiting for a Train': 'Waiting for a Train',
-    'world.Paradox': 'Paradox',
-    'world.Time': 'Time',
-    'world.Bonus Track': 'Bonus Track',
-
     'voice.title': 'Voz',
     'voice.desc': 'Cada mundo tiene su propia voz; el Modo Automático cambia junto.',
     'voice.custom': 'Personalizado',
@@ -405,21 +374,6 @@ const translations = {
     'trigger.label.sessionLong': 'Sessão Longa (Recompensa)',
     'trigger.label.fallback': 'Sem Gatilho',
 
-    'worlds.title': 'Mundos',
-    'world.Half Remembered Dream': 'Half Remembered Dream',
-    'world.We Built Our Own World': 'We Built Our Own World',
-    'world.Dream Is Collapsing': 'Dream Is Collapsing',
-    'world.Radical Notion': 'Radical Notion',
-    'world.Old Souls': 'Old Souls',
-    'world.528491': '528491',
-    'world.Mombasa': 'Mombasa',
-    'world.One Simple Idea': 'One Simple Idea',
-    'world.Dream Within a Dream': 'Dream Within a Dream',
-    'world.Waiting for a Train': 'Waiting for a Train',
-    'world.Paradox': 'Paradox',
-    'world.Time': 'Time',
-    'world.Bonus Track': 'Bonus Track',
-
     'voice.title': 'Voz',
     'voice.desc': 'Cada mundo tem sua própria voz; o Modo Automático troca junto.',
     'voice.custom': 'Personalizado',
@@ -575,10 +529,10 @@ function applyTranslations() {
 function updateDynamicSelects() {
   // worldSelect
   const worldSel = document.getElementById('worldSelect');
-  if (worldSel) {
+  if (worldSel && window.WORLD_NAMES) {
     const current = worldSel.value;
-    worldSel.innerHTML = [...window.WORLD_NAMES].map((w, i) =>
-      `<option value="${i}" ${i == current ? 'selected' : ''}>${t(`world.${w}`)}</option>`
+    worldSel.innerHTML = window.WORLD_NAMES.map((w, i) =>
+      `<option value="${i}" ${i == current ? 'selected' : ''}>${w}</option>`
     ).join('');
     worldSel.value = current;
   }
@@ -588,7 +542,7 @@ function updateDynamicSelects() {
   if (voiceSel && window.sensors?.MIC_PRESETS) {
     const current = voiceSel.value;
     const names = Object.keys(window.sensors.MIC_PRESETS);
-    voiceSel.innerHTML = names.map(n => `<option value="${n}">${t(`world.${n}`) || n}</option>`).join('')
+    voiceSel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('')
       + `<option value="custom">${t('voice.custom')}</option>`;
     voiceSel.value = current;
   }
