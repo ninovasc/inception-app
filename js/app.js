@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType, TRIGGER_DEFS, WORLD_NAMES, normalizeWorldTriggers } from './config.js';
+import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType, TRIGGER_DEFS, WORLD_NAMES, WORLD_SYNTH, normalizeWorldTriggers } from './config.js';
 import * as audio from './audio.js';
 import * as sensors from './sensors.js';
 import * as mechanics from './mechanics.js';
@@ -133,16 +133,42 @@ function escapeHtml(str) {
   }[c]));
 }
 
+// --- Grade de seleção de mundos (13 botões, data-driven) ---
+function renderWorldButtons() {
+  const grid = document.getElementById('worldGrid');
+  if (!grid) return;
+  grid.innerHTML = WORLD_NAMES.map((w, i) => `
+    <button class="menu-item ${i === state.currentLevel ? 'active' : ''}" id="lvl${i}" onclick="selectLevel(${i})"
+      style="font-size:0.66rem; justify-content:center; padding:6px 4px;" aria-label="${w}">${w}</button>
+  `).join('');
+}
+window.renderWorldButtons = renderWorldButtons;
+
+// --- Voz: dropdown único com os 13 presets (nomes dos mundos) ---
+function renderVoicePresets() {
+  const sel = document.getElementById('voicePresetSelect');
+  if (!sel) return;
+  const presets = sensors.MIC_PRESETS || {};
+  // Usa a ordem dos mundos (chaves numéricas como "528491" viriam antes
+  // na iteração de objeto).
+  const names = WORLD_NAMES.filter(n => presets[n]);
+  sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('')
+    + `<option value="custom">Personalizado</option>`;
+  sel.value = names.includes(state.micPreset) ? state.micPreset : 'custom';
+}
+
 function renderSourceList() {
   const container = document.getElementById('sourceList');
   if (!container) return;
-  const worlds = ['Realidade', 'Chuva', 'Hotel', 'Fortaleza', 'Limbo', 'Lúcido'];
-  const synthNames = ['Zimmer Ambient', 'Brass Drone', 'Sub Limbo', 'Glass Choir', 'Binaural Pulse'];
-  container.innerHTML = worlds.map((w, i) => {
+  const synthNames = SYNTH_PRESETS.map(p => p.name);
+  container.innerHTML = WORLD_NAMES.map((w, i) => {
     const type = (state.worldSourceType && state.worldSourceType[i]) || 'synth';
     const vol = (state.worldVolume && state.worldVolume[i]) || 0.2;
-    const synthIdx = (state.worldSynth && state.worldSynth[i]) || 0;
+    const synthIdx = (state.worldSynth && state.worldSynth[i] != null) ? state.worldSynth[i] : WORLD_SYNTH[i];
     const expanded = i === activeSourceWorld;
+    const badge = type === 'synth'
+      ? `<span style="font-size:0.58rem; color:var(--muted); font-family:monospace; flex-shrink:0; max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${synthNames[synthIdx] || ''}</span>`
+      : `<span style="font-size:0.58rem; color:var(--muted); font-family:monospace; flex-shrink:0;">${type.toUpperCase()}</span>`;
     let controls = '';
     if (expanded) {
       if (type === 'synth') {
@@ -190,10 +216,11 @@ function renderSourceList() {
       }
     }
     return `
-      <div style="border-bottom:1px solid var(--border); padding:8px 0;">
+      <div style="border-bottom:1px solid var(--border); padding:8px 0; ${i === state.currentLevel ? 'border-left:2px solid #fff; padding-left:6px;' : ''}">
         <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
           <button onclick="toggleSourceRow(${i})" aria-label="${expanded ? 'Recolher' : 'Expandir'} ${w}" aria-expanded="${expanded}" style="flex:0 0 auto; width:20px; background:none; border:none; color:var(--muted); font-size:0.7rem; padding:0; cursor:pointer; line-height:1;">${expanded ? '▼' : '▶'}</button>
-          <span style="font-size:0.75rem; font-weight:600; flex:1 1 60px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${w}</span>
+          <button onclick="selectLevel(${i})" aria-label="Ir para o mundo ${w}" style="flex:1 1 60px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left; background:none; border:none; color:#fff; font-size:0.75rem; font-weight:600; padding:0; cursor:pointer;">${w}</button>
+          ${badge}
           <div style="display:flex; gap:2px; flex-shrink:0;">
             <button class="src-type-btn ${type==='synth'?'active':''}" onclick="setWorldSourceType(${i},'synth')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='synth'?'#fff':'transparent'}; color:${type==='synth'?'#000':'#888'}; border-radius:4px; cursor:pointer;">Synth</button>
             <button class="src-type-btn ${type==='mp3'?'active':''}" onclick="setWorldSourceType(${i},'mp3')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='mp3'?'#fff':'transparent'}; color:${type==='mp3'?'#000':'#888'}; border-radius:4px; cursor:pointer;">MP3</button>
@@ -231,7 +258,11 @@ window.setWorldSourceType = function(worldIdx, type) {
   if (!['synth', 'mp3', 'youtube'].includes(type)) return;
   // YouTube desativado: ignora qualquer chamada (inclusive links antigos).
   if (type === 'youtube' && !YOUTUBE_ENABLED) return;
-  if (!state.worldSourceType) state.worldSourceType = ['synth', 'synth', 'synth', 'synth', 'synth', 'synth'];
+  import { WORLD_NAMES } from './config.js';
+
+// ...existing code...
+
+if (!state.worldSourceType) state.worldSourceType = Array(WORLD_NAMES.length).fill('synth');
   state.worldSourceType[worldIdx] = type;
   activeSourceWorld = worldIdx;
 
@@ -260,24 +291,43 @@ function triggerOptions(current, allowOff) {
   ).join('');
 }
 
+// Indicador do gatilho ativo (atualizado pelo automode a cada avaliação).
+function updateTriggerIndicator() {
+  const el = document.getElementById('triggerActive');
+  if (!el) return;
+  const d = auto.getActiveTrigger();
+  if (d && d.key) {
+    const def = TRIGGER_DEFS.find(x => x.key === d.key);
+    el.textContent = `gatilho ativo: ${def ? def.label : d.key} → ${WORLD_NAMES[d.world] || '?'}`;
+  } else {
+    el.textContent = 'gatilho ativo: nenhum';
+  }
+}
+window.updateTriggerIndicator = updateTriggerIndicator;
+
 function renderTriggerList() {
   const container = document.getElementById('triggerList');
   if (!container) return;
   if (!state.worldTriggers) state.worldTriggers = normalizeWorldTriggers(null);
   const t = state.worldTriggers;
+  const active = auto.getActiveTrigger();
   container.innerHTML = TRIGGER_DEFS.map((def, i) => {
     const current = (t[def.key] != null) ? t[def.key] : -1;
     const allowOff = def.key !== 'fallback';
+    // Agrupamento visual por sensor (a ordem curada é preservada).
+    const isActive = !!(active && active.key === def.key);
     return `
-      <div style="display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid #151515;">
+      <div style="display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid #151515; ${isActive ? 'background:#151515; border-radius:4px; padding-left:4px;' : ''}">
         <span style="font-size:0.62rem; color:var(--muted); font-family:monospace; width:14px;">${i + 1}</span>
         <span style="font-size:0.7rem; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${def.label}</span>
+        <span style="font-size:0.55rem; color:var(--muted); font-family:monospace; flex-shrink:0;">${def.sensor}</span>
         <select onchange="setWorldTrigger('${def.key}', this.value)" aria-label="${def.label}" style="background:#0a0a0a; border:1px solid var(--border); color:#fff; padding:4px 6px; font-size:0.68rem; border-radius:6px; max-width:130px;">
           ${triggerOptions(current, allowOff)}
         </select>
       </div>
     `;
   }).join('');
+  updateTriggerIndicator();
 
   const mEl = document.getElementById('triggerMotion');
   const sEl = document.getElementById('triggerSilence');
@@ -325,6 +375,8 @@ function setWorldTriggerSilence(value) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
+renderWorldButtons();
+renderVoicePresets();
 renderSourceList();
 renderTriggerList();
 mechanics.syncMechanicsUI();

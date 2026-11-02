@@ -1,4 +1,9 @@
 import { state } from './state.js';
+import {
+  WORLD_NAMES, WORLD_VOICE_PRESETS,
+  MIC_RAIN_INTENSE_DB, MIC_RAIN_INTENSE_HOLD_SEC, TRIGGER_CLAP_WINDOW_SEC,
+  TRIGGER_INVERTED_DEG, TRIGGER_INVERTED_HOLD_SEC, TRIGGER_FLAT_DEG, TRIGGER_FLAT_HOLD_SEC
+} from './config.js';
 
 let lastMotionTs = 0;
 
@@ -28,7 +33,7 @@ export async function toggleMic() {
       });
       // Iniciar noise gate + LED
       startMicGate();
-      applyMicPreset(state.micPreset || 'Realidade');
+      applyMicPreset(state.micPreset || WORLD_NAMES[0]);
     } catch (e) {
       setSensorStatus('Permissão de microfone negada.');
     }
@@ -122,6 +127,26 @@ export function orientationHandler(e) {
   if (e.beta !== null) {
     const b = Math.abs(e.beta);
     state.isPhoneFaceDown = (b > 145 && b <= 180);
+    // Gatilhos de orientação: invertido (Paradox) e apoiado/plano
+    // (We Built Our Own World), ambos com tempo de sustentação.
+    const now = Date.now();
+    const inverted = b > TRIGGER_INVERTED_DEG;
+    if (inverted) {
+      if (state.invertedSince == null) state.invertedSince = now;
+      state.isInvertedHold = (now - state.invertedSince) >= TRIGGER_INVERTED_HOLD_SEC * 1000;
+    } else {
+      state.invertedSince = null;
+      state.isInvertedHold = false;
+    }
+    const g = (e.gamma !== null) ? Math.abs(e.gamma) : null;
+    const flat = b <= TRIGGER_FLAT_DEG && g !== null && g <= TRIGGER_FLAT_DEG;
+    if (flat) {
+      if (state.flatSince == null) state.flatSince = now;
+      state.isFlatHold = (now - state.flatSince) >= TRIGGER_FLAT_HOLD_SEC * 1000;
+    } else {
+      state.flatSince = null;
+      state.isFlatHold = false;
+    }
   }
 
   if (!state.isSpatial3DOn || !state.stereoPanner || !state.stereoPanner.pan) return;
@@ -161,6 +186,9 @@ export function toggleGPS() {
         btn.classList.add('active');
         btn.setAttribute('aria-pressed', 'true');
         btn.textContent = 'GPS: ON';
+        // Velocidade do GPS alimenta o gatilho "Veículo" (Radical Notion).
+        state.gpsSpeedMps = (pos.coords && typeof pos.coords.speed === 'number' && !isNaN(pos.coords.speed))
+          ? Math.max(0, pos.coords.speed) : 0;
         const now = Date.now();
         if (now - lastGpsUpdate < 60000) return;
         lastGpsUpdate = now;
@@ -178,6 +206,7 @@ export function toggleGPS() {
       },
       () => {
         state.isGpsOn = false;
+        state.gpsSpeedMps = 0;
         if (state.gpsWatchId !== null) { navigator.geolocation.clearWatch(state.gpsWatchId); state.gpsWatchId = null; }
         btn.classList.remove('active');
         btn.setAttribute('aria-pressed', 'false');
@@ -192,6 +221,7 @@ export function toggleGPS() {
       state.gpsWatchId = null;
     }
     state.isGpsOn = false;
+    state.gpsSpeedMps = 0;
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');
     btn.textContent = 'GPS: OFF';
@@ -202,6 +232,9 @@ export function toggleGPS() {
 let micGateInterval = null;
 let micPitchNode = null;
 let micPitchBypass = null;
+// Detectores do mic para os gatilhos "Chuva intensa" e "Duas palmas".
+let prevMicDb = -90;
+let lastClapTransientTs = 0;
 
 export function startMicGate() {
   if (micGateInterval) clearInterval(micGateInterval);
@@ -217,6 +250,25 @@ export function startMicGate() {
     // do Modo Automático, independente da Privação Sensorial.
     if (open) state.micSilenceSec = 0;
     else state.micSilenceSec = Math.min(3600, state.micSilenceSec + 0.1);
+    // Chuva intensa (mic): nível alto SUSTENTADO alimenta o gatilho do
+    // Bonus Track (mais exigente que a chuva moderada via GPS).
+    if (db > MIC_RAIN_INTENSE_DB) {
+      state.micRainIntenseSec = Math.min(600, (state.micRainIntenseSec || 0) + 0.1);
+    } else {
+      state.micRainIntenseSec = 0;
+    }
+    // Duas palmas (mic): transiente ALTO com onset (amostra anterior baixa)
+    // — chuva sustentada não conta como palma. Duas ocorrências dentro da
+    // janela disparam o gatilho do 528491.
+    const nowTs = Date.now();
+    if (db > -10 && prevMicDb < -18 && (nowTs - lastClapTransientTs) > 150) {
+      if (lastClapTransientTs > 0 && (nowTs - lastClapTransientTs) <= TRIGGER_CLAP_WINDOW_SEC * 1000) {
+        state.lastClapTime = nowTs;
+        setSensorStatus('Palmas detectadas: combinação 5-2-8-4-9-1.');
+      }
+      lastClapTransientTs = nowTs;
+    }
+    prevMicDb = db;
     // Gate: reduzir gain quando fechado
     if (state.micGainNode) {
       const target = open ? 1.0 : 0.0;
@@ -234,18 +286,14 @@ export function stopMicGate() {
   if (micGateInterval) { clearInterval(micGateInterval); micGateInterval = null; }
   state.micLedOn = false;
   state.micSilenceSec = 0;
+  state.micRainIntenseSec = 0;
+  prevMicDb = -90;
+  lastClapTransientTs = 0;
   const led = document.getElementById('micLed');
   if (led) led.classList.remove('on');
 }
 
-export const MIC_PRESETS = {
-  'Realidade': { gate: -25, delay: 0.06, feedback: 0.03, reverb: 0.08, dry: 0.92, wet: 0.08, pitch: 0 },
-  'Chuva':     { gate: -35, delay: 0.15, feedback: 0.12, reverb: 0.25, dry: 0.80, wet: 0.20, pitch: 0 },
-  'Hotel':     { gate: -40, delay: 0.30, feedback: 0.25, reverb: 0.40, dry: 0.70, wet: 0.30, pitch: 1 },
-  'Fortaleza': { gate: -30, delay: 0.10, feedback: 0.08, reverb: 0.15, dry: 0.85, wet: 0.15, pitch: 0 },
-  'Limbo':     { gate: -50, delay: 0.60, feedback: 0.45, reverb: 0.65, dry: 0.55, wet: 0.45, pitch: 3 },
-  'Lúcido':    { gate: -35, delay: 0.20, feedback: 0.15, reverb: 0.35, dry: 0.75, wet: 0.25, pitch: 1 }
-};
+export const MIC_PRESETS = WORLD_VOICE_PRESETS;
 
 export function applyMicPreset(name) {
   const p = MIC_PRESETS[name];
@@ -274,7 +322,12 @@ export function applyMicPreset(name) {
   if (fbEl) { fbEl.value = p.feedback; document.getElementById('micFbVal').textContent = Math.round(p.feedback * 100) + '%'; }
   if (revEl) { revEl.value = p.reverb; document.getElementById('micRevVal').textContent = Math.round(p.reverb * 100) + '%'; }
   if (dwEl) { dwEl.value = p.wet; document.getElementById('micDwVal').textContent = Math.round(p.dry * 100) + '/' + Math.round(p.wet * 100); }
-  // update UI
+  // update UI (dropdown único de voz)
+  const sel = document.getElementById('voicePresetSelect');
+  if (sel) {
+    const has = Array.from(sel.options).some(o => o.value === name);
+    if (has) sel.value = name; else sel.value = 'custom';
+  }
   document.querySelectorAll('.mic-preset').forEach(b => b.classList.toggle('active', b.dataset.preset === name));
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }

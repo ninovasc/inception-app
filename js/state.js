@@ -1,20 +1,26 @@
+import { WORLD_SYNTH, DEFAULT_WORLD_TRIGGERS } from './config.js';
+
+const N = 13; // mundos (v3.0.0)
+
 export const state = {
   audioCtx: null,
   isPlaying: false,
   sourceMode: 'synth', // 'synth' | 'mp3' | 'youtube'
-  currentSynthType: 0,
+  currentSynthType: WORLD_SYNTH[0],
   autoMode: true,
-  // Gatilhos de mundo: cada sensor aponta para um mundo (ou -1 = desativado).
-  // A avaliação é exclusiva: só o primeiro gatilho verdadeiro escolhe o mundo.
-  worldTriggers: { freefall: 4, rain: 1, night: 2, silence: 5, motion: 3, fallback: 0 },
+  // Gatilhos de mundo: cada regra de sensor aponta para um mundo
+  // (ou -1 = desativada). A avaliação é exclusiva: só a primeira
+  // regra verdadeira (ordem curada) escolhe o mundo.
+  worldTriggers: { ...DEFAULT_WORLD_TRIGGERS },
   triggerMotion: 0.6,
   triggerSilenceSec: 30,
-  worldSourceType: ['synth', 'synth', 'synth', 'synth', 'synth', 'synth'],
-  worldSynth: [0, 1, 2, 3, 4, 0],
-  worldVolume: [0.2, 0.2, 0.2, 0.2, 0.2, 0.2],
-  worldSources: { mp3: ['', '', '', '', '', ''], youtube: ['', '', '', '', '', ''] },
+  worldSourceType: Array(N).fill('synth'),
+  worldSynth: [...WORLD_SYNTH],
+  worldVolume: Array(N).fill(0.2),
+  worldSources: { mp3: Array(N).fill(''), youtube: Array(N).fill('') },
   gpsRain: false,
   gpsNight: false,
+  gpsSpeedMps: 0,
   motionIntensity: 0,
   currentLevel: 0,
   xyState: { x: 0.65, y: 0.0 },
@@ -30,9 +36,9 @@ export const state = {
   stemBuffers: [null, null, null],
   stemSources: [null, null, null],
   stemGains: [null, null, null],
-  worldMp3Buffers: [null, null, null, null, null, null],
-  worldMp3Sources: [null, null, null, null, null, null],
-  worldMp3Gains: [null, null, null, null, null, null],
+  worldMp3Buffers: Array(N).fill(null),
+  worldMp3Sources: Array(N).fill(null),
+  worldMp3Gains: Array(N).fill(null),
   synthNodes: [],
   chordIndex: 0,
   chordInterval: null,
@@ -81,6 +87,14 @@ export const state = {
   isPhoneFaceDown: false,
   silenceSeconds: 0,
   micSilenceSec: 0,
+  // Gatilhos novos (v3): chuva intensa (mic), palmas (mic), orientação
+  // invertida/apoiada (giro) e velocidade de veículo (GPS).
+  micRainIntenseSec: 0,
+  lastClapTime: 0,
+  invertedSince: null,
+  isInvertedHold: false,
+  flatSince: null,
+  isFlatHold: false,
   deprivationCheckInterval: null,
   heartbeatInterval: null,
   isDragging: false,

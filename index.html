@@ -28,7 +28,7 @@
     <header>
       <div class="logo-wrap">
         <div class="logo">PASIV Engine</div>
-        <div class="version">v2.9.1</div>
+        <div class="version">v3.0.0</div>
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
@@ -74,8 +74,9 @@
       </div>
       <div id="triggerPanel" class="hidden-panel open">
         <div style="font-size:0.65rem; color:var(--muted); margin-bottom:6px; line-height:1.4;">
-          O primeiro gatilho verdadeiro escolhe o mundo (prioridade de cima para baixo). Use “desativado” para ignorar um gatilho.
+          O primeiro gatilho verdadeiro escolhe o mundo (prioridade curada, de cima para baixo). Use “desativado” para ignorar um gatilho.
         </div>
+        <div id="triggerActive" style="font-size:0.62rem; color:#fff; font-family:monospace; margin-bottom:6px; padding:4px 6px; border:1px solid var(--border); border-radius:4px;">gatilho ativo: nenhum</div>
         <div id="triggerList"></div>
         <div style="margin-top:8px;">
           <div class="slider-group"><div class="slider-header"><span>Limiar de movimento</span><span id="triggerMotionVal">60%</span></div>
@@ -91,14 +92,7 @@
 
     <div class="menu-section">
       <div class="menu-title">Mundos</div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
-        <button class="menu-item active" id="lvl0" onclick="selectLevel(0)" style="font-size: 0.7rem; justify-content:center;" aria-label="Realidade">Realidade</button>
-        <button class="menu-item" id="lvl1" onclick="selectLevel(1)" style="font-size: 0.7rem; justify-content:center;" aria-label="Chuva">Chuva</button>
-        <button class="menu-item" id="lvl2" onclick="selectLevel(2)" style="font-size: 0.7rem; justify-content:center;" aria-label="Hotel">Hotel</button>
-        <button class="menu-item" id="lvl3" onclick="selectLevel(3)" style="font-size: 0.7rem; justify-content:center;" aria-label="Fortaleza">Fortaleza</button>
-        <button class="menu-item" id="lvl4" onclick="selectLevel(4)" style="font-size: 0.7rem; justify-content:center;" aria-label="Limbo">Limbo</button>
-        <button class="menu-item" id="lvl5" onclick="selectLevel(5)" style="font-size: 0.7rem; justify-content:center;" aria-label="Lúcido">Lúcido</button>
-      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;" id="worldGrid"></div>
 
       <!-- Parâmetros da arquitetura (sliders) -->
       <div style="margin-top:10px;">
@@ -120,14 +114,9 @@
         <span style="color:#fff;">▼</span>
       </div>
       <div id="voicePanel" class="hidden-panel open">
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:4px;">
-          <button class="menu-item mic-preset active" data-preset="Realidade" onclick="applyMicPreset('Realidade')" style="justify-content:center; font-size:0.7rem;" aria-pressed="true">Realidade</button>
-          <button class="menu-item mic-preset" data-preset="Chuva" onclick="applyMicPreset('Chuva')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Chuva</button>
-          <button class="menu-item mic-preset" data-preset="Hotel" onclick="applyMicPreset('Hotel')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Hotel</button>
-          <button class="menu-item mic-preset" data-preset="Fortaleza" onclick="applyMicPreset('Fortaleza')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Fortaleza</button>
-          <button class="menu-item mic-preset" data-preset="Limbo" onclick="applyMicPreset('Limbo')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Limbo</button>
-          <button class="menu-item mic-preset" data-preset="Lúcido" onclick="applyMicPreset('Lúcido')" style="justify-content:center; font-size:0.7rem;" aria-pressed="false">Lúcido</button>
-        </div>
+        <select id="voicePresetSelect" onchange="applyMicPreset(this.value)" aria-label="Preset de voz" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
+        </select>
+        <div style="font-size:0.62rem; color:var(--muted); font-family:monospace; margin-top:4px;">Cada mundo tem sua própria voz; o Modo Automático troca junto.</div>
         <div style="display:flex; align-items:center; gap:8px; margin-top:6px; font-size:0.7rem; color:var(--muted); font-family:monospace;">
           <span id="micLed" style="width:8px; height:8px; border-radius:50%; background:#333; display:inline-block;"></span>
           <span id="micLedLabel">LED: silêncio</span>
@@ -162,6 +151,13 @@
           <div id="ytPlayer3"></div>
           <div id="ytPlayer4"></div>
           <div id="ytPlayer5"></div>
+          <div id="ytPlayer6"></div>
+          <div id="ytPlayer7"></div>
+          <div id="ytPlayer8"></div>
+          <div id="ytPlayer9"></div>
+          <div id="ytPlayer10"></div>
+          <div id="ytPlayer11"></div>
+          <div id="ytPlayer12"></div>
         </div>
       </div>
     </div>
@@ -224,38 +220,45 @@
       <p>Motor de áudio psicoacústico inspirado nos níveis de sonho de <em>Inception</em>. Crie paisagens sonoras, use sensores do celular e compartilhe configurações via Seed.</p>
 
       <h3>Mundos</h3>
-      <p>6 mundos (Realidade → Lúcido) ajustam velocidade, filtro, eco e reverb de uma vez.</p>
+      <p>13 mundos nomeados pelas faixas da OST: Half Remembered Dream, We Built Our Own World, Dream Is Collapsing, Radical Notion, Old Souls, 528491, Mombasa, One Simple Idea, Dream Within a Dream, Waiting for a Train, Paradox, Time e Bonus Track. Cada um ajusta velocidade, filtro, eco e reverb de uma vez.</p>
 
       <h3>Fonte Sonora</h3>
       <ul>
-        <li><strong>Um tipo por mundo</strong>: abra a linha do mundo (▶) e escolha Synth ou MP3.</li>
-        <li><strong>Synth</strong>: escolha entre 5 sintetizadores (Zimmer, Brass, Sub Limbo, Glass, Binaural) e ajuste o volume do mundo.</li>
-        <li><strong>MP3</strong>: envie um arquivo de áudio para o mundo.</li>
+        <li><strong>Um tipo por mundo</strong>: abra a linha do mundo (▶) e escolha Synth ou MP3. Toque no nome para ir ao mundo.</li>
+        <li><strong>Synth</strong>: 18 sintetizadores — cada mundo tem um preset próprio, com camadas de pluck, pulse (BPM), ruído, drift e binaural.</li>
+        <li><strong>MP3 inteligente</strong>: ao trocar de mundo a música retoma de um ponto aleatório (mas musical); ao terminar, continua de outro ponto — a faixa inteira circula.</li>
         <li><strong>YouTube</strong>: opção temporariamente indisponível nesta versão.</li>
         <li><strong>Volume</strong>: cada mundo tem seu próprio volume.</li>
         <li><strong>Modo Automático</strong>: usa sensores para escolher o melhor mundo e voz.</li>
       </ul>
 
       <h3>Modo Automático</h3>
-      <p>Vem ligado por padrão. Usa sensores (GPS, giro, mic) para escolher o mundo e a voz homônima automaticamente, avaliando a cada 10s.</p>
+      <p>Vem ligado por padrão. Usa sensores (GPS, giro, mic, sessão) para escolher o mundo e a voz homônima automaticamente, avaliando a cada 10s.</p>
 
       <h3>Gatilhos de Mundo</h3>
       <ul>
-        <li><strong>Prioridade exclusiva</strong>: os gatilhos são avaliados de cima para baixo e só o primeiro verdadeiro escolhe o mundo. Não há sobreposição.</li>
-        <li><strong>Ordem</strong>: Queda livre → Chuva → Noite → Silêncio → Movimento → Sem gatilho.</li>
-        <li><strong>Desativado</strong>: use a opção “— desativado” para ignorar um gatilho (o repouso nunca fica desativado).</li>
+        <li><strong>Prioridade exclusiva</strong>: as 13 regras são avaliadas em ordem curada (raro/específico primeiro) e só a primeira verdadeira escolhe o mundo. Não há sobreposição.</li>
+        <li><strong>Ordem curada</strong>: Chuva intensa → Palmas → Invertido → Queda livre → Movimento → Veículo → Início da sessão → Silêncio → Chuva → Aparelho apoiado → Noite → Sessão longa → Sem gatilho.</li>
+        <li><strong>Destino remapeável</strong>: cada gatilho pode apontar para qualquer mundo. “Sem gatilho” é o repouso (Half Remembered Dream) e não pode ser desativado.</li>
+        <li><strong>Easter eggs reais</strong>: duas palmas disparam o 528491; chuva muito forte no mic, o Bonus Track; 20 min de sessão rendem uma passagem pelo Time.</li>
         <li><strong>Limiares</strong>: ajuste a intensidade de movimento e os segundos de silêncio que disparam a troca.</li>
-        <li><strong>Seed</strong>: mundos escolhidos e limiares são salvos no Código do Sonho.</li>
+        <li><strong>Seed</strong>: destinos escolhidos e limiares são salvos no Código do Sonho.</li>
       </ul>
 
       <h3>O Chute (Kick)</h3>
-      <p>Dispara uma fanfarra de metais + BRAAAM grave e desce ao Limbo.</p>
+      <p>Dispara uma fanfarra de metais + BRAAAM grave e desce ao Waiting for a Train (a estação do limbo).</p>
 
       <h3>Sensores</h3>
       <ul>
         <li><strong>Mic</strong>: entrada de áudio e detecção de silêncio.</li>
         <li><strong>Giro</strong>: modula a velocidade e detecta queda livre (Auto-Kick).</li>
-        <li><strong>GPS</strong>: sincroniza o nível com o clima (chuva/noite/dia).</li>
+        <li><strong>GPS</strong>: sincroniza o nível com o clima (chuva/noite/dia) e detecta veículo pela velocidade.</li>
+      </ul>
+
+      <h3>Sintetizadores</h3>
+      <ul>
+        <li><strong>Camadas</strong>: pluck (dedilhado), pulse (batida no BPM), noise (vento/estação), drift (instabilidade) e binaural.</li>
+        <li><strong>BPM</strong>: mundos com pulso (Mombasa 120, Radical Notion 96, Waiting for a Train 100...) trocam de acorde a cada compasso.</li>
       </ul>
 
       <h3>Mecânicas do Sonho</h3>
@@ -263,7 +266,7 @@
         <li><strong>Ecos do Ambiente</strong>: grava ecos do ambiente e os projeta (às vezes invertidos).</li>
         <li><strong>Chute Automático</strong>: dispara O Chute ao detectar queda livre.</li>
         <li><strong>Som 3D</strong>: pan estéreo controlado pela bússola.</li>
-        <li><strong>Timer Lúcido</strong>: descida progressiva até o Limbo com despertar ao fim.</li>
+        <li><strong>Timer Lúcido</strong>: descida progressiva até a estação do limbo com despertar ao fim.</li>
         <li><strong>Privação Sensorial</strong>: após 15s de silêncio com o celular virado, entra em modo batimento.</li>
       </ul>
 

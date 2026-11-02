@@ -161,7 +161,7 @@ function createImpulse(duration, decay) {
 // Compatibilidade: o tipo de fonte agora é definido por mundo em worldSourceType.
 export function setSourceMode(mode) {
   const normalized = normalizeSourceType(mode);
-  if (!state.worldSourceType) state.worldSourceType = ['synth', 'synth', 'synth', 'synth', 'synth', 'synth'];
+  if (!state.worldSourceType) state.worldSourceType = Array(WORLD_NAMES.length).fill('synth');
   state.worldSourceType[state.currentLevel] = normalized;
   state.sourceMode = normalized;
   restartWorldAudio();
@@ -173,7 +173,7 @@ export function selectSynthType(idx) {
   initAudio();
   const v = parseInt(idx, 10);
   if (isNaN(v)) return;
-  if (!state.worldSynth) state.worldSynth = [0, 1, 2, 3, 4, 0];
+  if (!state.worldSynth) state.worldSynth = [...WORLD_SYNTH];
   state.worldSynth[state.currentLevel] = v;
   state.currentSynthType = v;
   if (state.isPlaying && state.sourceMode === 'synth') {
@@ -194,7 +194,7 @@ export function setSynthVolume(val) {
 
 export function startSynth(transposeSemitones = 0, fadeMs = 40) {
   if (!state.audioCtx) return;
-  const preset = SYNTH_PRESETS[state.currentSynthType];
+  const preset = SYNTH_PRESETS[state.currentSynthType] || SYNTH_PRESETS[0];
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
   const factor = Math.pow(2, transposeSemitones / 12);
   const now = state.audioCtx.currentTime;
@@ -225,9 +225,141 @@ export function startSynth(transposeSemitones = 0, fadeMs = 40) {
     osc.start(now);
     state.synthNodes.push({ osc, base: freq * factor, isLfo: false, gain: g });
   });
+
+  // Camada opcional: drift (wobble lento de afinação, em cents).
+  if (preset.drift > 0) {
+    const dLfo = state.audioCtx.createOscillator();
+    dLfo.frequency.value = 0.07;
+    const dGain = state.audioCtx.createGain();
+    dGain.gain.value = preset.drift * 1200;
+    dLfo.connect(dGain);
+    state.synthNodes.forEach(n => {
+      if (!n.isLfo && n.osc.detune) dGain.connect(n.osc.detune);
+    });
+    dLfo.start(now);
+    state.synthNodes.push({ osc: dLfo, base: 0.07, isLfo: true });
+  }
+
+  // Camada opcional: binaural (ΔHz entre canais, batimento no fone).
+  if (preset.binaural > 0) {
+    for (let i = 0; i < 2; i++) {
+      const freq = preset.freqs[i] * speed * factor + preset.binaural;
+      const osc = state.audioCtx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.value = freq;
+      const g = state.audioCtx.createGain();
+      g.gain.setValueAtTime(0.0001, now);
+      g.gain.linearRampToValueAtTime(preset.gains[i] * 0.5, now + fade);
+      if (state.audioCtx.createStereoPanner) {
+        const pan = state.audioCtx.createStereoPanner();
+        pan.pan.value = (i === 0) ? -1 : 1;
+        osc.connect(g);
+        g.connect(pan);
+        pan.connect(state.synthMasterGain);
+      } else {
+        osc.connect(g);
+        g.connect(state.synthMasterGain);
+      }
+      osc.start(now);
+      state.synthNodes.push({ osc, base: preset.freqs[i] * factor + preset.binaural, isLfo: false, gain: g });
+    }
+  }
+
+  // Camada opcional: pulse (tom com gate rítmico no BPM do mundo).
+  if (preset.pulse) {
+    const bpm = preset.pulse.bpm || preset.bpm || 60;
+    const beat = 60 / bpm;
+    const pOsc = state.audioCtx.createOscillator();
+    pOsc.type = 'square';
+    pOsc.frequency.value = preset.freqs[0] * 2 * speed * factor;
+    const pGain = state.audioCtx.createGain();
+    pGain.gain.value = preset.pulse.gain / 2;
+    const pLfo = state.audioCtx.createOscillator();
+    pLfo.type = 'square';
+    pLfo.frequency.value = 1 / beat;
+    const pLfoGain = state.audioCtx.createGain();
+    pLfoGain.gain.value = preset.pulse.gain / 2;
+    pLfo.connect(pLfoGain);
+    pLfoGain.connect(pGain.gain);
+    pOsc.connect(pGain);
+    pGain.connect(state.synthMasterGain);
+    pOsc.start(now);
+    // offbeat: o gate começa meio batida depois.
+    pLfo.start(preset.pulse.offbeat ? (now + beat / 2) : now);
+    state.synthNodes.push({ osc: pOsc, base: preset.freqs[0] * 2 * factor, isLfo: false, gain: pGain });
+    state.synthNodes.push({ osc: pLfo, base: 1 / beat, isLfo: true });
+  }
+
+  // Camada opcional: noise (cama de ruído filtrada).
+  if (preset.noise) {
+    const len = 2 * state.audioCtx.sampleRate;
+    const nBuf = state.audioCtx.createBuffer(1, len, state.audioCtx.sampleRate);
+    const ch = nBuf.getChannelData(0);
+    for (let i = 0; i < len; i++) ch[i] = Math.random() * 2 - 1;
+    const src = state.audioCtx.createBufferSource();
+    src.buffer = nBuf;
+    src.loop = true;
+    const filt = state.audioCtx.createBiquadFilter();
+    filt.type = 'lowpass';
+    filt.frequency.value = preset.noise.freq || 500;
+    const nGain = state.audioCtx.createGain();
+    nGain.gain.setValueAtTime(0.0001, now);
+    nGain.gain.linearRampToValueAtTime(preset.noise.gain, now + Math.max(fade, 0.3));
+    src.connect(filt);
+    filt.connect(nGain);
+    nGain.connect(state.synthMasterGain);
+    src.start(now);
+    state.synthNodes.push({ osc: src, isNoise: true, gain: nGain });
+  }
+
+  // Camada opcional: pluck (notas curtas agendadas no BPM do mundo).
+  if (preset.pluck) startPluckLayer(factor);
+}
+
+// Camada pluck: agenda notas curtas (colcheias no BPM do preset).
+// Um timer por synth; parado junto com stopSynth.
+let pluckTimer = null;
+
+function startPluckLayer(factor) {
+  if (pluckTimer) clearInterval(pluckTimer);
+  const preset = SYNTH_PRESETS[state.currentSynthType] || SYNTH_PRESETS[0];
+  const bpm = (preset.pluck && preset.pluck.bpm) || preset.bpm || 70;
+  const stepMs = Math.max(150, Math.round(30000 / bpm)); // colcheias
+  let stepIdx = 0;
+  pluckTimer = setInterval(() => {
+    if (!state.isPlaying || state.sourceMode !== 'synth') return;
+    const p = SYNTH_PRESETS[state.currentSynthType];
+    if (!p || !p.pluck) return;
+    const speedNow = parseFloat(document.getElementById('sliderSpeed').value) || 1;
+    const f = p.freqs[stepIdx % p.freqs.length] * 2 * speedNow * factor;
+    playPluckNote(f, p.pluck.gain);
+    stepIdx++;
+  }, stepMs);
+}
+
+function playPluckNote(freq, gain) {
+  if (!state.audioCtx) return;
+  const now = state.audioCtx.currentTime;
+  const osc = state.audioCtx.createOscillator();
+  osc.type = 'triangle';
+  osc.frequency.value = freq;
+  const filt = state.audioCtx.createBiquadFilter();
+  filt.type = 'lowpass';
+  filt.frequency.value = 1600;
+  const g = state.audioCtx.createGain();
+  g.gain.setValueAtTime(0.0001, now);
+  g.gain.linearRampToValueAtTime(gain, now + 0.006);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + 0.5);
+  osc.connect(filt);
+  filt.connect(g);
+  g.connect(state.synthMasterGain);
+  osc.start(now);
+  osc.stop(now + 0.55);
+  osc.onended = () => { try { g.disconnect(); filt.disconnect(); } catch (e) {} };
 }
 
 export function stopSynth(fadeMs = 60) {
+  if (pluckTimer) { clearInterval(pluckTimer); pluckTimer = null; }
   const nodes = state.synthNodes;
   state.synthNodes = [];
   if (!nodes.length) return;
@@ -264,6 +396,11 @@ export function restartSynth(transposeSemitones = 0, fadeMs = 80) {
 export function startChordProgression() {
   stopChordProgression();
   const prog = CHORD_PROGRESSIONS[state.currentLevel] || CHORD_PROGRESSIONS[0];
+  // Mundos com BPM mudam de acorde a cada compasso (4 tempos);
+  // os demais mantêm os 8s estáveis da v2.7.
+  const preset = SYNTH_PRESETS[state.currentSynthType] || {};
+  const bpm = (preset.pulse && preset.pulse.bpm) || preset.bpm;
+  const chordMs = bpm ? Math.max(3000, Math.min(12000, Math.round(240000 / bpm))) : 8000;
   state.chordIndex = 0;
   // play first chord immediately (com fade, sem sobrepor camadas)
   if (state.sourceMode === 'synth' && state.isPlaying) {
@@ -273,8 +410,8 @@ export function startChordProgression() {
     if (!state.isPlaying || state.sourceMode !== 'synth') return;
     state.chordIndex = (state.chordIndex + 1) % prog.length;
     // Crossfade longo: evita o "pulo" a cada troca de acorde.
-    restartSynth(prog[state.chordIndex], 1400);
-  }, 8000);
+    restartSynth(prog[state.chordIndex], Math.min(1400, Math.round(chordMs * 0.35)));
+  }, chordMs);
 }
 
 export function stopChordProgression() {
@@ -323,16 +460,90 @@ export async function loadWorldMp3(worldIdx, file) {
   }
 }
 
-export function startMp3World() {
-  stopMp3World(state.currentLevel, 80);
-  const idx = state.currentLevel;
+// --- Reprodução inteligente de MP3 (plano 2.9) ---
+// Ao entrar/trocar de mundo a música NÃO recomeça do zero: escolhe-se uma
+// âncora por energia (RMS por janelas de 1s) com aleatoriedade ponderada
+// por menos-recentemente-usada. Ao chegar ao fim, a faixa não termina:
+// com ~3s de antecedência salta para uma nova âncora com fade curto.
+// Histórico fica em memória (não vai para a seed); faixas curtas (<20s)
+// ou sem envelope usam o comportamento antigo (loop do início).
+const mp3Meta = new Map(); // worldIdx -> { buffer, anchors, used, jumpTimer, src, gain, curOffset }
+
+// Calcula âncoras musicais do buffer (RMS por janelas de 1s; exporta para testes).
+export function computeAnchors(buffer) {
+  const sr = buffer.sampleRate;
+  const data = buffer.getChannelData(0);
+  const win = Math.floor(sr); // janela de 1s
+  const nWin = Math.floor(data.length / win);
+  if (nWin < 4) return [];
+  const rms = new Float32Array(nWin);
+  for (let w = 0; w < nWin; w++) {
+    let sum = 0;
+    const start = w * win;
+    let n = 0;
+    for (let i = start; i < start + win; i += 16) { sum += data[i] * data[i]; n++; }
+    rms[w] = Math.sqrt(sum / Math.max(1, n));
+  }
+  let max = 0;
+  for (let i = 0; i < nWin; i++) if (rms[i] > max) max = rms[i];
+  if (max <= 0) return [];
+  const thr = max * 0.25;
+  const skipStart = Math.floor(nWin * 0.05); // ignora ~5% inicial
+  const skipEnd = Math.ceil(nWin * 0.92);    // ignora ~8% final
+  const anchors = [];
+  for (let w = Math.max(1, skipStart); w < Math.min(skipEnd, nWin); w++) {
+    if (rms[w] >= thr && rms[w - 1] < thr) anchors.push(w); // início de trecho musical
+  }
+  // Espaço mínimo de 5s entre âncoras; limite de 24 âncoras.
+  const spaced = [];
+  for (const w of anchors) {
+    if (!spaced.length || (w - spaced[spaced.length - 1]) >= 5) spaced.push(w);
+  }
+  // Faixas contínuas têm poucos inícios claros: complementa com âncoras
+  // uniformes (somente em janelas com energia) para circular a faixa toda.
+  if (spaced.length < 6) {
+    const start = Math.max(1, Math.floor(nWin * 0.05));
+    const end = Math.min(nWin - 1, Math.ceil(nWin * 0.92));
+    const span = Math.max(0, end - start);
+    const count = Math.min(8, Math.max(3, Math.floor(span / 8)));
+    const merged = spaced.slice();
+    for (let k = 0; k < count; k++) {
+      const w = start + Math.round((span * k) / count);
+      if (rms[w] >= thr * 0.5) merged.push(w);
+    }
+    merged.sort((a, b) => a - b);
+    const out = [];
+    for (const w of merged) {
+      if (!out.length || (w - out[out.length - 1]) >= 5) out.push(w);
+    }
+    return out.slice(0, 24);
+  }
+  return spaced.slice(0, 24);
+}
+
+// Escolhe a próxima âncora: entre as 4 menos usadas, uma aleatória
+// (aleatório com lógica). avoidSec evita repetir o ponto atual.
+function pickAnchor(idx, avoidSec) {
+  const meta = mp3Meta.get(idx);
+  if (!meta || !meta.anchors.length) return null;
+  const order = meta.anchors.map((sec, i) => ({ i, sec, u: meta.used[i] || 0 }))
+    .sort((a, b) => a.u - b.u);
+  let pool = order.slice(0, Math.min(4, order.length));
+  const filtered = pool.filter(c => Math.abs(c.sec - (avoidSec == null ? -999 : avoidSec)) > 1);
+  pool = filtered.length ? filtered : pool;
+  const chosen = pool[Math.floor(Math.random() * pool.length)];
+  meta.used[chosen.i] = Date.now();
+  return chosen.sec;
+}
+
+function startMp3Source(idx, offsetSec, smart) {
   const buf = state.worldMp3Buffers[idx];
   if (!buf || !state.audioCtx) return;
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
   const now = state.audioCtx.currentTime;
   const src = state.audioCtx.createBufferSource();
   src.buffer = buf;
-  src.loop = true;
+  src.loop = !smart;
   src.playbackRate.value = speed;
   const gain = state.audioCtx.createGain();
   const vol = (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2;
@@ -341,11 +552,64 @@ export function startMp3World() {
   gain.gain.linearRampToValueAtTime(Math.max(0.0001, vol), now + 0.08);
   src.connect(gain);
   gain.connect(state.masterFilter);
-  src.start(now);
+  const safeOffset = smart ? Math.max(0, Math.min(offsetSec, Math.max(0, buf.duration - 0.5))) : 0;
+  src.start(now, safeOffset);
   src.onended = () => { try { gain.disconnect(); } catch (e) {} };
   state.worldMp3Sources[idx] = src;
-  state.worldMp3Gains = state.worldMp3Gains || [];
   state.worldMp3Gains[idx] = gain;
+  if (smart) {
+    const meta = mp3Meta.get(idx);
+    meta.src = src;
+    meta.gain = gain;
+    meta.curOffset = safeOffset;
+    scheduleMp3Continue(idx, buf, safeOffset, speed);
+  }
+}
+
+// Agenda o salto de fim de faixa: com ~3s de antecedência, crossfade
+// para uma nova âncora (o repertório circula por toda a música).
+function scheduleMp3Continue(idx, buf, offsetSec, speed) {
+  const meta = mp3Meta.get(idx);
+  if (!meta) return;
+  if (meta.jumpTimer) clearTimeout(meta.jumpTimer);
+  const remainingSec = Math.max(1, (buf.duration - offsetSec) / Math.max(0.1, speed));
+  const waitMs = Math.max(1000, (remainingSec - 3) * 1000);
+  meta.jumpTimer = setTimeout(() => {
+    if (!state.isPlaying || state.worldMp3Sources[idx] !== meta.src) return;
+    if (state.currentLevel !== idx || (state.worldSourceType[idx] !== 'mp3')) return;
+    const nextOffset = pickAnchor(idx, meta.curOffset);
+    if (nextOffset == null) return;
+    // Fade-out rápido do trecho atual e entrada da nova âncora.
+    if (meta.gain && state.audioCtx) {
+      const now = state.audioCtx.currentTime;
+      try {
+        meta.gain.gain.cancelScheduledValues(now);
+        meta.gain.gain.setValueAtTime(Math.max(0.0001, meta.gain.gain.value), now);
+        meta.gain.gain.linearRampToValueAtTime(0.0001, now + 0.12);
+      } catch (e) {}
+    }
+    const oldSrc = meta.src;
+    setTimeout(() => { if (oldSrc) { try { oldSrc.stop(); } catch (e) {} } }, 200);
+    startMp3Source(idx, nextOffset, true);
+  }, waitMs);
+}
+
+export function startMp3World() {
+  stopMp3World(state.currentLevel, 80);
+  const idx = state.currentLevel;
+  const buf = state.worldMp3Buffers[idx];
+  if (!buf || !state.audioCtx) return;
+  // Âncoras calculadas uma única vez por buffer (lazy, no primeiro play).
+  let meta = mp3Meta.get(idx);
+  if (!meta || meta.buffer !== buf) {
+    let anchors = [];
+    try { anchors = (buf.duration >= 20) ? computeAnchors(buf) : []; } catch (e) { anchors = []; }
+    meta = { buffer: buf, anchors, used: {}, jumpTimer: null, src: null, gain: null, curOffset: 0 };
+    mp3Meta.set(idx, meta);
+  }
+  const smart = meta.anchors.length > 0;
+  const offset = smart ? (pickAnchor(idx) || 0) : 0;
+  startMp3Source(idx, offset, smart);
 }
 
 // worldIdx opcional: por padrão aplica ao mundo atual (compatibilidade).
@@ -353,7 +617,7 @@ export function setWorldSynth(worldIdx, val) {
   if (val === undefined) { val = worldIdx; worldIdx = state.currentLevel; }
   const v = parseInt(val, 10);
   if (isNaN(v)) return;
-  if (!state.worldSynth) state.worldSynth = [0, 1, 2, 3, 4, 0];
+  if (!state.worldSynth) state.worldSynth = [...WORLD_SYNTH];
   state.worldSynth[worldIdx] = v;
   if (worldIdx === state.currentLevel) {
     state.currentSynthType = v;
@@ -366,6 +630,12 @@ export function setWorldSynth(worldIdx, val) {
 
 export function stopMp3World(index, fadeMs = 70) {
   const idx = (index === undefined) ? state.currentLevel : index;
+  const meta = mp3Meta.get(idx);
+  if (meta) {
+    if (meta.jumpTimer) { clearTimeout(meta.jumpTimer); meta.jumpTimer = null; }
+    meta.src = null;
+    meta.gain = null;
+  }
   const src = state.worldMp3Sources[idx];
   if (!src) return;
   const gain = state.worldMp3Gains ? state.worldMp3Gains[idx] : null;
@@ -389,7 +659,7 @@ export function stopMp3World(index, fadeMs = 70) {
 }
 
 export function stopAllMp3World() {
-  for (let i = 0; i < 6; i++) stopMp3World(i);
+  for (let i = 0; i < WORLD_NAMES.length; i++) stopMp3World(i);
 }
 
 export function setWorldMp3Volume(worldIdx, val) {
@@ -401,7 +671,7 @@ export function setWorldVolume(worldIdx, val) {
   if (val === undefined) { val = worldIdx; worldIdx = state.currentLevel; }
   const v = parseFloat(val);
   if (isNaN(v)) return;
-  if (!state.worldVolume) state.worldVolume = [0.2, 0.2, 0.2, 0.2, 0.2, 0.2];
+  if (!state.worldVolume) state.worldVolume = Array(WORLD_NAMES.length).fill(0.2);
   state.worldVolume[worldIdx] = v;
 
   const label = document.getElementById(`worldVolVal${worldIdx}`);
@@ -548,8 +818,9 @@ export function selectLevel(idx, preserveParams = false) {
       state.synthMasterGain.gain.setTargetAtTime(vol, state.audioCtx.currentTime, 0.1);
     }
 
-    const _colors = ['#ffffff', '#88aaff', '#ffaa88', '#ff8888', '#888888', '#aaffaa'];
-    for (let i = 0; i < 6; i++) {
+    const _colors = ['#ffffff', '#88aaff', '#ffaa88', '#ff8888', '#88ddaa', '#ddcc66',
+      '#66dddd', '#cc99ff', '#999999', '#aaaaff', '#ff6699', '#ffdd88', '#88ffcc'];
+    for (let i = 0; i < LEVELS.length; i++) {
       const _b = document.getElementById(`lvl${i}`);
       if (_b) {
         _b.classList.toggle('active', i === idx);
@@ -627,7 +898,7 @@ export function updateFromSliders(syncXY) {
   const filter = parseFloat(document.getElementById('sliderFilter').value);
   if (syncXY) syncXYPadFromSliders(speed, filter);
   // lose level highlight (custom override)
-  for (let i = 0; i < 6; i++) {
+  for (let i = 0; i < LEVELS.length; i++) {
     const b = document.getElementById(`lvl${i}`);
     if (b) b.classList.remove('active');
   }
@@ -654,7 +925,7 @@ export function applyParameters() {
     state.stemSources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
     state.worldMp3Sources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
     state.synthNodes.forEach(s => {
-      if (!s.isLfo) s.osc.frequency.setTargetAtTime(s.base * speed, now, 0.05);
+      if (!s.isLfo && s.osc.frequency) s.osc.frequency.setTargetAtTime(s.base * speed, now, 0.05);
     });
   }
 
@@ -739,7 +1010,7 @@ export function triggerKick(withPiafCue) {
     osc.stop(now + 3.7);
   });
 
-  selectLevel(4);
+  selectLevel(9); // Waiting for a Train (sucessor do Limbo)
   setTimeout(() => selectLevel(0), 3800);
 }
 
@@ -770,7 +1041,7 @@ export function captureAndPlaySubconsciousMemory() {
         const blob = new Blob(chunks);
         const arr = await blob.arrayBuffer();
         state.audioCtx.decodeAudioData(arr, (buffer) => {
-          const reverseProb = state.currentLevel === 4 ? 0.8 : (state.currentLevel === 0 ? 0.2 : 0.4);
+          const reverseProb = state.currentLevel === 9 ? 0.8 : (state.currentLevel === 0 ? 0.2 : 0.4);
           const reverse = Math.random() < reverseProb;
           if (reverse) {
             for (let c = 0; c < buffer.numberOfChannels; c++) {
