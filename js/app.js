@@ -258,11 +258,8 @@ window.setWorldSourceType = function(worldIdx, type) {
   if (!['synth', 'mp3', 'youtube'].includes(type)) return;
   // YouTube desativado: ignora qualquer chamada (inclusive links antigos).
   if (type === 'youtube' && !YOUTUBE_ENABLED) return;
-  import { WORLD_NAMES } from './config.js';
 
-// ...existing code...
-
-if (!state.worldSourceType) state.worldSourceType = Array(WORLD_NAMES.length).fill('synth');
+  if (!state.worldSourceType) state.worldSourceType = Array(WORLD_NAMES.length).fill('synth');
   state.worldSourceType[worldIdx] = type;
   activeSourceWorld = worldIdx;
 
