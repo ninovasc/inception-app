@@ -568,12 +568,13 @@ function startMp3Source(idx, offsetSec, smart) {
   src.playbackRate.value = speed;
   const gain = state.audioCtx.createGain();
   const vol = (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2;
-  // Fade-in curto: evita estalo ao iniciar/trocar de mundo.
-  gain.gain.setValueAtTime(0.0001, now);
-  gain.gain.linearRampToValueAtTime(Math.max(0.0001, vol), now + 0.08);
+  // Fade-in mais longo (200ms) para evitar clique no iOS
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(Math.max(0, vol), now + 0.25);
   src.connect(gain);
   gain.connect(state.masterFilter);
   const safeOffset = smart ? Math.max(0, Math.min(offsetSec, Math.max(0, buf.duration - 0.5))) : 0;
+  // Tenta iniciar em zero-crossing para evitar clique
   src.start(now, safeOffset);
   src.onended = () => { try { gain.disconnect(); } catch (e) {} };
   state.worldMp3Sources[idx] = src;
@@ -587,31 +588,63 @@ function startMp3Source(idx, offsetSec, smart) {
   }
 }
 
-// Agenda o salto de fim de faixa: com ~3s de antecedência, crossfade
-// para uma nova âncora (o repertório circula por toda a música).
+// Agenda o salto de fim de faixa: crossfade sobreposto (overlap) para evitar clique
 function scheduleMp3Continue(idx, buf, offsetSec, speed) {
   const meta = mp3Meta.get(idx);
   if (!meta) return;
   if (meta.jumpTimer) clearTimeout(meta.jumpTimer);
   const remainingSec = Math.max(1, (buf.duration - offsetSec) / Math.max(0.1, speed));
-  const waitMs = Math.max(1000, (remainingSec - 3) * 1000);
+  // Inicia o crossfade 4s antes do fim (overlap de 2s)
+  const overlapSec = 2.0;
+  const waitMs = Math.max(1000, (remainingSec - overlapSec) * 1000);
   meta.jumpTimer = setTimeout(() => {
     if (!state.isPlaying || state.worldMp3Sources[idx] !== meta.src) return;
     if (state.currentLevel !== idx || (state.worldSourceType[idx] !== 'mp3')) return;
     const nextOffset = pickAnchor(idx, meta.curOffset);
     if (nextOffset == null) return;
-    // Fade-out rápido do trecho atual e entrada da nova âncora.
-    if (meta.gain && state.audioCtx) {
-      const now = state.audioCtx.currentTime;
-      try {
-        meta.gain.gain.cancelScheduledValues(now);
-        meta.gain.gain.setValueAtTime(Math.max(0.0001, meta.gain.gain.value), now);
-        meta.gain.gain.linearRampToValueAtTime(0.0001, now + 0.12);
-      } catch (e) {}
-    }
-    const oldSrc = meta.src;
-    setTimeout(() => { if (oldSrc) { try { oldSrc.stop(); } catch (e) {} } }, 200);
-    startMp3Source(idx, nextOffset, true);
+    // Crossfade sobreposto: inicia novo enquanto faz fade-out do antigo
+    const now = state.audioCtx.currentTime;
+    const oldGain = meta.gain;
+    // Prepara novo source
+    const nextBuf = state.worldMp3Buffers[idx];
+    const nextSrc = state.audioCtx.createBufferSource();
+    nextSrc.buffer = nextBuf;
+    nextSrc.loop = false;
+    nextSrc.playbackRate.value = parseFloat(document.getElementById('sliderSpeed').value);
+    const nextGain = state.audioCtx.createGain();
+    const vol = (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2;
+    const safeOffset = Math.max(0, Math.min(meta.curOffset, Math.max(0, nextBuf.duration - 0.5)));
+    nextSrc.connect(nextGain);
+    nextGain.connect(state.masterFilter);
+    // Fade-out do antigo (1.5s) + fade-in do novo (1.5s) = overlap de 1.5s
+    const fadeDur = 1.5;
+    const now2 = state.audioCtx.currentTime;
+    // Fade-out do antigo
+    try {
+      oldGain.gain.cancelScheduledValues(now2);
+      oldGain.gain.setValueAtTime(oldGain.gain.value, now2);
+      oldGain.gain.linearRampToValueAtTime(0, now2 + fadeDur);
+    } catch (e) {}
+    // Fade-in do novo (começa do zero)
+    nextGain.gain.setValueAtTime(0, now2);
+    nextGain.gain.linearRampToValueAtTime(
+      (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2,
+      now2 + fadeDur
+    );
+    // Inicia novo source
+    const safeNextOffset = Math.max(0, Math.min(nextOffset, Math.max(0, nextBuf.duration - 0.5)));
+    nextSrc.start(now2, safeNextOffset);
+    // Para o antigo após o fade
+    setTimeout(() => {
+      try { meta.src.stop(); } catch (e) {}
+      try { oldGain.disconnect(); } catch (e) {}
+    }, (fadeDur + 0.1) * 1000);
+    // Atualiza meta
+    meta.src = nextSrc;
+    meta.gain = nextGain;
+    meta.curOffset = safeNextOffset;
+    // Agenda próximo salto
+    scheduleMp3Continue(idx, nextBuf, safeNextOffset, parseFloat(document.getElementById('sliderSpeed').value));
   }, waitMs);
 }
 
@@ -649,7 +682,7 @@ export function setWorldSynth(worldIdx, val) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-export function stopMp3World(index, fadeMs = 70) {
+export function stopMp3World(index, fadeMs = 300) {
   const idx = (index === undefined) ? state.currentLevel : index;
   const meta = mp3Meta.get(idx);
   if (meta) {
@@ -667,13 +700,13 @@ export function stopMp3World(index, fadeMs = 70) {
     try {
       const p = gain.gain;
       p.cancelScheduledValues(now);
-      p.setValueAtTime(Math.max(0.0001, p.value), now);
-      p.linearRampToValueAtTime(0.0001, now + fadeMs / 1000);
+      p.setValueAtTime(p.value, now);
+      p.linearRampToValueAtTime(0, now + fadeMs / 1000);
     } catch (e) {}
     setTimeout(() => {
       try { src.stop(); } catch (e) {}
       try { gain.disconnect(); } catch (e) {}
-    }, fadeMs + 80);
+    }, fadeMs + 50);
   } else {
     try { src.stop(); } catch (e) {}
   }
@@ -710,6 +743,72 @@ export function setWorldVolume(worldIdx, val) {
     }
   }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+// Crossfade suave entre dois mundos MP3 (overlap de 2s)
+function crossfadeMp3Worlds(fromIdx, toIdx) {
+  const fromMeta = mp3Meta.get(fromIdx);
+  const fromSrc = state.worldMp3Sources[fromIdx];
+  const fromGain = state.worldMp3Gains ? state.worldMp3Gains[fromIdx] : null;
+  const toBuf = state.worldMp3Buffers[toIdx];
+  if (!fromSrc || !fromGain || !toBuf || !state.audioCtx) {
+    // Fallback se não tiver tudo
+    stopMp3World(fromIdx);
+    startMp3World();
+    return;
+  }
+
+  const fadeDur = 2.0; // 2s de crossfade
+
+  // Prepara novo source
+  const toSrc = state.audioCtx.createBufferSource();
+  toSrc.buffer = toBuf;
+  toSrc.loop = false;
+  toSrc.playbackRate.value = parseFloat(document.getElementById('sliderSpeed').value);
+  const toGain = state.audioCtx.createGain();
+  const vol = (state.worldVolume && state.worldVolume[toIdx] != null) ? state.worldVolume[toIdx] : 0.2;
+
+  // Obtém âncora para o novo mundo
+  const toMeta = mp3Meta.get(toIdx);
+  let toOffset = 0;
+  if (toMeta && toMeta.anchors && toMeta.anchors.length > 0) {
+    toOffset = pickAnchor(toIdx) || 0;
+  }
+  const safeOffset = Math.max(0, Math.min(toOffset, Math.max(0, toBuf.duration - 0.5)));
+
+  toSrc.buffer = toBuf;
+  toSrc.loop = false;
+  toSrc.playbackRate.value = parseFloat(document.getElementById('sliderSpeed').value);
+  toSrc.connect(toGain);
+  toGain.connect(state.masterFilter);
+
+  // Crossfade: fade-out antigo + fade-in novo (overlap)
+  try {
+    fromGain.gain.cancelScheduledValues(state.audioCtx.currentTime);
+    fromGain.gain.setValueAtTime(fromGain.gain.value, state.audioCtx.currentTime);
+    fromGain.gain.linearRampToValueAtTime(0, state.audioCtx.currentTime + 2.0);
+  } catch (e) {}
+  toGain.gain.setValueAtTime(0, state.audioCtx.currentTime);
+  toGain.gain.linearRampToValueAtTime(
+    (state.worldVolume && state.worldVolume[toIdx] != null) ? state.worldVolume[toIdx] : 0.2,
+    state.audioCtx.currentTime + 2.0
+  );
+
+  toSrc.start(now, safeOffset);
+  toMeta.src = toSrc;
+  toMeta.gain = toGain;
+  toMeta.curOffset = safeOffset;
+
+  // Para o antigo após fade
+  setTimeout(() => {
+    try { fromSrc.stop(); } catch (e) {}
+    try { fromGain.disconnect(); } catch (e) {}
+    mp3Meta.get(fromIdx).src = null;
+    mp3Meta.get(fromIdx).gain = null;
+  }, 2100);
+
+  // Agenda próximo salto para o novo mundo
+  scheduleMp3Continue(toIdx, toBuf, safeOffset, parseFloat(document.getElementById('sliderSpeed').value));
 }
 
 // Reinicia a fonte do mundo atual respeitando o tipo escolhido.
@@ -871,9 +970,17 @@ export function selectLevel(idx, preserveParams = false) {
     if (state.isPlaying) {
       stopSynth(500);
       stopChordProgression();
-      stopAllMp3World();
-      if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
-      if (window.stopCapture) window.stopCapture();
+      // Crossfade suave entre mundos MP3
+      const oldMp3Idx = state.currentLevel !== idx ? state.currentLevel : -1;
+      if (oldMp3Idx >= 0 && state.worldSourceType[oldMp3Idx] === 'mp3' && state.worldSourceType[idx] === 'mp3') {
+        // Ambos são MP3: crossfade suave
+        crossfadeMp3Worlds(oldMp3Idx, idx);
+      } else {
+        // Transição normal (MP3 -> synth, synth -> MP3, etc)
+        stopAllMp3World();
+        if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
+        if (window.stopCapture) window.stopCapture();
+      }
 
       if (state.sourceMode === 'synth') {
         startChordProgression();
