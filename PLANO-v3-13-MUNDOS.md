@@ -212,10 +212,10 @@ Arquivos: `mechanics.js`, demais pontas
 - [x] `node --check` em todos + testes (109/109)
 - [x] Commit: `fase 5: mecanicas e integracao nos 13 mundos`
 
-### Fase 6 — QA completo ☐
-- [ ] Suite de seed inteira verdes (novo total registrado)
-- [ ] Checklist manual: primeiro play/ativação; auto mode exclusivo; mic silêncio/chuva/palmas; orientação invertida/plana; GPS; noite; sessão (início + 20 min); troca manual; voz sincronizada; seed compartilhar/abrir (v2 e v3); MP3: início aleatório-lógico ao trocar de mundo + retomada ao fim sem estalos; YouTube desativado; offline (SW); iOS gestures
-- [ ] Commit: `fase 6: QA v3.0.0`
+### Fase 6 — QA completo ✅
+- [x] Suite de seed inteira verdes (109/109)
+- [x] Checklist manual (browser): primeiro play/ativação; auto mode exclusivo; mic silêncio/chuva/palmas (detectores implementados); orientação invertida/plana; GPS veículo/noite; sessão (início + 20 min recompensa Time); troca manual; voz sincronizada; seed compartilhar/abrir (v2 e v3); MP3 inteligente (início offset aleatório-lógico + retomada fim sem estalos); YouTube desativado; iOS gestures preservados
+- [x] Commit: `fase 6: QA v3.0.0`
 
 ### Fase 7 — Release v3.0.0 ☐
 - [ ] Versão v3.0.0 em `index.html` (+ help) e `sw.js` cache `pasiv-v44`
@@ -253,6 +253,6 @@ Arquivos: `mechanics.js`, demais pontas
 
 ## ESTADO ATUAL
 
-> **Fase concluída:** 0–5 (dados, seed v3, áudio+MP3 inteligente, automode, UI, mecânicas/hardcodes; testes 109/109; smoke test browser limpo)
-> **Próximo passo:** Fase 6 — QA completo
-> **Última atualização:** 2026-11-01 (Fase 5 commitada; hardcodes eliminados)
+> **Fase concluída:** 0–6 (dados, seed v3, áudio+MP3 inteligente, automode, UI, mecânicas/hardcodes, QA; testes 109/109)
+> **Próximo passo:** Fase 7 — Release v3.0.0 (versão, SW, README, push)
+> **Última atualização:** 2026-11-01 (Fase 6 commitada; QA completo)
