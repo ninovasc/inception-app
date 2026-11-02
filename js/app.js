@@ -10,6 +10,7 @@ import * as yt from './youtube.js';
 import * as cap from './capture.js';
 import * as auto from './automode.js';
 import { SCREENSAVER_SVG } from './screensaver-svg.js';
+import { initI18n, t, setLang } from './i18n.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -138,7 +139,7 @@ function renderWorldSelect() {
   const sel = document.getElementById('worldSelect');
   if (!sel) return;
   sel.innerHTML = WORLD_NAMES.map((w, i) =>
-    `<option value="${i}" ${i === state.currentLevel ? 'selected' : ''}>${w}</option>`
+    `<option value="${i}" ${i === state.currentLevel ? 'selected' : ''}>${t(`world.${w}`)}</option>`
   ).join('');
 }
 window.renderWorldSelect = renderWorldSelect;
@@ -151,8 +152,8 @@ function renderVoicePresets() {
   // Usa a ordem dos mundos (chaves numéricas como "528491" viriam antes
   // na iteração de objeto).
   const names = WORLD_NAMES.filter(n => presets[n]);
-  sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('')
-    + `<option value="custom">Personalizado</option>`;
+  sel.innerHTML = names.map(n => `<option value="${n}">${t(`world.${n}`)}</option>`).join('')
+    + `<option value="custom">${t('voice.custom')}</option>`;
   sel.value = names.includes(state.micPreset) ? state.micPreset : 'custom';
 }
 
@@ -272,10 +273,10 @@ window.setWorldSourceType = function(worldIdx, type) {
 // --- Gatilhos de Mundo (Modo Automático) ---
 function triggerOptions(current, allowOff) {
   const off = allowOff
-    ? `<option value="-1" ${current === -1 ? 'selected' : ''}>— desativado</option>`
+    ? `<option value="-1" ${current === -1 ? 'selected' : ''}>${t('trigger.disabled')}</option>`
     : '';
   return off + WORLD_NAMES.map((name, i) =>
-    `<option value="${i}" ${current === i ? 'selected' : ''}>${name}</option>`
+    `<option value="${i}" ${current === i ? 'selected' : ''}>${t(`world.${name}`)}</option>`
   ).join('');
 }
 
@@ -286,9 +287,9 @@ function updateTriggerIndicator() {
   const d = auto.getActiveTrigger();
   if (d && d.key) {
     const def = TRIGGER_DEFS.find(x => x.key === d.key);
-    el.textContent = `gatilho ativo: ${def ? def.label : d.key} → ${WORLD_NAMES[d.world] || '?'}`;
+    el.textContent = t('trigger.active', { label: t(`trigger.label.${def.key}`), world: t(`world.${WORLD_NAMES[d.world]}`) });
   } else {
-    el.textContent = 'gatilho ativo: nenhum';
+    el.textContent = t('trigger.none');
   }
 }
 window.updateTriggerIndicator = updateTriggerIndicator;
@@ -369,6 +370,9 @@ renderSourceList();
 renderTriggerList();
 mechanics.syncMechanicsUI();
 auto.startAutoMode();
+
+// Inicializa i18n
+initI18n();
 
 // Initial seed
 seed.generateFullSeed(true);
