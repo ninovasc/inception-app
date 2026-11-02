@@ -104,6 +104,20 @@ const translations = {
     'deprivation.silence': 'SILENCE ({sec}/15s)',
     'deprivation.active': 'ACTIVE (Heartbeat)',
 
+    // Generative AI
+    'generative.enable': 'Generative AI',
+    'generative.desc': 'Generates infinite musical variations of the current synthesizer',
+    'generative.on': 'ON',
+    'generative.off': 'OFF',
+    'generative.variation': 'Variation',
+    'generative.new': 'New Variation',
+    'generative.save': 'Save',
+    'generative.reset': 'Reset',
+    'generative.seedPlaceholder': 'Seed (optional)',
+    'generative.applySeed': 'Apply',
+    'generative.ready': 'Ready to generate',
+    'generative.off': 'OFF',
+
     // Seed
     'seed.title': 'Dream Code',
     'seed.desc': 'Serializes all state into a string. Use Copy to share and Load to restore.',
@@ -266,6 +280,20 @@ const translations = {
     'deprivation.silence': 'SILENCIO ({sec}/15s)',
     'deprivation.active': 'ACTIVO (Latido)',
 
+    // Generative AI
+    'generative.enable': 'IA Generativa',
+    'generative.desc': 'Genera variaciones musicales infinitas del sintetizador actual',
+    'generative.on': 'ON',
+    'generative.off': 'OFF',
+    'generative.variation': 'Variación',
+    'generative.new': 'Nueva Variación',
+    'generative.save': 'Guardar',
+    'generative.reset': 'Reset',
+    'generative.seedPlaceholder': 'Seed (opcional)',
+    'generative.applySeed': 'Aplicar',
+    'generative.ready': 'Listo para gerar',
+    'generative.off': 'OFF',
+
     'seed.title': 'Código del Sueño',
     'seed.desc': 'Serializa todo el estado en una cadena. Usa Copiar para compartir y Cargar para restaurar.',
     'seed.copy': 'Copiar',
@@ -424,6 +452,20 @@ const translations = {
     'mechanic.deprivation.off': 'OFF',
     'deprivation.silence': 'SILÊNCIO ({sec}/15s)',
     'deprivation.active': 'ATIVO (Batimento)',
+
+    // Generative AI
+    'generative.enable': 'IA Generativa',
+    'generative.desc': 'Gera variações musicais infinitas do sintetizador atual',
+    'generative.on': 'ON',
+    'generative.off': 'OFF',
+    'generative.variation': 'Variação',
+    'generative.new': 'Nova Variação',
+    'generative.save': 'Salvar',
+    'generative.reset': 'Reset',
+    'generative.seedPlaceholder': 'Seed (opcional)',
+    'generative.applySeed': 'Aplicar',
+    'generative.ready': 'Pronto para gerar',
+    'generative.off': 'OFF',
 
     'seed.title': 'Código do Sonho',
     'seed.desc': 'Serializa todo o estado em uma string. Use Copiar para compartilhar e Carregar para restaurar.',
