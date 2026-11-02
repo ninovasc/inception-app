@@ -11,10 +11,10 @@
 | Categoria | Quantidade | Status |
 |-----------|------------|--------|
 | 🔴 Críticos (quebram funcionalidade) | 5 | ✅ **5/5 Concluídos** |
-| 🟡 Médios (arquitetura/código morto) | 8 | ⬜ Pendentes |
+| 🟡 Médios (arquitetura/código morto) | 5 | ✅ **5/5 Concluídos** |
 | 🟢 UX/Polish | 5 | ⬜ Pendentes |
 | 🗑️ Limpeza (arquivos legados) | 3 | ⬜ Pendentes |
-| **Total** | **21** | **5/21** |
+| **Total** | **18** | **10/18** |
 
 ---
 
@@ -52,7 +52,13 @@
 
 ---
 
-## 🟡 FASE B — ARQUITETURA / CÓDIGO MORTO
+## 🟡 FASE B — ARQUITETURA / CÓDIGO MORTO ✅ CONCLUÍDA
+
+### B1: remover delayNode/feedbackGain do state ✅ (feito na A3)
+### B2: MIC_PRESETS cópia profunda ✅
+### B3: app.js limpar currentWorldTab/selectWorldTab ✅
+### B4: mechanics.js constantes Waiting for a Train ✅
+### B5: config.js separar presets legados/novos ✅
 
 ### B1: audio.js/state.js — remover delayNode
 - **Arquivo:** `js/state.js` linha 28, `js/audio.js` linhas 28-29, 1060
