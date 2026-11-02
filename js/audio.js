@@ -943,7 +943,10 @@ export function applyParameters() {
     // Slider vira quantidade de eco (wet). O feedback permanece fixo e estável.
     if (state.delayWet) state.delayWet.gain.setTargetAtTime(Math.min(0.45, delay * 0.5), now, 0.08);
     if (state.reverbGain) state.reverbGain.gain.setTargetAtTime(Math.min(0.5, reverb * 0.5), now, 0.08);
-    state.stemSources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
+    // Stems só se estiverem ativos (sourceMode === 'capture' que usa stems)
+    if (state.sourceMode === 'capture') {
+      state.stemSources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
+    }
     state.worldMp3Sources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
     state.synthNodes.forEach(s => {
       if (!s.isLfo && s.osc.frequency) s.osc.frequency.setTargetAtTime(s.base * speed, now, 0.05);

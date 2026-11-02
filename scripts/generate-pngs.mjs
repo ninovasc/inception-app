@@ -70,6 +70,19 @@ async function main() {
     console.log(`   ✓ ${name} (${w}x${h})`);
   }
   
+  // 3. PWA Icons maskable - baseados no pawn.svg
+  const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+  
+  console.log('\n3. Gerando ícones PWA maskable...');
+  
+  for (const size of iconSizes) {
+    const canvas = await renderSVGToCanvas(
+      './assets/pawn.svg', size, size, '#08090c'
+    );
+    await fs.writeFile(`./assets/icons/icon-${size}.png`, canvas.toBuffer('image/png'));
+    console.log(`   ✓ icon-${size}.png`);
+  }
+  
   console.log('\n✓ Todos os PNGs gerados com sucesso!');
 }
 

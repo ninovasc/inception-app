@@ -9,6 +9,7 @@ import './power.js';
 import * as yt from './youtube.js';
 import * as cap from './capture.js';
 import * as auto from './automode.js';
+import { SCREENSAVER_SVG } from './screensaver-svg.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -398,12 +399,10 @@ function createScreensaver() {
     pointer-events: none;
     transition: opacity 1.2s ease;
   `;
-  el.innerHTML = `
-    <object type="image/svg+xml" data="./assets/totem-screensaver.svg" style="width: 60vmin; height: 60vmin; max-width: 90vw; max-height: 90vh;"></object>
-  `;
-  // Click/touch no overlay esconde o screensaver
+  // SVG inline (animações CSS funcionam direto no DOM, ao contrário de <object>)
+  el.innerHTML = SCREENSAVER_SVG;
+  // Click no overlay esconde o screensaver (touchstart removido: click já cobre touch com passive)
   el.addEventListener('click', hideScreensaver);
-  el.addEventListener('touchstart', hideScreensaver, { passive: true });
   document.body.appendChild(el);
   screensaverEl = el;
   return el;

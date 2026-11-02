@@ -101,5 +101,6 @@ export const state = {
   deprivationCheckInterval: null,
   heartbeatInterval: null,
   isDragging: false,
-  impulseBuffer: null
+  impulseBuffer: null,
+  defaultsActivated: false
 };

@@ -12,7 +12,7 @@
 |-----------|------------|--------|
 | 🔴 Críticos (quebram funcionalidade) | 5 | ✅ **5/5 Concluídos** |
 | 🟡 Médios (arquitetura/código morto) | 5 | ✅ **5/5 Concluídos** |
-| 🟢 UX/Polish | 5 | ⬜ Pendentes |
+| 🟢 UX/Polish | 5 | ⬜ Em andamento |
 | 🗑️ Limpeza (arquivos legados) | 3 | ⬜ Pendentes |
 | **Total** | **18** | **10/18** |
 

@@ -7,7 +7,6 @@ const BINAURAL_PULSE_IDX = 4; // Binaural Pulse preset index
 let memCatcherRuntime = false;
 let spatialRuntime = false;
 let deprivationRuntime = false;
-let defaultsActivated = false;
 
 function setMechanicUI(btnId, subId, on, onText, offText) {
   const btn = document.getElementById(btnId);
@@ -353,8 +352,8 @@ export function stopDeprivationHeartbeat() {
 // Ativa as mecânicas padrão no primeiro play (gesto do usuário, necessário
 // para permissões de mic/giroscópio/orientação). O timer fica de fora.
 export async function activateDreamDefaults() {
-  if (defaultsActivated) return;
-  defaultsActivated = true;
+  if (state.defaultsActivated) return;
+  state.defaultsActivated = true;
   // Sensores primeiro: no iOS as permissões de movimento/orientação
   // precisam acontecer perto do gesto do usuário.
   if (state.isAutoKickOn) await startAutoKick();
