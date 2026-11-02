@@ -8,7 +8,7 @@ import * as ui from './ui.js';
 import './power.js';
 import * as yt from './youtube.js';
 import * as cap from './capture.js';
-import * as auto from './automode.js';
+
 import { SCREENSAVER_SVG } from './screensaver-svg.js';
 import { initI18n, t, setLang } from './i18n.js';
 import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode } from './modes/modeManager.js';
@@ -78,7 +78,7 @@ Object.assign(window, {
   startCapture: cap.startCapture,
   stopCapture: cap.stopCapture,
   setCaptureVolume: cap.setCaptureVolume,
-  toggleAutoMode: auto.toggleAutoMode,
+  toggleAutoMode: narrativeMode.toggleAutoMode,
   setWorldTrigger: (key, value) => setWorldTrigger(key, value),
   setWorldTriggerMotion: (value) => setWorldTriggerMotion(value),
   setWorldTriggerSilence: (value) => setWorldTriggerSilence(value)
@@ -359,7 +359,7 @@ function triggerOptions(current, allowOff) {
 function updateTriggerIndicator() {
   const el = document.getElementById('triggerActive');
   if (!el) return;
-  const d = auto.getActiveTrigger();
+  const d = narrativeMode.getActiveTrigger();
   if (d && d.key) {
     const def = TRIGGER_DEFS.find(x => x.key === d.key);
     el.textContent = t('trigger.active', { label: t(`trigger.label.${def.key}`), world: WORLD_NAMES[d.world] });
@@ -374,7 +374,7 @@ function renderTriggerList() {
   if (!container) return;
   if (!state.worldTriggers) state.worldTriggers = normalizeWorldTriggers(null);
   const t = state.worldTriggers;
-  const active = auto.getActiveTrigger();
+  const active = narrativeMode.getActiveTrigger();
   container.innerHTML = TRIGGER_DEFS.map((def, i) => {
     const current = (t[def.key] != null) ? t[def.key] : -1;
     const allowOff = def.key !== 'fallback';
@@ -415,7 +415,7 @@ function setWorldTrigger(key, value) {
     state.worldTriggers[key] = (idx >= 0 && idx < WORLD_NAMES.length) ? idx : -1;
   }
   renderTriggerList();
-  if (state.autoMode && state.isPlaying) auto.evaluateAutoMode();
+  if (state.autoMode && state.isPlaying) narrativeMode.evaluateAutoMode();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
@@ -425,7 +425,7 @@ function setWorldTriggerMotion(value) {
   state.triggerMotion = Math.max(0, Math.min(1, v));
   const el = document.getElementById('triggerMotionVal');
   if (el) el.textContent = Math.round(state.triggerMotion * 100) + '%';
-  if (state.autoMode && state.isPlaying) auto.evaluateAutoMode();
+  if (state.autoMode && state.isPlaying) narrativeMode.evaluateAutoMode();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
@@ -435,7 +435,7 @@ function setWorldTriggerSilence(value) {
   state.triggerSilenceSec = Math.max(5, Math.min(300, v));
   const el = document.getElementById('triggerSilenceVal');
   if (el) el.textContent = state.triggerSilenceSec + 's';
-  if (state.autoMode && state.isPlaying) auto.evaluateAutoMode();
+  if (state.autoMode && state.isPlaying) narrativeMode.evaluateAutoMode();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
@@ -462,7 +462,7 @@ if (state.currentMode === 'narrative') {
 
 // Auto-start autoMode if was enabled (for backward compat)
 if (state.autoMode && state.currentMode === 'narrative') {
-  auto.startAutoMode();
+  narrativeMode.startAutoMode();
 }
 
 // Initialize sleep UI (hidden by default, shown when sleep mode activated)
