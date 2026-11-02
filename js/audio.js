@@ -1,6 +1,10 @@
 import { state } from './state.js';
 import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from './config.js';
 
+// Índices de mundos especiais (evita hardcodes)
+const WAITING_FOR_TRAIN_IDX = WORLD_NAMES.indexOf('Waiting for a Train'); // 9
+const HALF_REMEMBERED_DREAM_IDX = WORLD_NAMES.indexOf('Half Remembered Dream'); // 0
+
 export function initAudio() {
   if (state.audioCtx) {
     if (state.audioCtx.state === 'suspended') state.audioCtx.resume();
@@ -360,6 +364,23 @@ function playPluckNote(freq, gain) {
 
 export function stopSynth(fadeMs = 60) {
   if (pluckTimer) { clearInterval(pluckTimer); pluckTimer = null; }
+  // Parar LFOs de respiração (vazam recursos se não parados)
+  if (state.breathLfo) {
+    try { state.breathLfo.stop(); state.breathLfo.disconnect(); } catch (e) {}
+    state.breathLfo = null;
+  }
+  if (state.breathLfoGain) {
+    try { state.breathLfoGain.disconnect(); } catch (e) {}
+    state.breathLfoGain = null;
+  }
+  if (state.breathVolLfo) {
+    try { state.breathVolLfo.stop(); state.breathVolLfo.disconnect(); } catch (e) {}
+    state.breathVolLfo = null;
+  }
+  if (state.breathVolGain) {
+    try { state.breathVolGain.disconnect(); } catch (e) {}
+    state.breathVolGain = null;
+  }
   const nodes = state.synthNodes;
   state.synthNodes = [];
   if (!nodes.length) return;
@@ -1010,8 +1031,8 @@ export function triggerKick(withPiafCue) {
     osc.stop(now + 3.7);
   });
 
-  selectLevel(9); // Waiting for a Train (sucessor do Limbo)
-  setTimeout(() => selectLevel(0), 3800);
+  selectLevel(WAITING_FOR_TRAIN_IDX); // Waiting for a Train (sucessor do Limbo)
+  setTimeout(() => selectLevel(HALF_REMEMBERED_DREAM_IDX), 3800);
 }
 
 export function playHeartbeatPulse(offsetGain) {
@@ -1041,7 +1062,7 @@ export function captureAndPlaySubconsciousMemory() {
         const blob = new Blob(chunks);
         const arr = await blob.arrayBuffer();
         state.audioCtx.decodeAudioData(arr, (buffer) => {
-          const reverseProb = state.currentLevel === 9 ? 0.8 : (state.currentLevel === 0 ? 0.2 : 0.4);
+          const reverseProb = state.currentLevel === WAITING_FOR_TRAIN_IDX ? 0.8 : (state.currentLevel === HALF_REMEMBERED_DREAM_IDX ? 0.2 : 0.4);
           const reverse = Math.random() < reverseProb;
           if (reverse) {
             for (let c = 0; c < buffer.numberOfChannels; c++) {
@@ -1057,7 +1078,7 @@ export function captureAndPlaySubconsciousMemory() {
           g.gain.value = 0.75;
           src.connect(g);
           g.connect(state.convolverNode);
-          g.connect(state.delayNode);
+          g.connect(state.delayLeft);
           const varDelay = state.audioCtx.createDelay(2.0);
           varDelay.delayTime.value = 0.3 + Math.random() * 0.5;
           g.connect(varDelay);

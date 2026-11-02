@@ -1,8 +1,9 @@
 import { state } from './state.js';
+import { WORLD_COUNT } from './config.js';
 
-const players = [null, null, null, null, null, null];
-const ready = [false, false, false, false, false, false];
-const playerIds = ['', '', '', '', '', ''];
+const players = Array(WORLD_COUNT).fill(null);
+const ready = Array(WORLD_COUNT).fill(false);
+const playerIds = Array(WORLD_COUNT).fill('');
 let apiLoaded = false;
 let apiReady = false;
 const pending = [];
@@ -131,7 +132,7 @@ export function stopYouTubeWorld(index) {
 }
 
 export function stopAllYouTubeWorld() {
-  for (let i = 0; i < 6; i++) stopYouTubeWorld(i);
+  for (let i = 0; i < WORLD_COUNT; i++) stopYouTubeWorld(i);
 }
 
 // legacy wrappers

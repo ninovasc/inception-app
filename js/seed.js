@@ -254,12 +254,12 @@ export function generateFullSeed(immediate = false) {
 function buildSeed() {
   const volSynthEl = document.getElementById('volSynth');
   const vs = (volSynthEl && volSynthEl.value != null) ? parseFloat(volSynthEl.value) : 0.2;
-  const volumes = [
-    state.worldVolume ? state.worldVolume[0] : 0.2,
-    state.worldVolume ? state.worldVolume[1] : 0.2,
-    state.worldVolume ? state.worldVolume[2] : 0.2,
-    vs
-  ];
+  // Salva volumes de todos os 13 mundos (não só 4 fixos)
+  const volumes = state.worldVolume ? [...state.worldVolume] : Array(N).fill(0.2);
+  // Garante que o volume global do synth (vs) esteja sincronizado se for o mundo atual
+  if (state.currentLevel >= 0 && state.currentLevel < N) {
+    volumes[state.currentLevel] = vs;
+  }
   const ytCount = (state.worldSources && state.worldSources.youtube && state.worldSources.youtube.length) || N;
   const worldYt = [];
   for (let i = 0; i < ytCount; i++) {

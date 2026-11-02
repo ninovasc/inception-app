@@ -20,31 +20,31 @@
 
 ## 🔴 FASE A — CRÍTICOS (implementar primeiro)
 
-### A1: youtube.js — expandir arrays para 13 mundos
+### A1: youtube.js — expandir arrays para 13 mundos ✅
 - **Arquivo:** `js/youtube.js`
 - **Linhas:** 3, 134
 - **Problema:** `players = [null...]` (6), `stopAllYouTubeWorld` loopa 6, mas mundos vão 0-12
 - **Fix:** `Array(13).fill(null)`, loops usam `WORLD_NAMES.length` ou `WORLD_COUNT`
 
-### A2: seed.js — salvar volumes dos 13 mundos na seed
+### A2: seed.js — salvar volumes dos 13 mundos na seed ✅
 - **Arquivo:** `js/seed.js`
 - **Linhas:** 255-262
 - **Problema:** `volumes = [worldVolume[0], [1], [2], vs]` — só 4 valores
 - **Fix:** `volumes = [...state.worldVolume]` (13) + vs como fallback
 
-### A3: audio.js — remover delayNode não usado / corrigir Memory Catcher
+### A3: audio.js — remover delayNode não usado / corrigir Memory Catcher ✅
 - **Arquivo:** `js/audio.js`, `js/state.js`
 - **Linhas:** state.js:28, audio.js:1060
 - **Problema:** `delayNode` declarado mas nulo; `captureAndPlaySubconsciousMemory` conecta nele
 - **Fix:** Remover do state, usar `delayLeft`/`delayRight` ou criar delay dedicado
 
-### A4: audio.js:triggerKick — remover hardcodes de nível
+### A4: audio.js:triggerKick — remover hardcodes de nível ✅
 - **Arquivo:** `js/audio.js`
 - **Linhas:** 1013, 1044
 - **Problema:** `selectLevel(9)` hardcode, `currentLevel === 9` hardcode
 - **Fix:** Usar `WORLD_NAMES.indexOf('Waiting for a Train')` ou constante `WAITING_FOR_TRAIN_IDX = 9`
 
-### A5: audio.js — parar breath LFOs ao parar audio
+### A5: audio.js — parar breath LFOs ao parar audio ✅
 - **Arquivo:** `js/audio.js`
 - **Linhas:** 101-115, 361-388, 757-801
 - **Problema:** LFOs rodam indefinidamente, vazam recursos
