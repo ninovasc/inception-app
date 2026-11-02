@@ -576,7 +576,10 @@ function startMp3Source(idx, offsetSec, smart) {
   const safeOffset = smart ? Math.max(0, Math.min(offsetSec, Math.max(0, buf.duration - 0.5))) : 0;
   // Tenta iniciar em zero-crossing para evitar clique
   src.start(now, safeOffset);
-  src.onended = () => { try { gain.disconnect(); } catch (e) {} };
+  // Só anexa onended se NÃO for loop (smart=true), pois no modo loop o browser gerencia o loop
+  if (smart) {
+    src.onended = () => { try { gain.disconnect(); } catch (e) {} };
+  }
   state.worldMp3Sources[idx] = src;
   state.worldMp3Gains[idx] = gain;
   if (smart) {
