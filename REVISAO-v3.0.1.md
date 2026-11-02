@@ -13,8 +13,8 @@
 | 🔴 Críticos (quebram funcionalidade) | 5 | ✅ **5/5 Concluídos** |
 | 🟡 Médios (arquitetura/código morto) | 5 | ✅ **5/5 Concluídos** |
 | 🟢 UX/Polish | 5 | ✅ **5/5 Concluídos** |
-| 🗑️ Limpeza (arquivos legados) | 3 | ⬜ Em andamento |
-| **Total** | **18** | **15/18** |
+| 🗑️ Limpeza (arquivos legados) | 3 | ✅ **3/3 Concluídos** |
+| **Total** | **18** | **18/18** |
 
 ---
 
@@ -110,7 +110,11 @@
 
 ---
 
-## 🗑️ FASE D — LIMPEZA
+## 🗑️ FASE D — LIMPEZA ✅ CONCLUÍDA
+
+### D1: remover gen-pawn.js, gen-icon.js ✅
+### D2: ui.js remover handleXYMove ✅
+### D3: version bump v3.0.1 + tag v3.0.1 ✅
 
 ### D1: Remover scripts legados
 - **Arquivos:** `scripts/gen-pawn.js`, `scripts/gen-icon.js`
