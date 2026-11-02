@@ -2,10 +2,10 @@
 export const SCREENSAVER_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="60vmin" height="60vmin" max-width="90vw" max-height="90vh" preserveAspectRatio="xMidYMid slice">
   <defs>
+    <!-- Fundo preto puro para mesclar com o app -->
     <radialGradient id="splashBg" cx="50%" cy="52%" r="60%">
-      <stop offset="0%" stop-color="#1c2028"/>
-      <stop offset="45%" stop-color="#111318"/>
-      <stop offset="100%" stop-color="#08090c"/>
+      <stop offset="0%" stop-color="#000000"/>
+      <stop offset="100%" stop-color="#000000"/>
     </radialGradient>
     <radialGradient id="floorSpot" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#384354" stop-opacity="0.35"/>

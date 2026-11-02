@@ -390,7 +390,7 @@ function createScreensaver() {
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: #08090c;
+    background: #000000;
     display: flex;
     align-items: center;
     justify-content: center;
