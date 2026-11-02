@@ -4,7 +4,7 @@ import * as audio from '../audio.js';
 
 let timerInterval = null;
 
-export function activate() {
+export async function activate() {
   state.pomodoro.enabled = true;
   state.pomodoro.isRunning = true;
   state.autoMode = false; // Pomodoro não usa autoMode narrativo
@@ -74,7 +74,7 @@ export function skipPhase() {
   nextPhase();
 }
 
-function nextPhase() {
+async function nextPhase() {
   const { phase, cyclesCompleted, cyclesUntilLongBreak } = state.pomodoro;
   
   if (phase === 'activity') {
@@ -96,13 +96,10 @@ function nextPhase() {
   }
   
   state.pomodoro.timeRemaining = state.pomodoro.totalTime;
-  transitionToPhase(state.pomodoro.phase);
+  await transitionToPhase(state.pomodoro.phase);
 }
 
-function transitionToPhase(newPhase) {
-  const { POMODORO_WORLD_NAMES, POMODORO_WORLD_SYNTH, POMODORO_LEVELS } = 
-    await import('../config.js');
-  
+async function transitionToPhase(newPhase) {
   let worldIndex = 0;
   let newTotalTime = 0;
   
@@ -125,7 +122,6 @@ function transitionToPhase(newPhase) {
   state.pomodoro.timeRemaining = newTotalTime;
   
   // Transição de mundo com crossfade suave
-  const { audio } = await import('../audio.js');
   if (state.currentLevel !== worldIndex) {
     audio.selectLevel(worldIndex);
   }
