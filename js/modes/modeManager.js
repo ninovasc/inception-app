@@ -1,0 +1,207 @@
+import { state } from './state.js';
+import { MODES, MODE_ORDER, DEFAULT_MODE } from './config.js';
+import * as narrativeMode from './modes/narrativeMode.js';
+import * as pomodoroMode from './modes/pomodoroMode.js';
+import * as sleepMode from './modes/sleepMode.js';
+
+const modeModules = {
+  narrative: narrativeMode,
+  pomodoro: pomodoroMode,
+  sleep: sleepMode,
+  free: null // modo livre não tem módulo próprio
+};
+
+// Inicializa o gerenciador de modos
+export function initModeManager() {
+  // Restaura modo salvo no localStorage
+  const saved = localStorage.getItem('pasiv-mode');
+  if (saved && MODES.find(m => m.id === saved)) {
+    state.currentMode = saved;
+  } else {
+    state.currentMode = DEFAULT_MODE;
+  }
+  
+  // Inicializa o modo atual
+  switchMode(state.currentMode);
+}
+
+// Troca de modo
+export function switchMode(modeId) {
+  if (!MODES.find(m => m.id === modeId)) {
+    console.warn(`Modo desconhecido: ${modeId}`);
+    return false;
+  }
+  
+  const prevMode = state.currentMode;
+  if (prevMode === modeId) return true; // já está neste modo
+  
+  // Desativa modo anterior
+  deactivateMode(prevMode);
+  
+  // Ativa novo modo
+  state.currentMode = modeId;
+  localStorage.setItem('pasiv-mode', modeId);
+  
+  const module = modeModules[modeId];
+  if (module && module.activate) {
+    module.activate();
+  }
+  
+  // Atualiza UI
+  updateModeUI();
+  updateWorldUI();
+  
+  console.log(`[ModeManager] Modo alterado: ${prevMode} → ${modeId}`);
+  return true;
+}
+
+// Desativa modo atual
+function deactivateMode(modeId) {
+  const module = modeModules[modeId];
+  if (module && module.deactivate) {
+    module.deactivate();
+  }
+  
+  // Limpezas gerais
+  if (modeId === 'pomodoro') {
+    pomodoroMode.stopTimer();
+  }
+  if (modeId === 'sleep') {
+    sleepMode.cancelAlarm();
+  }
+  if (modeId === 'narrative') {
+    narrativeMode.stopAutoMode();
+  }
+}
+
+// Ativa modo
+function activateMode(modeId) {
+  const module = modeModules[modeId];
+  if (module && module.activate) {
+    module.activate();
+  }
+}
+
+// Retorna módulo do modo atual
+export function getCurrentModeModule() {
+  return modeModules[state.currentMode];
+}
+
+// Verifica se está em modo específico
+export function isMode(modeId) {
+  return state.currentMode === modeId;
+}
+
+// Obtém configuração do modo atual
+export function getCurrentModeConfig() {
+  return MODES.find(m => m.id === state.currentMode);
+}
+
+// Atualiza UI do seletor de modo
+function updateModeUI() {
+  // Atualiza seletor no header/painel
+  const selector = document.getElementById('modeSelector');
+  if (selector) {
+    selector.value = state.currentMode;
+  }
+  
+  // Atualiza botão "Modo Automático" (mantém compatibilidade)
+  const autoBtn = document.getElementById('btnAutoMode');
+  if (autoBtn) {
+    const isNarrative = state.currentMode === 'narrative';
+    autoBtn.classList.toggle('active', isNarrative);
+    autoBtn.setAttribute('aria-pressed', isNarrative);
+    const sub = document.getElementById('autoSub');
+    if (sub) sub.textContent = isNarrative ? 'ON' : 'OFF';
+  }
+  
+  // Atualiza label do modo no header se existir
+  const modeLabel = document.getElementById('currentModeLabel');
+  if (modeLabel) {
+    const mode = MODES.find(m => m.id === state.currentMode);
+    modeLabel.textContent = mode ? mode.name : '—';
+  }
+}
+
+// Atualiza UI específica do mundo (dropdown, sliders, etc)
+export function updateWorldUI() {
+  // Re-renderiza dropdown de mundos
+  if (typeof window.renderWorldSelect === 'function') {
+    window.renderWorldSelect();
+  }
+  
+  // Atualiza sliders baseado no nível atual
+  if (typeof window.updateFromSliders === 'function') {
+    window.updateFromSliders(true);
+  }
+  
+  // Atualiza painel de fonte sonora
+  if (typeof window.renderSourceList === 'function') {
+    window.renderSourceList();
+  }
+  
+  // Atualiza gatilhos se no modo narrativo
+  if (state.currentMode === 'narrative' && typeof window.renderTriggerList === 'function') {
+    window.renderTriggerList();
+  }
+}
+
+// Retorna mundos disponíveis para o modo atual
+export function getCurrentModeWorlds() {
+  switch (state.currentMode) {
+    case 'narrative':
+      const { WORLD_NAMES } = await import('./config.js');
+      return WORLD_NAMES;
+    case 'pomodoro':
+      const { POMODORO_WORLD_NAMES } = await import('./config.js');
+      return POMODORO_WORLD_NAMES;
+    case 'sleep':
+      const { SLEEP_WORLD_NAMES } = await import('./config.js');
+      return SLEEP_WORLD_NAMES;
+    case 'free':
+      const { WORLD_NAMES } = await import('./config.js');
+      return WORLD_NAMES;
+    default:
+      return [];
+  }
+}
+
+// Retorna contagem de mundos do modo atual
+export function getCurrentModeWorldCount() {
+  switch (state.currentMode) {
+    case 'pomodoro':
+      const { POMODORO_WORLD_COUNT } = await import('./config.js');
+      return POMODORO_WORLD_COUNT;
+    case 'sleep':
+      const { SLEEP_WORLD_COUNT } = await import('./config.js');
+      return SLEEP_WORLD_COUNT;
+    default:
+      const { WORLD_COUNT } = await import('./config.js');
+      return WORLD_COUNT;
+  }
+}
+
+// Verifica se modo atual permite MP3
+export function currentModeAllowsMp3() {
+  return state.currentMode === 'pomodoro' || state.currentMode === 'free' || state.currentMode === 'narrative';
+}
+
+// Verifica se modo atual usa timer Pomodoro
+export function isPomodoroMode() {
+  return state.currentMode === 'pomodoro';
+}
+
+// Verifica se modo atual é Sono
+export function isSleepMode() {
+  return state.currentMode === 'sleep';
+}
+
+// Verifica se modo atual é Narrativo
+export function isNarrativeMode() {
+  return state.currentMode === 'narrative';
+}
+
+// Verifica se modo atual é Livre
+export function isFreeMode() {
+  return state.currentMode === 'free';
+}

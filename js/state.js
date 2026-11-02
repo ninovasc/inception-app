@@ -1,6 +1,6 @@
-import { WORLD_SYNTH, DEFAULT_WORLD_TRIGGERS } from './config.js';
+import { WORLD_SYNTH, DEFAULT_WORLD_TRIGGERS, POMODORO_DEFAULTS, SLEEP_DEFAULTS, DEFAULT_MODE, POMODORO_WORLD_COUNT, SLEEP_WORLD_COUNT } from './config.js';
 
-const N = 13; // mundos (v3.0.0)
+const N = 13; // mundos narrativo (v3.0.0)
 
 export const state = {
   audioCtx: null,
@@ -8,6 +8,8 @@ export const state = {
   sourceMode: 'synth', // 'synth' | 'mp3' | 'youtube'
   currentSynthType: WORLD_SYNTH[0],
   autoMode: true,
+  // Modo atual: 'narrative' | 'pomodoro' | 'sleep' | 'free'
+  currentMode: 'narrative',
   // Gatilhos de mundo: cada regra de sensor aponta para um mundo
   // (ou -1 = desativada). A avaliação é exclusiva: só a primeira
   // regra verdadeira (ordem curada) escolhe o mundo.
@@ -102,5 +104,34 @@ export const state = {
   heartbeatInterval: null,
   isDragging: false,
   impulseBuffer: null,
-  defaultsActivated: false
+  defaultsActivated: false,
+  // Modo Pomodoro
+  pomodoro: {
+    enabled: false,
+    phase: 'activity',        // 'activity' | 'shortBreak' | 'longBreak'
+    timeRemaining: POMODORO_DEFAULTS.activityDuration,
+    totalTime: POMODORO_DEFAULTS.activityDuration,
+    cyclesCompleted: 0,
+    cyclesUntilLongBreak: POMODORO_DEFAULTS.cyclesUntilLongBreak,
+    isRunning: false,
+    timerInterval: null,
+    // Config
+    activityDuration: POMODORO_DEFAULTS.activityDuration,
+    shortBreakDuration: POMODORO_DEFAULTS.shortBreakDuration,
+    longBreakDuration: POMODORO_DEFAULTS.longBreakDuration,
+    cyclesUntilLongBreak: POMODORO_DEFAULTS.cyclesUntilLongBreak,
+    // MP3 por fase
+    activityMp3: '',
+    breakMp3: ''
+  },
+  // Modo Sono
+  sleep: {
+    enabled: false,
+    currentWorld: 0,          // índice em SLEEP_WORLD_NAMES
+    alarmTime: SLEEP_DEFAULTS.alarmTime,     // 'HH:MM'
+    wakeWindowMinutes: SLEEP_DEFAULTS.wakeWindowMinutes,
+    wakeWorldIndex: SLEEP_DEFAULTS.wakeWorldIndex,
+    alarmTimer: null,
+    isWaking: false
+  }
 };
