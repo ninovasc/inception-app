@@ -55,7 +55,6 @@ Object.assign(window, {
   copySeed: seed.copySeed,
   applySeed: seed.applySeed,
   togglePanel: ui.togglePanel,
-  handleXYMove: ui.handleXYMove,
   toggleHelp: ui.toggleHelp,
   autoResizeSeed: ui.autoResizeSeed,
   startYouTube: yt.startYouTube,

@@ -12,9 +12,9 @@
 |-----------|------------|--------|
 | 🔴 Críticos (quebram funcionalidade) | 5 | ✅ **5/5 Concluídos** |
 | 🟡 Médios (arquitetura/código morto) | 5 | ✅ **5/5 Concluídos** |
-| 🟢 UX/Polish | 5 | ⬜ Em andamento |
-| 🗑️ Limpeza (arquivos legados) | 3 | ⬜ Pendentes |
-| **Total** | **18** | **10/18** |
+| 🟢 UX/Polish | 5 | ✅ **5/5 Concluídos** |
+| 🗑️ Limpeza (arquivos legados) | 3 | ⬜ Em andamento |
+| **Total** | **18** | **15/18** |
 
 ---
 
@@ -81,7 +81,13 @@
 
 ---
 
-## 🟢 FASE C — UX / POLISH
+## 🟢 FASE C — UX / POLISH ✅ CONCLUÍDA
+
+### C1: app.js screensaver — SVG inline para animações ✅
+### C2: app.js screensaver — remover touchstart duplicado ✅
+### C3: audio.js applyParameters — stems condicional ✅
+### C4: manifest.webmanifest — icons maskable completos ✅
+### C5: mechanics.js — activateDreamDefaults flag no state ✅
 
 ### C1: app.js screensaver — SVG inline para animações
 - **Arquivo:** `js/app.js` linha 410
