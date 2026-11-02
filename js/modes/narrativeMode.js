@@ -20,7 +20,7 @@ export function getActiveTrigger() {
   return lastDecision;
 }
 
-function resetSession() {
+export function resetSession() {
   sessionStartTs = 0;
   timeRewardFired = false;
   timeRewardUntil = 0;
@@ -143,12 +143,6 @@ export function toggleAutoMode() {
 
 export function isAutoMode() {
   return state.autoMode;
-}
-
-function resetSession() {
-  sessionStartTs = 0;
-  timeRewardFired = false;
-  timeRewardUntil = 0;
 }
 
 export function getSessionStartTime() {

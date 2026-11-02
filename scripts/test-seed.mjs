@@ -1,7 +1,7 @@
 import { encodeState, decodeState } from '../js/seed.js';
 import { normalizeSourceType, normalizeWorldTriggers, WORLD_SYNTH, WORLD_NAMES, DEFAULT_WORLD_TRIGGERS } from '../js/config.js';
 import { state } from '../js/state.js';
-import { decideWorld } from '../js/automode.js';
+import { decideWorld, resetSession } from '../js/modes/narrativeMode.js';
 
 let pass = 0, fail = 0;
 function assert(cond, msg) {
@@ -172,6 +172,7 @@ assert(new Set(WORLD_NAMES).size === 13, 'nomes únicos');
 
 // ---------- Automode: prioridade curada e exclusividade ----------
 function resetAuto() {
+  resetSession();
   state.worldTriggers = { ...DEFAULT_WORLD_TRIGGERS };
   state.gpsRain = false; state.gpsNight = false; state.gpsSpeedMps = 0;
   state.motionIntensity = 0; state.micSilenceSec = 0; state.silenceSeconds = 0;
@@ -179,7 +180,7 @@ function resetAuto() {
   state.lastKickTime = 0; state.isInvertedHold = false; state.isFlatHold = false;
   state.triggerMotion = 0.6; state.triggerSilenceSec = 30; state.isAutoKickOn = true;
 }
-resetAuto();
+resetSession();
 assert(decideWorld() === 0, 'automode sem sinais -> fallback (HRD)');
 state.gpsRain = true;
 assert(decideWorld() === 4, 'automode chuva -> Old Souls');

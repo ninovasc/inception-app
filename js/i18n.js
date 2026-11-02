@@ -12,7 +12,7 @@ const translations = {
     // Main actions
     'btn.startDream': 'Start Dream',
     'btn.kick': 'The Kick (Piaf + BRAAAM)',
-    'btn.autoMode': 'Auto Mode (Sensors)',
+    'btn.autoMode': 'Narrative Mode (Sensors)',
     'sub.off': 'OFF',
     'sub.active': 'ACTIVE',
     'sub.freefall': 'Freefall',
@@ -239,7 +239,7 @@ const translations = {
     'worlds.title': 'Mundos',
 
     'voice.title': 'Voz',
-    'voice.desc': 'Cada mundo tiene su propia voz; el Modo Automático cambia junto.',
+    'voice.desc': 'Cada mundo tiene su propia voz; el Modo Narrativo cambia junto.',
     'voice.custom': 'Personalizado',
     'voice.gate': 'Gate',
     'voice.delay': 'Delay',
@@ -367,7 +367,7 @@ const translations = {
 
     'btn.startDream': 'Iniciar Sonho',
     'btn.kick': 'O Chute (Piaf + BRAAAM)',
-    'btn.autoMode': 'Modo Automático (Sensores)',
+    'btn.autoMode': 'Modo Narrativo (Sensores)',
     'sub.off': 'OFF',
     'sub.active': 'ATIVO',
     'sub.freefall': 'Queda Livre',
@@ -412,7 +412,7 @@ const translations = {
     'worlds.title': 'Mundos',
 
     'voice.title': 'Voz',
-    'voice.desc': 'Cada mundo tem sua própria voz; o Modo Automático troca junto.',
+    'voice.desc': 'Cada mundo tem sua própria voz; o Modo Narrativo troca junto.',
     'voice.custom': 'Personalizado',
     'voice.gate': 'Gate',
     'voice.delay': 'Delay',

@@ -1,0 +1,272 @@
+{
+  "generated": "2026-11-02T17:31:55.248Z",
+  "version": "4.0.3",
+  "commit": "a275fcb1695c",
+  "files": {
+    ".gitignore": {
+      "hash": "73fe569900bb6549",
+      "size": 88,
+      "modified": "2026-10-31T13:53:54.303Z"
+    },
+    "LICENSE": {
+      "hash": "778e459d82fc3932",
+      "size": 1074,
+      "modified": "2026-10-31T13:54:03.028Z"
+    },
+    "PLANO-v3-13-MUNDOS.md": {
+      "hash": "eb469801b1c55ab8",
+      "size": 18461,
+      "modified": "2026-11-02T02:18:42.534Z"
+    },
+    "PLANO-v4-MODOS.md": {
+      "hash": "9fab3546be2d594a",
+      "size": 17321,
+      "modified": "2026-11-02T14:32:31.469Z"
+    },
+    "README.md": {
+      "hash": "8d2d506a92b67428",
+      "size": 4275,
+      "modified": "2026-11-02T02:18:42.547Z"
+    },
+    "REVISAO-v3.0.1.md": {
+      "hash": "f6505ba082a4da99",
+      "size": 6014,
+      "modified": "2026-11-02T04:59:01.418Z"
+    },
+    "index.html": {
+      "hash": "b3bd5af160a45b42",
+      "size": 21733,
+      "modified": "2026-11-02T14:36:02.288Z"
+    },
+    "manifest.webmanifest": {
+      "hash": "21ab080a97526300",
+      "size": 1228,
+      "modified": "2026-11-02T04:48:57.220Z"
+    },
+    "offline.html": {
+      "hash": "5acb75a34aa6d77a",
+      "size": 753,
+      "modified": "2026-10-31T14:51:22.573Z"
+    },
+    "sw.js": {
+      "hash": "05ae1091405f1e30",
+      "size": 1978,
+      "modified": "2026-11-02T04:57:53.088Z"
+    },
+    ".github\\workflows\\pages.yml": {
+      "hash": "a74c5b668101a2fa",
+      "size": 668,
+      "modified": "2026-11-02T14:12:44.800Z"
+    },
+    "assets\\icons\\icon-128.png": {
+      "hash": "211aeb162d20ba08",
+      "size": 12396,
+      "modified": "2026-11-02T04:50:49.927Z"
+    },
+    "assets\\icons\\icon-144.png": {
+      "hash": "6274623061a3a26a",
+      "size": 14803,
+      "modified": "2026-11-02T04:50:50.079Z"
+    },
+    "assets\\icons\\icon-152.png": {
+      "hash": "7a6cb30cb9a9978a",
+      "size": 15836,
+      "modified": "2026-11-02T04:50:50.251Z"
+    },
+    "assets\\icons\\icon-192.png": {
+      "hash": "b600a4a05a7e376a",
+      "size": 23247,
+      "modified": "2026-11-02T04:50:50.449Z"
+    },
+    "assets\\icons\\icon-384.png": {
+      "hash": "5a9e38385a707cc5",
+      "size": 65796,
+      "modified": "2026-11-02T04:50:50.784Z"
+    },
+    "assets\\icons\\icon-512.png": {
+      "hash": "eec689a029901a17",
+      "size": 97894,
+      "modified": "2026-11-02T04:50:51.128Z"
+    },
+    "assets\\icons\\icon-72.png": {
+      "hash": "358c4219b912a1be",
+      "size": 5379,
+      "modified": "2026-11-02T04:50:49.632Z"
+    },
+    "assets\\icons\\icon-96.png": {
+      "hash": "7af861439763b4d1",
+      "size": 8299,
+      "modified": "2026-11-02T04:50:49.776Z"
+    },
+    "assets\\pawn.svg": {
+      "hash": "6dfcc59918070634",
+      "size": 6075,
+      "modified": "2026-11-02T02:41:55.982Z"
+    },
+    "assets\\splash-1125x2436.png": {
+      "hash": "8883d1fe58104855",
+      "size": 90653,
+      "modified": "2026-11-02T04:50:45.565Z"
+    },
+    "assets\\splash-1170x2532.png": {
+      "hash": "e8d03edb5d096566",
+      "size": 93249,
+      "modified": "2026-11-02T04:50:46.285Z"
+    },
+    "assets\\splash-1179x2556.png": {
+      "hash": "0d2678789fb9e9c5",
+      "size": 93060,
+      "modified": "2026-11-02T04:50:47.028Z"
+    },
+    "assets\\splash-1242x2688.png": {
+      "hash": "54c00b49f4499ad6",
+      "size": 101801,
+      "modified": "2026-11-02T04:50:47.774Z"
+    },
+    "assets\\splash-1284x2778.png": {
+      "hash": "79048fe952368406",
+      "size": 107387,
+      "modified": "2026-11-02T04:50:48.625Z"
+    },
+    "assets\\splash-1290x2796.png": {
+      "hash": "e1972d20f559a6b7",
+      "size": 106597,
+      "modified": "2026-11-02T04:50:49.459Z"
+    },
+    "assets\\splash-750x1334.png": {
+      "hash": "a5694c1324250305",
+      "size": 55405,
+      "modified": "2026-11-02T04:50:44.476Z"
+    },
+    "assets\\splash-828x1792.png": {
+      "hash": "c939f265b1625190",
+      "size": 61742,
+      "modified": "2026-11-02T04:50:44.890Z"
+    },
+    "assets\\totem-screensaver.svg": {
+      "hash": "4f65bdf2b333411f",
+      "size": 10412,
+      "modified": "2026-11-02T03:40:09.344Z"
+    },
+    "css\\styles.css": {
+      "hash": "c77c949f17425f2d",
+      "size": 8676,
+      "modified": "2026-11-02T14:32:16.276Z"
+    },
+    "js\\app.js": {
+      "hash": "2f647389cf29c045",
+      "size": 25888,
+      "modified": "2026-11-02T14:32:31.492Z"
+    },
+    "js\\audio.js": {
+      "hash": "79a4d38076c73359",
+      "size": 48463,
+      "modified": "2026-11-02T14:32:16.342Z"
+    },
+    "js\\automode.js": {
+      "hash": "fbf2cdcf32b52cab",
+      "size": 5557,
+      "modified": "2026-11-02T02:18:42.575Z"
+    },
+    "js\\capture.js": {
+      "hash": "6f3e6172caf304f3",
+      "size": 2731,
+      "modified": "2026-10-31T15:05:24.449Z"
+    },
+    "js\\config.js": {
+      "hash": "424eb2b81cb2414b",
+      "size": 20321,
+      "modified": "2026-11-02T14:36:02.297Z"
+    },
+    "js\\i18n.js": {
+      "hash": "f03162e7bcf71140",
+      "size": 32017,
+      "modified": "2026-11-02T14:32:31.540Z"
+    },
+    "js\\mechanics.js": {
+      "hash": "b5e0b1ff06171bba",
+      "size": 14532,
+      "modified": "2026-11-02T04:54:58.620Z"
+    },
+    "js\\modes\\modeManager.js": {
+      "hash": "67fd8a6a760bc9a2",
+      "size": 5538,
+      "modified": "2026-11-02T16:16:55.802Z"
+    },
+    "js\\modes\\narrativeMode.js": {
+      "hash": "23b73b5ec698521f",
+      "size": 5040,
+      "modified": "2026-11-02T17:21:57.043Z"
+    },
+    "js\\modes\\pomodoroMode.js": {
+      "hash": "93b729610cac3f6b",
+      "size": 7238,
+      "modified": "2026-11-02T14:32:31.601Z"
+    },
+    "js\\modes\\sleepMode.js": {
+      "hash": "07e0adfc04235425",
+      "size": 8827,
+      "modified": "2026-11-02T14:32:31.607Z"
+    },
+    "js\\power.js": {
+      "hash": "d7b8a085aeab4de9",
+      "size": 1935,
+      "modified": "2026-10-31T14:04:52.257Z"
+    },
+    "js\\screensaver-svg.js": {
+      "hash": "6ac9f6458a17565c",
+      "size": 10070,
+      "modified": "2026-11-02T11:47:27.455Z"
+    },
+    "js\\seed.js": {
+      "hash": "29cfffec9fde8eb9",
+      "size": 17053,
+      "modified": "2026-11-02T04:30:19.109Z"
+    },
+    "js\\sensors.js": {
+      "hash": "251bd949f84ea885",
+      "size": 17160,
+      "modified": "2026-11-02T04:36:33.475Z"
+    },
+    "js\\state.js": {
+      "hash": "476517680dbed416",
+      "size": 4093,
+      "modified": "2026-11-02T14:32:31.701Z"
+    },
+    "js\\synth\\generativeEngine.js": {
+      "hash": "31da063d5f65c3d8",
+      "size": 11154,
+      "modified": "2026-11-02T14:32:31.717Z"
+    },
+    "js\\ui.js": {
+      "hash": "abd16c82e604894f",
+      "size": 661,
+      "modified": "2026-11-02T04:57:28.863Z"
+    },
+    "js\\ui\\generativeUI.js": {
+      "hash": "c044063da2be4907",
+      "size": 16280,
+      "modified": "2026-11-02T14:32:31.734Z"
+    },
+    "js\\ui\\modeSelector.js": {
+      "hash": "c542b3bf8b6ee9d6",
+      "size": 2584,
+      "modified": "2026-11-02T14:32:31.738Z"
+    },
+    "js\\ui\\pomodoroUI.js": {
+      "hash": "c258ecc0774da4a3",
+      "size": 11721,
+      "modified": "2026-11-02T14:32:31.754Z"
+    },
+    "js\\ui\\sleepUI.js": {
+      "hash": "7430d50e9a7f9f12",
+      "size": 6948,
+      "modified": "2026-11-02T14:32:31.775Z"
+    },
+    "js\\youtube.js": {
+      "hash": "b65705aa4a2f126e",
+      "size": 4630,
+      "modified": "2026-11-02T04:29:36.858Z"
+    }
+  }
+}

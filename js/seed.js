@@ -393,10 +393,10 @@ export async function applySeed() {
       }
     }
 
-    // Modo Automático (sensores) é independente do Chute Automático.
+    // Modo Automático (sensores) - agora modo Narrativo
     if (parsed.autoMode !== undefined) {
-      const auto = await import('./automode.js');
-      auto.setAutoModeEnabled(parsed.autoMode);
+      const narrative = await import('./modes/narrativeMode.js');
+      narrative.setAutoModeEnabled(parsed.autoMode);
     }
     if (typeof window.syncMechanicsUI === 'function') window.syncMechanicsUI();
 

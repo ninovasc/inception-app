@@ -1,8 +1,8 @@
-import { state } from './state.js';
-import { MODES, MODE_ORDER, DEFAULT_MODE, WORLD_NAMES, POMODORO_WORLD_NAMES, SLEEP_WORLD_NAMES, WORLD_COUNT, POMODORO_WORLD_COUNT, SLEEP_WORLD_COUNT } from './config.js';
-import * as narrativeMode from './modes/narrativeMode.js';
-import * as pomodoroMode from './modes/pomodoroMode.js';
-import * as sleepMode from './modes/sleepMode.js';
+import { state } from '../state.js';
+import { MODES, MODE_ORDER, DEFAULT_MODE, WORLD_NAMES, POMODORO_WORLD_NAMES, SLEEP_WORLD_NAMES, WORLD_COUNT, POMODORO_WORLD_COUNT, SLEEP_WORLD_COUNT } from '../config.js';
+import * as narrativeMode from './narrativeMode.js';
+import * as pomodoroMode from './pomodoroMode.js';
+import * as sleepMode from './sleepMode.js';
 
 const modeModules = {
   narrative: narrativeMode,
