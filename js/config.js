@@ -1,5 +1,5 @@
 // ============================================================
-// PASIV Engine — Configuração dos 13 Mundos (v3.0.0)
+// PASIV Engine — Configuração dos 13 Mundos (v4.0.3)
 // A ordem dos mundos segue as faixas da OST. A prioridade dos
 // gatilhos é CURADA (TRIGGER_DEFS) e independente desta ordem.
 // ============================================================
