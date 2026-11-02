@@ -55,6 +55,9 @@ const translations = {
     'trigger.label.sessionLong': 'Long Session (Reward)',
     'trigger.label.fallback': 'No Trigger',
 
+    // Worlds
+    'worlds.title': 'Worlds',
+
     // Voice
     'voice.title': 'Voice',
     'voice.desc': 'Each world has its own voice; Auto Mode switches together.',
@@ -218,6 +221,9 @@ const translations = {
     'trigger.label.sessionLong': 'Sesión Larga (Recompensa)',
     'trigger.label.fallback': 'Sin Gatillo',
 
+    // Worlds
+    'worlds.title': 'Mundos',
+
     'voice.title': 'Voz',
     'voice.desc': 'Cada mundo tiene su propia voz; el Modo Automático cambia junto.',
     'voice.custom': 'Personalizado',
@@ -373,6 +379,9 @@ const translations = {
     'trigger.label.night': 'Noite (GPS)',
     'trigger.label.sessionLong': 'Sessão Longa (Recompensa)',
     'trigger.label.fallback': 'Sem Gatilho',
+
+    // Worlds
+    'worlds.title': 'Mundos',
 
     'voice.title': 'Voz',
     'voice.desc': 'Cada mundo tem sua própria voz; o Modo Automático troca junto.',

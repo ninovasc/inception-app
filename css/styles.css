@@ -363,6 +363,25 @@ input[type="file"] {
   border-top-width: 1px;
 }
 
+.accordion-panel {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  padding-top: 0;
+  border-top: 0 solid var(--border);
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.25s ease,
+              border-top-width 0.35s ease,
+              padding-top 0.35s ease;
+}
+
+.accordion-panel.open {
+  max-height: 2000px;
+  opacity: 1;
+  padding-top: 8px;
+  border-top-width: 1px;
+}
+
 .synth-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -427,7 +446,7 @@ input[type="file"] {
 }
 
 /* When next sibling panel is open, rotate the arrow */
-.hidden-panel.open + .menu-title .accordion-arrow,
+.accordion-panel.open + .menu-title .accordion-arrow,
 .menu-title[onclick*="toggleAccordion"]:has(+ .accordion-panel.open) .accordion-arrow {
   transform: rotate(180deg);
 }
