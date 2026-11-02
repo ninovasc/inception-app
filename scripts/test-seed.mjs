@@ -220,5 +220,32 @@ state.worldTriggers.silence = -1;
 state.micSilenceSec = 30;
 assert(decideWorld() === 0, 'automode regra desativada -> fallback');
 
+// ---------- MP3 inteligente: âncoras por energia ----------
+const { computeAnchors } = await import('../js/audio.js');
+function fakeBuffer(durSec, makeLevel) {
+  const sr = 8000;
+  const data = new Float32Array(sr * durSec);
+  for (let i = 0; i < data.length; i++) {
+    const sec = i / sr;
+    data[i] = makeLevel(sec) * (Math.random() * 2 - 1);
+  }
+  return { sampleRate: sr, duration: durSec, length: data.length, getChannelData: () => data };
+}
+// Música tocando apenas entre 10s e 40s (silêncio nas pontas).
+const bufA = fakeBuffer(50, (sec) => (sec >= 10 && sec <= 40 ? 0.8 : 0.0));
+const anchorsA = computeAnchors(bufA);
+assert(anchorsA.length > 0, 'mp3 âncoras encontradas no trecho musical');
+assert(anchorsA.every(a => a >= 3 && a <= 46), 'mp3 âncoras fora das pontas (5% início / 8% fim)');
+assert(anchorsA.some(a => a >= 9 && a <= 12), 'mp3 âncora no início do trecho musical');
+// Faixa contínua alta: âncoras espaçadas, cobrindo a maior parte.
+const bufB = fakeBuffer(60, () => 0.8);
+const anchorsB = computeAnchors(bufB);
+assert(anchorsB.length >= 2, 'mp3 faixa contínua gera múltiplas âncoras');
+assert(anchorsB.every((a, i) => i === 0 || a - anchorsB[i - 1] >= 5), 'mp3 espaçamento mínimo de 5s');
+assert(anchorsB.length <= 24, 'mp3 limite de 24 âncoras');
+// Sem conteúdo: nenhuma âncora (fallback para loop antigo).
+const bufC = fakeBuffer(40, () => 0.0);
+assert(computeAnchors(bufC).length === 0, 'mp3 silêncio total -> sem âncoras (fallback)');
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail > 0 ? 1 : 0);

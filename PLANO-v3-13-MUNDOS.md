@@ -189,18 +189,20 @@ Arquivos: `automode.js`, `sensors.js`
 - [x] `node --check` + testes (102/102, incluindo decideWorld)
 - [x] Commit: `fase 3: automode com prioridade curada e 13 gatilhos exclusivos`
 
-### Fase 4 — UI: lista única, vozes em dropdown, gatilhos por sensor ☐
+### Fase 4 — UI: lista única, vozes em dropdown, gatilhos por sensor ✅
 Arquivos: `app.js`, `index.html`
-- [ ] Remover hardcodes de `app.js:139-140` (listas de config)
-- [ ] Lista única Mundos + Fonte Sonora: 13 linhas colapsáveis (▼/▶), nome + synth + controles
-- [ ] Seleção manual de mundo continua funcionando
-- [ ] Voz como dropdown único
-- [ ] Gatilhos agrupados por sensor: 13 regras, destino remapeável (dropdown sem números), on/off, thresholds
-- [ ] Indicador de gatilho ativo (ex.: "gatilho: chuva → Old Souls")
-- [ ] "Realidade"/"Lúcido" saem da UI como mundos; Timer de Sonho Lúcido permanece
-- [ ] Help/textos atualizados; sem regressão mobile
-- [ ] `node --check` + testes
-- [ ] Commit: `fase 4: UI única de 13 mundos, vozes e gatilhos por sensor`
+- [x] Remover hardcodes de `app.js:139-140` (listas de config)
+- [x] Lista única Mundos + Fonte Sonora: 13 linhas colapsáveis (▼/▶), nome + synth + controles (nome clicável seleciona o mundo; linha do mundo atual destacada)
+- [x] Seleção manual de mundo continua funcionando (grade de 13 botões data-driven)
+- [x] Voz como dropdown único (13 presets + Personalizado; sincronizado com applyMicPreset)
+- [x] Gatilhos agrupados por sensor (tag por linha; ordem curada preservada), destino remapeável (dropdown sem números), on/off, thresholds
+- [x] Indicador de gatilho ativo (`#triggerActive`, atualizado pelo automode)
+- [x] "Realidade"/"Lúcido" saem da UI como mundos; Timer de Sonho Lúcido permanece
+- [x] Help/textos atualizados; sem regressão mobile; 13 players YT ocultos
+- [x] Smoke test no browser: 0 erros de console; play/selectLevel/remap/seed OK; migração v2 aplicada ao vivo
+- [x] MP3 inteligente validado ao vivo: início offset 10 → salto de fim para âncora 19 com lookahead exato
+- [x] `node --check` + testes (109/109, incl. computeAnchors)
+- [x] Commit: `fase 4: UI única de 13 mundos, vozes e gatilhos por sensor`
 
 ### Fase 5 — Mecânicas e integeração restante ☐
 Arquivos: `mechanics.js`, demais pontas
@@ -251,6 +253,6 @@ Arquivos: `mechanics.js`, demais pontas
 
 ## ESTADO ATUAL
 
-> **Fase concluída:** 0–3 (dados, seed v3, motor de áudio + MP3 inteligente, automode 13 regras; testes 102/102)
-> **Próximo passo:** Fase 4 — UI única de 13 mundos (`app.js`, `index.html`)
-> **Última atualização:** 2026-11-01 (Fase 3 commitada)
+> **Fase concluída:** 0–4 (dados, seed v3, áudio+MP3 inteligente, automode, UI; testes 109/109; smoke test browser limpo)
+> **Próximo passo:** Fase 5 — mecânicas e caça aos hardcodes (`mechanics.js`, grep de nomes antigos)
+> **Última atualização:** 2026-11-01 (Fase 4 commitada; MP3 inteligente validado ao vivo)

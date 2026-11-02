@@ -469,7 +469,8 @@ export async function loadWorldMp3(worldIdx, file) {
 // ou sem envelope usam o comportamento antigo (loop do início).
 const mp3Meta = new Map(); // worldIdx -> { buffer, anchors, used, jumpTimer, src, gain, curOffset }
 
-function computeAnchors(buffer) {
+// Calcula âncoras musicais do buffer (RMS por janelas de 1s; exporta para testes).
+export function computeAnchors(buffer) {
   const sr = buffer.sampleRate;
   const data = buffer.getChannelData(0);
   const win = Math.floor(sr); // janela de 1s
@@ -497,6 +498,25 @@ function computeAnchors(buffer) {
   const spaced = [];
   for (const w of anchors) {
     if (!spaced.length || (w - spaced[spaced.length - 1]) >= 5) spaced.push(w);
+  }
+  // Faixas contínuas têm poucos inícios claros: complementa com âncoras
+  // uniformes (somente em janelas com energia) para circular a faixa toda.
+  if (spaced.length < 6) {
+    const start = Math.max(1, Math.floor(nWin * 0.05));
+    const end = Math.min(nWin - 1, Math.ceil(nWin * 0.92));
+    const span = Math.max(0, end - start);
+    const count = Math.min(8, Math.max(3, Math.floor(span / 8)));
+    const merged = spaced.slice();
+    for (let k = 0; k < count; k++) {
+      const w = start + Math.round((span * k) / count);
+      if (rms[w] >= thr * 0.5) merged.push(w);
+    }
+    merged.sort((a, b) => a - b);
+    const out = [];
+    for (const w of merged) {
+      if (!out.length || (w - out[out.length - 1]) >= 5) out.push(w);
+    }
+    return out.slice(0, 24);
   }
   return spaced.slice(0, 24);
 }

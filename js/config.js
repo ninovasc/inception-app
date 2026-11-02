@@ -82,19 +82,19 @@ export const WORLD_VOICE_PRESETS = {
 // regra verdadeira escolhe o mundo. Destino remapeável pela UI.
 // -1 desativa a regra. 'fallback' nunca fica desativado.
 export const TRIGGER_DEFS = [
-  { key: 'bonusRain',    label: 'Chuva intensa (Mic)' },
-  { key: 'clap',         label: 'Duas palmas (Mic)' },
-  { key: 'inverted',     label: 'Aparelho invertido (Giro)' },
-  { key: 'freefall',     label: 'Queda livre (O Chute)' },
-  { key: 'motion',       label: 'Movimento (Giro)' },
-  { key: 'vehicle',      label: 'Veículo (GPS)' },
-  { key: 'sessionStart', label: 'Início da sessão' },
-  { key: 'silence',      label: 'Silêncio (Mic)' },
-  { key: 'rain',         label: 'Chuva (GPS)' },
-  { key: 'flat',         label: 'Aparelho apoiado (Giro)' },
-  { key: 'night',        label: 'Noite (GPS)' },
-  { key: 'sessionLong',  label: 'Sessão longa (recompensa)' },
-  { key: 'fallback',     label: 'Sem gatilho' }
+  { key: 'bonusRain',    label: 'Chuva intensa (Mic)',       sensor: 'Mic' },
+  { key: 'clap',         label: 'Duas palmas (Mic)',         sensor: 'Mic' },
+  { key: 'inverted',     label: 'Aparelho invertido (Giro)', sensor: 'Giro' },
+  { key: 'freefall',     label: 'Queda livre (O Chute)',     sensor: 'Giro' },
+  { key: 'motion',       label: 'Movimento (Giro)',          sensor: 'Giro' },
+  { key: 'vehicle',      label: 'Veículo (GPS)',             sensor: 'GPS' },
+  { key: 'sessionStart', label: 'Início da sessão',          sensor: 'Sessão' },
+  { key: 'silence',      label: 'Silêncio (Mic)',            sensor: 'Mic' },
+  { key: 'rain',         label: 'Chuva (GPS)',               sensor: 'GPS' },
+  { key: 'flat',         label: 'Aparelho apoiado (Giro)',   sensor: 'Giro' },
+  { key: 'night',        label: 'Noite (GPS)',               sensor: 'GPS' },
+  { key: 'sessionLong',  label: 'Sessão longa (recompensa)', sensor: 'Sessão' },
+  { key: 'fallback',     label: 'Sem gatilho',               sensor: 'Repouso' }
 ];
 
 export const DEFAULT_WORLD_TRIGGERS = {

@@ -16,6 +16,12 @@ let autoInterval = null;
 let sessionStartTs = 0;
 let timeRewardFired = false;
 let timeRewardUntil = 0;
+// Última decisão (para o indicador de gatilho ativo na UI).
+let lastDecision = { key: null, world: null };
+
+export function getActiveTrigger() {
+  return lastDecision;
+}
 
 function resetSession() {
   sessionStartTs = 0;
@@ -75,10 +81,15 @@ export function decideWorld(now = Date.now()) {
   for (const def of TRIGGER_DEFS) {
     const dest = t[def.key];
     if (dest === undefined || dest < 0) continue;
-    if (ruleActive(def.key, now)) return dest;
+    if (ruleActive(def.key, now)) {
+      lastDecision = { key: def.key, world: dest };
+      return dest;
+    }
   }
   const fb = t.fallback;
-  return (fb !== undefined && fb >= 0) ? fb : 0;
+  const world = (fb !== undefined && fb >= 0) ? fb : 0;
+  lastDecision = { key: 'fallback', world };
+  return world;
 }
 
 // Aplica o mundo escolhido e a voz homônima. Retorna o índice do mundo.
@@ -96,6 +107,7 @@ export function evaluateAutoMode() {
   if (state.micPreset !== WORLD_NAMES[w] && typeof window.applyMicPreset === 'function') {
     window.applyMicPreset(WORLD_NAMES[w]);
   }
+  if (typeof window.updateTriggerIndicator === 'function') window.updateTriggerIndicator();
   return w;
 }
 

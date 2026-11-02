@@ -322,7 +322,12 @@ export function applyMicPreset(name) {
   if (fbEl) { fbEl.value = p.feedback; document.getElementById('micFbVal').textContent = Math.round(p.feedback * 100) + '%'; }
   if (revEl) { revEl.value = p.reverb; document.getElementById('micRevVal').textContent = Math.round(p.reverb * 100) + '%'; }
   if (dwEl) { dwEl.value = p.wet; document.getElementById('micDwVal').textContent = Math.round(p.dry * 100) + '/' + Math.round(p.wet * 100); }
-  // update UI
+  // update UI (dropdown único de voz)
+  const sel = document.getElementById('voicePresetSelect');
+  if (sel) {
+    const has = Array.from(sel.options).some(o => o.value === name);
+    if (has) sel.value = name; else sel.value = 'custom';
+  }
   document.querySelectorAll('.mic-preset').forEach(b => b.classList.toggle('active', b.dataset.preset === name));
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
