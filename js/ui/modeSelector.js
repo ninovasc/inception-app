@@ -1,6 +1,6 @@
 import { state } from '../state.js';
 import { MODES, MODE_ORDER } from '../config.js';
-import { switchMode, getCurrentModeConfig } from './modeManager.js';
+import { switchMode, getCurrentModeConfig } from '../modes/modeManager.js';
 import { t } from '../i18n.js';
 
 // Cria o seletor de modo (dropdown ou segmented control)
@@ -33,8 +33,7 @@ export function updateModeSelector() {
 
 // Handler global para troca de modo
 window.setMode = function(modeId) {
-  const { switchMode } = require('./modeManager.js');
-  switchMode(modeId);
+  import('../modes/modeManager.js').then(({ switchMode }) => switchMode(modeId));
 };
 
 // Inicializa o seletor e insere no painel apropriado
@@ -57,17 +56,3 @@ export function initModeSelector() {
   
   updateModeSelector();
 }
-
-// Atualiza o seletor visual
-export function updateModeSelector() {
-  const selector = document.getElementById('modeSelector');
-  if (selector) {
-    selector.value = state.currentMode;
-  }
-}
-
-// Expor função para uso inline
-window.setMode = function(modeId) {
-  const { switchMode } = require('./modeManager.js');
-  switchMode(modeId);
-};

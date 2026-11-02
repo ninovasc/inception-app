@@ -17,9 +17,11 @@ import { createPomodoroUI, updatePomodoroUI, updateTimerDisplay } from './ui/pom
 import { createSleepUI, updateSleepUI } from './ui/sleepUI.js';
 import { activate as activatePomodoro, deactivate as deactivatePomodoro, startTimer as startPomodoroTimer, pauseTimer as pausePomodoroTimer, resumeTimer as resumePomodoroTimer, skipPhase as skipPomodoroPhase, resetPomodoro as resetPomodoroTimer } from './modes/pomodoroMode.js';
 import { activate as activateSleep, deactivate as deactivateSleep, setAlarmTime as setSleepAlarmTime, cancelAlarm as cancelSleepAlarm } from './modes/sleepMode.js';
-import { activate as activateNarrative, deactivate as deactivateNarrative } from './modes/narrativeMode.js';
+import { startAutoMode as activateNarrative, stopAutoMode as deactivateNarrative, toggleAutoMode, isAutoMode, getActiveTrigger, evaluateAutoMode, startAutoMode } from './modes/narrativeMode.js';
 
 window.__lucidModes = LUCID_MODES;
+
+console.log('[App] Module loaded, state:', !!state, 'currentMode:', state?.currentMode);
 
 // Expose to global scope for inline handlers
 Object.assign(window, {
@@ -78,11 +80,17 @@ Object.assign(window, {
   startCapture: cap.startCapture,
   stopCapture: cap.stopCapture,
   setCaptureVolume: cap.setCaptureVolume,
-  toggleAutoMode: narrativeMode.toggleAutoMode,
+  toggleAutoMode,
   setWorldTrigger: (key, value) => setWorldTrigger(key, value),
   setWorldTriggerMotion: (value) => setWorldTriggerMotion(value),
-  setWorldTriggerSilence: (value) => setWorldTriggerSilence(value)
+  setWorldTriggerSilence: (value) => setWorldTriggerSilence(value),
+  state: state
 });
+console.log('[App] window.state exposed:', !!window.state, 'currentMode:', window.state?.currentMode);
+
+// Debug: expose function to check module's state variable
+window.__getAppState = () => state;
+window.__getAppStateModule = () => import('./state.js').then(m => m.state);
 
 // Ao iniciar o sonho, ativa as mecânicas padrão (permissões exigem gesto).
 const baseToggleMasterPlay = audio.toggleMasterPlay;
@@ -155,8 +163,7 @@ window.cancelSleepAlarm = function() {
 };
 
 window.testSleepAlarm = function() {
-  const { playAlarmSound } = require('./modes/sleepMode.js');
-  playAlarmSound();
+  import('./modes/sleepMode.js').then(({ playAlarmSound }) => playAlarmSound());
 };
 
 // Service worker
@@ -359,7 +366,7 @@ function triggerOptions(current, allowOff) {
 function updateTriggerIndicator() {
   const el = document.getElementById('triggerActive');
   if (!el) return;
-  const d = narrativeMode.getActiveTrigger();
+  const d = getActiveTrigger();
   if (d && d.key) {
     const def = TRIGGER_DEFS.find(x => x.key === d.key);
     el.textContent = t('trigger.active', { label: t(`trigger.label.${def.key}`), world: WORLD_NAMES[d.world] });
@@ -374,7 +381,7 @@ function renderTriggerList() {
   if (!container) return;
   if (!state.worldTriggers) state.worldTriggers = normalizeWorldTriggers(null);
   const t = state.worldTriggers;
-  const active = narrativeMode.getActiveTrigger();
+  const active = getActiveTrigger();
   container.innerHTML = TRIGGER_DEFS.map((def, i) => {
     const current = (t[def.key] != null) ? t[def.key] : -1;
     const allowOff = def.key !== 'fallback';
@@ -415,7 +422,7 @@ function setWorldTrigger(key, value) {
     state.worldTriggers[key] = (idx >= 0 && idx < WORLD_NAMES.length) ? idx : -1;
   }
   renderTriggerList();
-  if (state.autoMode && state.isPlaying) narrativeMode.evaluateAutoMode();
+  if (state.autoMode && state.isPlaying) evaluateAutoMode();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
@@ -425,7 +432,7 @@ function setWorldTriggerMotion(value) {
   state.triggerMotion = Math.max(0, Math.min(1, v));
   const el = document.getElementById('triggerMotionVal');
   if (el) el.textContent = Math.round(state.triggerMotion * 100) + '%';
-  if (state.autoMode && state.isPlaying) narrativeMode.evaluateAutoMode();
+  if (state.autoMode && state.isPlaying) evaluateAutoMode();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
@@ -435,7 +442,7 @@ function setWorldTriggerSilence(value) {
   state.triggerSilenceSec = Math.max(5, Math.min(300, v));
   const el = document.getElementById('triggerSilenceVal');
   if (el) el.textContent = state.triggerSilenceSec + 's';
-  if (state.autoMode && state.isPlaying) narrativeMode.evaluateAutoMode();
+  if (state.autoMode && state.isPlaying) evaluateAutoMode();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
@@ -462,16 +469,21 @@ if (state.currentMode === 'narrative') {
 
 // Auto-start autoMode if was enabled (for backward compat)
 if (state.autoMode && state.currentMode === 'narrative') {
-  narrativeMode.startAutoMode();
+  startAutoMode();
+}
+
+// Initialize pomodoro UI (hidden by default, shown when pomodoro mode activated)
+const pomodoroContainer = document.getElementById('pomodoroUI');
+if (pomodoroContainer) {
+  pomodoroContainer.innerHTML = '';
+  pomodoroContainer.appendChild(createPomodoroUI());
 }
 
 // Initialize sleep UI (hidden by default, shown when sleep mode activated)
-if (typeof window.createSleepUI === 'function') {
-  const sleepContainer = document.getElementById('sleepUI');
-  if (sleepContainer) {
-    sleepContainer.innerHTML = '';
-    sleepContainer.appendChild(createSleepUI());
-  }
+const sleepContainer = document.getElementById('sleepUI');
+if (sleepContainer) {
+  sleepContainer.innerHTML = '';
+  sleepContainer.appendChild(createSleepUI());
 }
 
 // ============================================================

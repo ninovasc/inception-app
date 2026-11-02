@@ -50,7 +50,7 @@
       <!-- Seletor de Modo -->
       <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
         <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">Modo</label>
-        <select id="modeSelector" onchange="setMode(this.value)" aria-label="Modo" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
+        <select id="modeSelector" onchange="window.setMode(this.value)" aria-label="Modo" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
           <option value="narrative">📖 Narrativo</option>
           <option value="pomodoro">🍅 Pomodoro</option>
           <option value="sleep">🌙 Sono</option>
@@ -60,7 +60,7 @@
     </div>
 
     <div class="menu-section">
-      <div class="menu-title" onclick="toggleAccordion('worldsPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+      <div class="menu-title" onclick="window.toggleAccordion('worldsPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="worlds.title">Mundos</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
       </div>
@@ -214,7 +214,17 @@
     </div>
 
     <div class="menu-section">
-      <div class="menu-title" onclick="toggleAccordion('sleepPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+      <div class="menu-title" onclick="window.toggleAccordion('pomodoroPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="pomodoro.title">Pomodoro</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
+      </div>
+      <div id="pomodoroPanel" class="accordion-panel">
+        <div id="pomodoroUI"></div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title" onclick="window.toggleAccordion('sleepPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="sleep.title">Sono</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
       </div>
@@ -306,6 +316,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js"></script>
+  <script type="module" src="./js/app.js?v=4"></script>
 </body>
 </html>

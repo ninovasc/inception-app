@@ -1,5 +1,5 @@
 import { state } from '../state.js';
-import { POMODORO_DEFAULTS, POMODORO_PHASE_LABELS } from '../config.js';
+import { POMODORO_DEFAULTS } from '../config.js';
 import { t } from '../i18n.js';
 
 // Cria a interface visual do Pomodoro (timer, controles, config)
@@ -194,25 +194,27 @@ window.updatePomodoroCyclesUntilLongBreak = function(val) {
 // Carregar MP3 para Atividade
 window.loadPomodoroActivityMp3 = function(file) {
   if (!file) return;
-  const { audio } = require('../audio.js');
-  const idx = 0; // Atividade = índice 0
-  
-  audio.loadWorldMp3(idx, file).then(() => {
-    state.pomodoro.activityMp3 = file.name;
-    document.getElementById('pomodoroActivityMp3Label').textContent = file.name.slice(0, 30);
+  import('../audio.js').then(({ audio }) => {
+    const idx = 0; // Atividade = índice 0
+    
+    audio.loadWorldMp3(idx, file).then(() => {
+      state.pomodoro.activityMp3 = file.name;
+      document.getElementById('pomodoroActivityMp3Label').textContent = file.name.slice(0, 30);
+    });
   });
 };
 
 // Carregar MP3 para Pausa
 window.loadPomodoroBreakMp3 = function(file) {
   if (!file) return;
-  const { audio } = require('../audio.js');
-  const idx = 1; // Descanso = índice 1
-  
-  audio.loadWorldMp3(idx, file).then(() => {
-    state.pomodoro.breakMp3 = file.name;
-    document.getElementById('pomodoroBreakMp3Label').textContent = file.name.slice(0, 30);
-  };
+  import('../audio.js').then(({ audio }) => {
+    const idx = 1; // Descanso = índice 1
+    
+    audio.loadWorldMp3(idx, file).then(() => {
+      state.pomodoro.breakMp3 = file.name;
+      document.getElementById('pomodoroBreakMp3Label').textContent = file.name.slice(0, 30);
+    });
+  });
 }
 
 // Expor funções globalmente

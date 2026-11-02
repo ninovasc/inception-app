@@ -81,7 +81,7 @@ function scheduleAlarm() {
   updateAlarmTimerDisplay();
 }
 
-function cancelAlarm() {
+export function cancelAlarm() {
   if (alarmTimer) {
     clearTimeout(alarmTimer);
     alarmTimer = null;
@@ -152,12 +152,11 @@ function triggerAlarm() {
   setTimeout(() => {
     deactivate();
     // Volta para modo narrativo ou livre
-    const { modeManager } = require('./modeManager.js');
-    modeManager.switchMode('narrative');
+    import('./modeManager.js').then(({ switchMode }) => switchMode('narrative'));
   }, 60000); // 1 minuto de alarme
 }
 
-function playAlarmSound() {
+export function playAlarmSound() {
   const now = audio.audioCtx.currentTime;
   
   // Sequência ascendente suave
@@ -182,17 +181,6 @@ function playAlarmSound() {
     osc.start(now + n.t);
     osc.stop(now + n.t + n.dur + 0.1);
   });
-}
-
-function cancelAlarm() {
-  if (alarmTimer) {
-    clearTimeout(alarmTimer);
-    alarmTimer = null;
-  }
-  if (alarmCheckInterval) {
-    clearInterval(alarmCheckInterval);
-    alarmCheckInterval = null;
-  }
 }
 
 export function setAlarmTime(timeStr) {

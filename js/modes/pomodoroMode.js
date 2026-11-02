@@ -25,7 +25,7 @@ export function deactivate() {
   console.log('[Pomodoro] Modo desativado');
 }
 
-function startTimer() {
+export function startTimer() {
   if (timerInterval) clearInterval(timerInterval);
   
   state.pomodoro.isRunning = true;
@@ -227,7 +227,7 @@ export function resetPomodoro() {
 }
 
 // Expor globalmente para uso inline no HTML
-window.startPomodoro = () => {
+window.startPomodoro = async () => {
   if (!state.pomodoro.enabled) {
     const { modeManager } = await import('./modeManager.js');
     modeManager.switchMode('pomodoro');
