@@ -50,6 +50,17 @@
         <span data-i18n="btn.autoMode">Modo Automático (Sensores)</span>
         <span class="sub" id="autoSub" data-i18n="sub.off">OFF</span>
       </button>
+      
+      <!-- Seletor de Modo -->
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">Modo</label>
+        <select id="modeSelector" onchange="setMode(this.value)" aria-label="Modo" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
+          <option value="narrative">📖 Narrativo</option>
+          <option value="pomodoro">🍅 Pomodoro</option>
+          <option value="sleep">🌙 Sono</option>
+          <option value="free">✋ Livre</option>
+        </select>
+      </div>
     </div>
 
     <div class="menu-section">
@@ -203,6 +214,16 @@
           </button>
         </div>
         <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus" data-i18n="sensorStatus.default">Toque em um sensor para ligar ou desligar.</div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title" onclick="toggleAccordion('sleepPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="sleep.title">Sono</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
+      </div>
+      <div id="sleepPanel" class="accordion-panel">
+        <div id="sleepUI"></div>
       </div>
     </div>
 
