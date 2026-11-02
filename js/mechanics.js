@@ -330,8 +330,8 @@ export async function enterSensoryDeprivation() {
   setSensorStatus('Estado oculto de Privação Sensorial ativado.');
 
   const audio = await import('./audio.js');
-  audio.setWorldSynth(4, 4); // Limbo usa Binaural Pulse
-  audio.selectLevel(4);
+  audio.setWorldSynth(9, 4); // Waiting for a Train (sucessor do Limbo) usa Binaural Pulse
+  audio.selectLevel(9);
 
   if (state.heartbeatInterval) clearInterval(state.heartbeatInterval);
   state.heartbeatInterval = setInterval(() => {

@@ -204,13 +204,13 @@ Arquivos: `app.js`, `index.html`
 - [x] `node --check` + testes (109/109, incl. computeAnchors)
 - [x] Commit: `fase 4: UI única de 13 mundos, vozes e gatilhos por sensor`
 
-### Fase 5 — Mecânicas e integeração restante ☐
+### Fase 5 — Mecânicas e integração restante ✅
 Arquivos: `mechanics.js`, demais pontas
-- [ ] Migrar `mechanics.js:333` (alvo Limbo) para o novo índice (Waiting for a Train) via config
-- [ ] `grep` global por nomes antigos ('Realidade','Chuva','Hotel','Fortaleza','Limbo','Lúcido','Sub Limbo') — limpar/resolver tudo
-- [ ] Conferir `power.js`, `capture.js`, `ui.js`, `youtube.js` intactos
-- [ ] `node --check` em todos + testes
-- [ ] Commit: `fase 5: mecânicas e integração nos 13 mundos`
+- [x] Migrar `mechanics.js:333` (alvo Limbo) para o novo índice (Waiting for a Train) via config
+- [x] `grep` global por nomes antigos ('Realidade','Chuva','Hotel','Fortaleza','Limbo','Lúcido','Sub Limbo') — limpar/resolver tudo (restam só: preset legados, labels de gatilhos novos, comentários)
+- [x] Conferir `power.js`, `capture.js`, `ui.js`, `youtube.js` intactos
+- [x] `node --check` em todos + testes (109/109)
+- [x] Commit: `fase 5: mecanicas e integracao nos 13 mundos`
 
 ### Fase 6 — QA completo ☐
 - [ ] Suite de seed inteira verdes (novo total registrado)
@@ -253,6 +253,6 @@ Arquivos: `mechanics.js`, demais pontas
 
 ## ESTADO ATUAL
 
-> **Fase concluída:** 0–4 (dados, seed v3, áudio+MP3 inteligente, automode, UI; testes 109/109; smoke test browser limpo)
-> **Próximo passo:** Fase 5 — mecânicas e caça aos hardcodes (`mechanics.js`, grep de nomes antigos)
-> **Última atualização:** 2026-11-01 (Fase 4 commitada; MP3 inteligente validado ao vivo)
+> **Fase concluída:** 0–5 (dados, seed v3, áudio+MP3 inteligente, automode, UI, mecânicas/hardcodes; testes 109/109; smoke test browser limpo)
+> **Próximo passo:** Fase 6 — QA completo
+> **Última atualização:** 2026-11-01 (Fase 5 commitada; hardcodes eliminados)
