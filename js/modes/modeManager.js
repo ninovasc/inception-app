@@ -147,7 +147,7 @@ export function updateWorldUI() {
 }
 
 // Retorna mundos disponíveis para o modo atual
-export function getCurrentModeWorlds() {
+export async function getCurrentModeWorlds() {
   switch (state.currentMode) {
     case 'narrative':
       const { WORLD_NAMES } = await import('./config.js');
@@ -167,7 +167,7 @@ export function getCurrentModeWorlds() {
 }
 
 // Retorna contagem de mundos do modo atual
-export function getCurrentModeWorldCount() {
+export async function getCurrentModeWorldCount() {
   switch (state.currentMode) {
     case 'pomodoro':
       const { POMODORO_WORLD_COUNT } = await import('./config.js');
