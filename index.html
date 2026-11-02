@@ -39,110 +39,76 @@
     <div class="menu-section">
       <div class="menu-title">Estado do Sonho</div>
       <button class="menu-item" id="masterPlayBtn" onclick="toggleMasterPlay()" aria-pressed="false" aria-label="Iniciar Sonho">
-        <span>Iniciar Sonho</span>
-        <span class="sub" id="playSub">OFF</span>
+        <span data-i18n="btn.startDream">Iniciar Sonho</span>
+        <span class="sub" id="playSub" data-i18n="sub.off">OFF</span>
       </button>
       <button class="menu-item" onclick="triggerKick(true)" aria-label="Disparar O Chute">
-        <span>O Chute (Piaf + BRAAAM)</span>
-        <span class="sub">Queda Livre</span>
+        <span data-i18n="btn.kick">O Chute (Piaf + BRAAAM)</span>
+        <span class="sub" data-i18n="sub.freefall">Queda Livre</span>
       </button>
       <button class="menu-item" id="btnAutoMode" onclick="toggleAutoMode()" aria-pressed="false" aria-label="Modo Automático">
-        <span>Modo Automático (Sensores)</span>
-        <span class="sub" id="autoSub">OFF</span>
+        <span data-i18n="btn.autoMode">Modo Automático (Sensores)</span>
+        <span class="sub" id="autoSub" data-i18n="sub.off">OFF</span>
       </button>
     </div>
 
     <div class="menu-section">
-      <div class="menu-title" onclick="togglePanel('sensorPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Sensores (Ligar / Desligar)</span>
-        <span style="color:#fff;">▼</span>
+      <div class="menu-title" onclick="toggleAccordion('worldsPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="worlds.title">Mundos</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
       </div>
-      <div id="sensorPanel" class="hidden-panel open">
-        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-          <button class="menu-item" id="btnMic" onclick="toggleMic()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Microfone" aria-pressed="false">Mic: OFF</button>
-          <button class="menu-item" id="btnMotion" onclick="toggleMotion()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Giroscópio" aria-pressed="false">Giro: OFF</button>
-          <button class="menu-item" id="btnGps" onclick="toggleGPS()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="GPS" aria-pressed="false">GPS: OFF</button>
-        </div>
-        <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus">Toque em um sensor para ligar ou desligar.</div>
-      </div>
-    </div>
+      <div id="worldsPanel" class="accordion-panel">
+        <select id="worldSelect" onchange="selectLevel(parseInt(this.value))" aria-label="Selecionar mundo" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
+        </select>
 
-    <div class="menu-section">
-      <div class="menu-title" onclick="togglePanel('triggerPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Gatilhos de Mundo</span>
-        <span style="color:#fff;">▼</span>
-      </div>
-      <div id="triggerPanel" class="hidden-panel open">
-        <div style="font-size:0.65rem; color:var(--muted); margin-bottom:6px; line-height:1.4;">
-          O primeiro gatilho verdadeiro escolhe o mundo (prioridade curada, de cima para baixo). Use “desativado” para ignorar um gatilho.
-        </div>
-        <div id="triggerActive" style="font-size:0.62rem; color:#fff; font-family:monospace; margin-bottom:6px; padding:4px 6px; border:1px solid var(--border); border-radius:4px;">gatilho ativo: nenhum</div>
-        <div id="triggerList"></div>
-        <div style="margin-top:8px;">
-          <div class="slider-group"><div class="slider-header"><span>Limiar de movimento</span><span id="triggerMotionVal">60%</span></div>
-          <input type="range" id="triggerMotion" min="0.05" max="1" step="0.05" value="0.60" oninput="setWorldTriggerMotion(this.value)"></div>
-          <div class="slider-group"><div class="slider-header"><span>Limiar de silêncio</span><span id="triggerSilenceVal">30s</span></div>
-          <input type="range" id="triggerSilence" min="5" max="300" step="5" value="30" oninput="setWorldTriggerSilence(this.value)"></div>
-        </div>
-        <div style="font-size:0.65rem; color:var(--muted); font-family:monospace; margin-top:4px;">
-          “Sem gatilho” é o mundo de repouso e não pode ser desativado.
+        <!-- Parâmetros da arquitetura (sliders) -->
+        <div style="margin-top:10px;">
+          <div class="slider-group"><div class="slider-header"><span data-i18n="params.speed">Velocidade</span><span id="valSpeed">1.00x</span></div>
+          <input type="range" id="sliderSpeed" min="0.25" max="1.4" step="0.01" value="1.00" oninput="updateFromSliders(true)"></div>
+          <div class="slider-group"><div class="slider-header"><span data-i18n="params.filter">Filtro</span><span id="valFilter">18000 Hz</span></div>
+          <input type="range" id="sliderFilter" min="160" max="18000" step="10" value="18000" oninput="updateFromSliders(true)"></div>
+          <div class="slider-group"><div class="slider-header"><span data-i18n="params.delay">Eco (Delay)</span><span id="valDelay">12%</span></div>
+          <input type="range" id="sliderDelay" min="0" max="0.85" step="0.02" value="0.12" oninput="updateFromSliders(false)"></div>
+          <div class="slider-group"><div class="slider-header"><span data-i18n="params.reverb">Reverb</span><span id="valReverb">30%</span></div>
+          <input type="range" id="sliderReverb" min="0" max="1" step="0.02" value="0.30" oninput="updateFromSliders(false)"></div>
         </div>
       </div>
     </div>
 
     <div class="menu-section">
-      <div class="menu-title">Mundos</div>
-      <select id="worldSelect" onchange="selectLevel(parseInt(this.value))" aria-label="Selecionar mundo" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
-      </select>
-
-      <!-- Parâmetros da arquitetura (sliders) -->
-      <div style="margin-top:10px;">
-        <div class="slider-group"><div class="slider-header"><span>Velocidade</span><span id="valSpeed">1.00x</span></div>
-        <input type="range" id="sliderSpeed" min="0.25" max="1.4" step="0.01" value="1.00" oninput="updateFromSliders(true)"></div>
-        <div class="slider-group"><div class="slider-header"><span>Filtro</span><span id="valFilter">18000 Hz</span></div>
-        <input type="range" id="sliderFilter" min="160" max="18000" step="10" value="18000" oninput="updateFromSliders(true)"></div>
-        <div class="slider-group"><div class="slider-header"><span>Eco (Delay)</span><span id="valDelay">12%</span></div>
-        <input type="range" id="sliderDelay" min="0" max="0.85" step="0.02" value="0.12" oninput="updateFromSliders(false)"></div>
-        <div class="slider-group"><div class="slider-header"><span>Reverb</span><span id="valReverb">30%</span></div>
-        <input type="range" id="sliderReverb" min="0" max="1" step="0.02" value="0.30" oninput="updateFromSliders(false)"></div>
+      <div class="menu-title" onclick="toggleAccordion('voicePanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="voice.title">Voz</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
       </div>
-    </div>
-
-    <!-- VOZ (canal de microfone) -->
-    <div class="menu-section">
-      <div class="menu-title" onclick="togglePanel('voicePanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Voz</span>
-        <span style="color:#fff;">▼</span>
-      </div>
-      <div id="voicePanel" class="hidden-panel open">
+      <div id="voicePanel" class="accordion-panel">
         <select id="voicePresetSelect" onchange="applyMicPreset(this.value)" aria-label="Preset de voz" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
         </select>
-        <div style="font-size:0.62rem; color:var(--muted); font-family:monospace; margin-top:4px;">Cada mundo tem sua própria voz; o Modo Automático troca junto.</div>
+        <div style="font-size:0.62rem; color:var(--muted); font-family:monospace; margin-top:4px;" data-i18n="voice.desc">Cada mundo tem sua própria voz; o Modo Automático troca junto.</div>
         <div style="display:flex; align-items:center; gap:8px; margin-top:6px; font-size:0.7rem; color:var(--muted); font-family:monospace;">
           <span id="micLed" style="width:8px; height:8px; border-radius:50%; background:#333; display:inline-block;"></span>
-          <span id="micLedLabel">LED: silêncio</span>
+          <span id="micLedLabel" data-i18n="voice.led.silence">LED: silêncio</span>
         </div>
         <div style="margin-top:8px;">
-          <div class="slider-group"><div class="slider-header"><span>Gate</span><span id="micGateVal">-30 dB</span></div>
+          <div class="slider-group"><div class="slider-header"><span data-i18n="voice.gate">Gate</span><span id="micGateVal">-30 dB</span></div>
           <input type="range" id="micGate" min="-60" max="-10" step="1" value="-30" oninput="setMicParam('gate', this.value)"></div>
-          <div class="slider-group"><div class="slider-header"><span>Delay</span><span id="micDelayVal">0.08s</span></div>
+          <div class="slider-group"><div class="slider-header"><span data-i18n="voice.delay">Delay</span><span id="micDelayVal">0.08s</span></div>
           <input type="range" id="micDelaySlider" min="0.01" max="1.0" step="0.01" value="0.08" oninput="setMicParam('delay', this.value)"></div>
-          <div class="slider-group"><div class="slider-header"><span>Feedback</span><span id="micFbVal">5%</span></div>
+          <div class="slider-group"><div class="slider-header"><span data-i18n="voice.feedback">Feedback</span><span id="micFbVal">5%</span></div>
           <input type="range" id="micFb" min="0" max="0.8" step="0.01" value="0.05" oninput="setMicParam('feedback', this.value)"></div>
-          <div class="slider-group"><div class="slider-header"><span>Reverb</span><span id="micRevVal">10%</span></div>
+          <div class="slider-group"><div class="slider-header"><span data-i18n="voice.reverb">Reverb</span><span id="micRevVal">10%</span></div>
           <input type="range" id="micRev" min="0" max="1" step="0.01" value="0.10" oninput="setMicParam('reverb', this.value)"></div>
-          <div class="slider-group"><div class="slider-header"><span>Dry/Wet</span><span id="micDwVal">85/15</span></div>
+          <div class="slider-group"><div class="slider-header"><span data-i18n="voice.dryWet">Dry/Wet</span><span id="micDwVal">85/15</span></div>
           <input type="range" id="micDw" min="0" max="1" step="0.01" value="0.15" oninput="setMicParam('dw', this.value)"></div>
         </div>
       </div>
     </div>
 
     <div class="menu-section">
-      <div class="menu-title" onclick="togglePanel('sourcePanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Fonte Sonora</span>
-        <span style="color:#fff;">▼</span>
+      <div class="menu-title" onclick="toggleAccordion('sourcePanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="source.title">Fonte Sonora</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
       </div>
-      <div id="sourcePanel" class="hidden-panel open">
+      <div id="sourcePanel" class="accordion-panel">
         <div id="sourceList"></div>
         <!-- Players ocultos do YouTube (um por mundo) -->
         <div id="ytPlayers" aria-hidden="true" style="position:absolute; width:1px; height:1px; overflow:hidden; opacity:0; pointer-events:none;">
@@ -164,50 +130,94 @@
     </div>
 
     <div class="menu-section">
-      <div class="menu-title" onclick="togglePanel('mechPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Mecânicas do Sonho</span>
-        <span style="color:#fff;">▼</span>
+      <div class="menu-title" onclick="toggleAccordion('triggerPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="triggers.title">Gatilhos de Mundo</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
       </div>
-      <div id="mechPanel" class="hidden-panel open">
+      <div id="triggerPanel" class="accordion-panel">
+        <div style="font-size:0.65rem; color:var(--muted); margin-bottom:6px; line-height:1.4;" data-i18n="triggers.desc">
+          O primeiro gatilho verdadeiro escolhe o mundo (prioridade curada, de cima para baixo). Use "desativado" para ignorar um gatilho.
+        </div>
+        <div id="triggerActive" style="font-size:0.62rem; color:#fff; font-family:monospace; margin-bottom:6px; padding:4px 6px; border:1px solid var(--border); border-radius:4px;" data-i18n="trigger.none">gatilho ativo: nenhum</div>
+        <div id="triggerList"></div>
+        <div style="margin-top:8px;">
+          <div class="slider-group"><div class="slider-header"><span data-i18n="trigger.motionThreshold">Limiar de movimento</span><span id="triggerMotionVal">60%</span></div>
+          <input type="range" id="triggerMotion" min="0.05" max="1" step="0.05" value="0.60" oninput="setWorldTriggerMotion(this.value)"></div>
+          <div class="slider-group"><div class="slider-header"><span data-i18n="trigger.silenceThreshold">Limiar de silêncio</span><span id="triggerSilenceVal">30s</span></div>
+          <input type="range" id="triggerSilence" min="5" max="300" step="5" value="30" oninput="setWorldTriggerSilence(this.value)"></div>
+        </div>
+        <div style="font-size:0.65rem; color:var(--muted); font-family:monospace; margin-top:4px;" data-i18n="trigger.fallbackNote">
+          "Sem gatilho" é o mundo de repouso e não pode ser desativado.
+        </div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title" onclick="toggleAccordion('mechPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="mechanics.title">Mecânicas do Sonho</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
+      </div>
+      <div id="mechPanel" class="accordion-panel">
         <button class="menu-item" id="btnMemCatcher" onclick="toggleMemoryCatcher()" style="font-size:0.88rem;">
-          <span>Ecos do Ambiente</span>
-          <span class="sub" id="subMemCatcher">OFF</span>
+          <span data-i18n="mechanic.memCatcher">Ecos do Ambiente</span>
+          <span class="sub" id="subMemCatcher" data-i18n="mechanic.memCatcher.off">OFF</span>
         </button>
 
         <button class="menu-item" id="btnAutoKick" onclick="toggleAutoKick()" style="font-size:0.88rem;">
-          <span>Chute Automático (Queda Livre)</span>
-          <span class="sub" id="subAutoKick">OFF</span>
+          <span data-i18n="mechanic.autoKick">Chute Automático (Queda Livre)</span>
+          <span class="sub" id="subAutoKick" data-i18n="mechanic.autoKick.off">OFF</span>
         </button>
 
         <button class="menu-item" id="btnSpatial3D" onclick="toggleSpatial3D()" style="font-size:0.88rem;">
-          <span>Som 3D (Bússola)</span>
-          <span class="sub" id="subSpatial3D">OFF (Centro)</span>
+          <span data-i18n="mechanic.spatial3d">Som 3D (Bússola)</span>
+          <span class="sub" id="subSpatial3D" data-i18n="mechanic.spatial3d.off">OFF (Centro)</span>
         </button>
 
         <button class="menu-item" id="btnLucidTimer" onclick="cycleLucidTimer()" style="font-size:0.88rem;">
-          <span>Timer de Sonho Lúcido</span>
-          <span class="sub" id="subLucidTimer">OFF</span>
+          <span data-i18n="mechanic.lucidTimer">Timer de Sonho Lúcido</span>
+          <span class="sub" id="subLucidTimer" data-i18n="mechanic.lucidTimer.off">OFF</span>
         </button>
 
         <button class="menu-item" id="btnDeprivation" onclick="toggleDeprivationWatch()" style="font-size:0.88rem;">
-          <span>Privação Sensorial (Silêncio)</span>
-          <span class="sub" id="subDeprivation">OFF</span>
+          <span data-i18n="mechanic.deprivation">Privação Sensorial (Silêncio)</span>
+          <span class="sub" id="subDeprivation" data-i18n="mechanic.deprivation.off">OFF</span>
         </button>
       </div>
     </div>
 
     <div class="menu-section">
-      <div class="menu-title" onclick="togglePanel('dspPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span>Código do Sonho</span>
-        <span style="color:#fff;">▶</span>
+      <div class="menu-title" onclick="toggleAccordion('sensorPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="sensors.title">Sensores (Ligar / Desligar)</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
       </div>
-      <div id="dspPanel" class="hidden-panel">
+      <div id="sensorPanel" class="accordion-panel">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="menu-item" id="btnMic" onclick="toggleMic()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Microfone" aria-pressed="false">
+            <span data-i18n="btn.mic">Mic: OFF</span>
+          </button>
+          <button class="menu-item" id="btnMotion" onclick="toggleMotion()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Giroscópio" aria-pressed="false">
+            <span data-i18n="btn.motion">Giro: OFF</span>
+          </button>
+          <button class="menu-item" id="btnGps" onclick="toggleGPS()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="GPS" aria-pressed="false">
+            <span data-i18n="btn.gps">GPS: OFF</span>
+          </button>
+        </div>
+        <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus" data-i18n="sensorStatus.default">Toque em um sensor para ligar ou desligar.</div>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <div class="menu-title" onclick="toggleAccordion('dspPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="seed.title">Código do Sonho</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
+      </div>
+      <div id="dspPanel" class="accordion-panel">
         <div style="margin-top: 6px;">
-          <div class="menu-title" style="margin-bottom:4px;">Código Completo (Salva todas as opções)</div>
+          <div class="menu-title" style="margin-bottom:4px;" data-i18n="seed.title">Código do Sonho</div>
           <div class="seed-box">
             <textarea id="seedInput" placeholder="Cole a seed aqui..." autocomplete="off" autocapitalize="none" spellcheck="false" style="font-size:0.85rem; padding:10px 12px; min-height:40px; width:100%; resize:vertical; background:#0a0a0a; border:1px solid var(--border); color:#fff; border-radius:6px; font-family:monospace;" oninput="autoResizeSeed()"></textarea>
-            <button onclick="copySeed()">Copiar</button>
-            <button onclick="applySeed()">Carregar</button>
+            <button onclick="copySeed()" data-i18n="seed.copy">Copiar</button>
+            <button onclick="applySeed()" data-i18n="seed.load">Carregar</button>
           </div>
         </div>
       </div>
