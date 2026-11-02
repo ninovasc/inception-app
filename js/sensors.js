@@ -293,7 +293,7 @@ export function stopMicGate() {
   if (led) led.classList.remove('on');
 }
 
-export const MIC_PRESETS = WORLD_VOICE_PRESETS;
+export const MIC_PRESETS = JSON.parse(JSON.stringify(WORLD_VOICE_PRESETS));
 
 export function applyMicPreset(name) {
   const p = MIC_PRESETS[name];

@@ -1,4 +1,8 @@
 import { state } from './state.js';
+import { WORLD_NAMES } from './config.js';
+
+const WAITING_FOR_TRAIN_IDX = WORLD_NAMES.indexOf('Waiting for a Train'); // 9
+const BINAURAL_PULSE_IDX = 4; // Binaural Pulse preset index
 
 let memCatcherRuntime = false;
 let spatialRuntime = false;
@@ -330,8 +334,8 @@ export async function enterSensoryDeprivation() {
   setSensorStatus('Estado oculto de Privação Sensorial ativado.');
 
   const audio = await import('./audio.js');
-  audio.setWorldSynth(9, 4); // Waiting for a Train (sucessor do Limbo) usa Binaural Pulse
-  audio.selectLevel(9);
+  audio.setWorldSynth(WAITING_FOR_TRAIN_IDX, BINAURAL_PULSE_IDX); // Waiting for a Train usa Binaural Pulse
+  audio.selectLevel(WAITING_FOR_TRAIN_IDX);
 
   if (state.heartbeatInterval) clearInterval(state.heartbeatInterval);
   state.heartbeatInterval = setInterval(() => {

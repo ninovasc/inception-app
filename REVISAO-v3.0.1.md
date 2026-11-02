@@ -10,11 +10,11 @@
 
 | Categoria | Quantidade | Status |
 |-----------|------------|--------|
-| 🔴 Críticos (quebram funcionalidade) | 5 | ⬜ Pendentes |
+| 🔴 Críticos (quebram funcionalidade) | 5 | ✅ **5/5 Concluídos** |
 | 🟡 Médios (arquitetura/código morto) | 8 | ⬜ Pendentes |
 | 🟢 UX/Polish | 5 | ⬜ Pendentes |
 | 🗑️ Limpeza (arquivos legados) | 3 | ⬜ Pendentes |
-| **Total** | **21** | **0/21** |
+| **Total** | **21** | **5/21** |
 
 ---
 

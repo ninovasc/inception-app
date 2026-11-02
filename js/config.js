@@ -23,17 +23,24 @@ export const LEVELS = [
 export const WORLD_NAMES = LEVELS.map(l => l.name);
 export const WORLD_COUNT = WORLD_NAMES.length; // 13
 
-// Presets herdados (v2.x) — mantidos para compatibilidade de seeds antigas.
-export const SYNTH_PRESETS = [
+// ============================================================
+// SYNTH PRESETS — Organizados em duas categorias
+// ============================================================
+
+// Presets legados (v2.x) — índices 0–4. Mantidos para compatibilidade de seeds antigas.
+// NÃO são atribuídos a mundos por padrão (WORLD_SYNTH usa 5–17).
+export const LEGACY_SYNTH_PRESETS = [
   { name: 'Zimmer Ambient', freqs: [36.71, 73.42, 110.0, 146.83], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.22, 0.14, 0.08, 0.06], lfo: 0 },
   { name: 'Brass Drone',    freqs: [55.0, 110.0, 164.81, 220.0],  types: ['triangle', 'sawtooth', 'triangle', 'sine'], gains: [0.18, 0.06, 0.09, 0.05], lfo: 0.15 },
   { name: 'Sub Limbo',      freqs: [32.70, 49.00, 65.41, 98.00],  types: ['sine', 'triangle', 'sine', 'sine'], gains: [0.28, 0.15, 0.10, 0.05], lfo: 0.08 },
   { name: 'Glass Choir',    freqs: [220.0, 329.63, 440.0, 659.25], types: ['sine', 'triangle', 'sine', 'sine'], gains: [0.10, 0.08, 0.06, 0.04], lfo: 0.25 },
-  { name: 'Binaural Pulse', freqs: [110.0, 114.5, 220.0, 226.0],  types: ['sine', 'sine', 'sine', 'sine'], gains: [0.16, 0.16, 0.07, 0.07], lfo: 0 },
+  { name: 'Binaural Pulse', freqs: [110.0, 114.5, 220.0, 226.0],  types: ['sine', 'sine', 'sine', 'sine'], gains: [0.16, 0.16, 0.07, 0.07], lfo: 0 }
+];
 
-  // 13 presets novos (um por mundo). Campos opcionais consumidos pelo motor:
-  // pluck {gain,bpm} | pulse {gain,bpm,offbeat} | noise {gain,freq} |
-  // drift (profundidade do wobble) | binaural (ΔHz) | bpm (tempo do mundo)
+// 13 presets novos (um por mundo, índices 5–17). Campos opcionais consumidos pelo motor:
+// pluck {gain,bpm} | pulse {gain,bpm,offbeat} | noise {gain,freq} |
+// drift (profundidade do wobble) | binaural (ΔHz) | bpm (tempo do mundo)
+export const WORLD_SYNTH_PRESETS = [
   { name: 'Half Dream Pad',    freqs: [55.0, 110.0, 164.81, 220.0],  types: ['sine', 'triangle', 'sine', 'sine'], gains: [0.20, 0.12, 0.08, 0.05], lfo: 0.05, noise: { gain: 0.015, freq: 400 }, drift: 0.0010 },
   { name: 'Architect Pluck',   freqs: [65.41, 130.81, 196.0, 261.63], types: ['sine', 'triangle', 'sine', 'triangle'], gains: [0.18, 0.10, 0.07, 0.05], lfo: 0.10, pluck: { gain: 0.10, bpm: 72 }, bpm: 72 },
   { name: 'Collapse Drone',    freqs: [36.71, 73.42, 92.50, 110.0],  types: ['sine', 'sine', 'sawtooth', 'triangle'], gains: [0.26, 0.14, 0.05, 0.07], lfo: 0.06, pulse: { gain: 0.10, bpm: 60 }, noise: { gain: 0.020, freq: 150 }, drift: 0.0040, bpm: 60 },
@@ -48,6 +55,10 @@ export const SYNTH_PRESETS = [
   { name: 'Time Bell',         freqs: [46.25, 92.5, 185.0, 233.08],  types: ['sine', 'sine', 'triangle', 'sine'], gains: [0.22, 0.14, 0.06, 0.05], lfo: 0.03, pluck: { gain: 0.09, bpm: 48 }, drift: 0.0015, bpm: 48 },
   { name: 'Old Souls Bonus',   freqs: [98.0, 146.83, 196.0, 293.66], types: ['triangle', 'sine', 'sine', 'sine'], gains: [0.15, 0.10, 0.07, 0.05], lfo: 0.06, drift: 0.0120, noise: { gain: 0.012, freq: 600 }, pulse: { gain: 0.04, bpm: 68, offbeat: true }, bpm: 68 }
 ];
+
+// SYNTH_PRESETS combinado (legados + novos) — mantido para compatibilidade de código existente
+// Índices 0–4 = legados, 5–17 = novos (um por mundo na ordem de WORLD_NAMES)
+export const SYNTH_PRESETS = [...LEGACY_SYNTH_PRESETS, ...WORLD_SYNTH_PRESETS];
 
 export const LUCID_MODES = [0, 15, 30, 60]; // minutos
 

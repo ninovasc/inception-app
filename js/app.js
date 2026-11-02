@@ -246,14 +246,6 @@ window.toggleSourceRow = function(idx) {
   renderSourceList();
 };
 
-window.selectWorldTab = function(idx) {
-  window.currentWorldTab = idx;
-  syncSourceRow(idx);
-};
-
-// Compatibilidade
-window.currentWorldTab = 0;
-
 window.setWorldSourceType = function(worldIdx, type) {
   if (!['synth', 'mp3', 'youtube'].includes(type)) return;
   // YouTube desativado: ignora qualquer chamada (inclusive links antigos).
