@@ -133,16 +133,15 @@ function escapeHtml(str) {
   }[c]));
 }
 
-// --- Grade de seleção de mundos (13 botões, data-driven) ---
-function renderWorldButtons() {
-  const grid = document.getElementById('worldGrid');
-  if (!grid) return;
-  grid.innerHTML = WORLD_NAMES.map((w, i) => `
-    <button class="menu-item ${i === state.currentLevel ? 'active' : ''}" id="lvl${i}" onclick="selectLevel(${i})"
-      style="font-size:0.66rem; justify-content:center; padding:6px 4px;" aria-label="${w}">${w}</button>
-  `).join('');
+// --- Seleção de mundo: dropdown único (data-driven) ---
+function renderWorldSelect() {
+  const sel = document.getElementById('worldSelect');
+  if (!sel) return;
+  sel.innerHTML = WORLD_NAMES.map((w, i) =>
+    `<option value="${i}" ${i === state.currentLevel ? 'selected' : ''}>${w}</option>`
+  ).join('');
 }
-window.renderWorldButtons = renderWorldButtons;
+window.renderWorldSelect = renderWorldSelect;
 
 // --- Voz: dropdown único com os 13 presets (nomes dos mundos) ---
 function renderVoicePresets() {
@@ -364,7 +363,7 @@ function setWorldTriggerSilence(value) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-renderWorldButtons();
+renderWorldSelect();
 renderVoicePresets();
 renderSourceList();
 renderTriggerList();

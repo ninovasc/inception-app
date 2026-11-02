@@ -841,15 +841,12 @@ export function selectLevel(idx, preserveParams = false) {
 
     const _colors = ['#ffffff', '#88aaff', '#ffaa88', '#ff8888', '#88ddaa', '#ddcc66',
       '#66dddd', '#cc99ff', '#999999', '#aaaaff', '#ff6699', '#ffdd88', '#88ffcc'];
-    for (let i = 0; i < LEVELS.length; i++) {
-      const _b = document.getElementById(`lvl${i}`);
-      if (_b) {
-        _b.classList.toggle('active', i === idx);
-        _b.style.borderLeftColor = i === idx ? _colors[i] : '';
-      }
-    }
     const topSt = document.getElementById('topStatus');
     if (topSt) topSt.style.color = _colors[idx];
+
+    // Atualiza dropdown de seleção de mundo
+    const worldSel = document.getElementById('worldSelect');
+    if (worldSel) worldSel.value = idx;
 
     const l = LEVELS[idx];
     const speedEl = document.getElementById('sliderSpeed');

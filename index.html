@@ -92,7 +92,8 @@
 
     <div class="menu-section">
       <div class="menu-title">Mundos</div>
-      <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;" id="worldGrid"></div>
+      <select id="worldSelect" onchange="selectLevel(parseInt(this.value))" aria-label="Selecionar mundo" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
+      </select>
 
       <!-- Parâmetros da arquitetura (sliders) -->
       <div style="margin-top:10px;">
