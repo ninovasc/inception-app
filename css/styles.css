@@ -440,13 +440,21 @@ input[type="file"] {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Arrow character via pseudo-element */
+.accordion-arrow::before {
+  content: "▶";
+  color: #fff;
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 /* Rotate arrow when panel is open */
-.menu-title[onclick*="toggleAccordion"] .accordion-arrow {
+.menu-title[onclick*="toggleAccordion"] .accordion-arrow::before {
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* When next sibling panel is open, rotate the arrow 90deg clockwise */
-.accordion-panel.open + .menu-title .accordion-arrow,
-.menu-title[onclick*="toggleAccordion"]:has(+ .accordion-panel.open) .accordion-arrow {
+.accordion-panel.open + .menu-title .accordion-arrow::before,
+.menu-title[onclick*="toggleAccordion"]:has(+ .accordion-panel.open) .accordion-arrow::before {
   transform: rotate(90deg);
 }
