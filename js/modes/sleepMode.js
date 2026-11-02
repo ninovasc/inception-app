@@ -99,7 +99,6 @@ function startWakePhase() {
   console.log('[Sleep] Iniciando fase de despertar');
   
   // Transição suave para mundo de despertar
-  const { audio } = require('../audio.js');
   if (state.currentLevel !== state.sleep.wakeWorldIndex) {
     audio.selectLevel(state.sleep.wakeWorldIndex);
   }
@@ -109,14 +108,11 @@ function startWakePhase() {
 }
 
 function startWakeFadeIn() {
-  const { audio } = require('../audio.js');
   const fadeDuration = 5 * 60 * 1000; // 5 minutos
-  const startVolume = 0;
   const targetVolume = state.worldVolume ? state.worldVolume[state.sleep.wakeWorldIndex] : 0.3;
   
   const fadeSteps = 30;
-  const stepDuration = fadeDuration / fadeSteps;
-  const volumeIncrement = targetVolume / fadeSteps;
+  const stepDuration = fadeDuration / 30;
   
   let currentStep = 0;
   const fadeInterval = setInterval(() => {
@@ -126,7 +122,7 @@ function startWakeFadeIn() {
     }
     
     currentStep++;
-    const volume = Math.min((currentStep / 30) * targetVolume, targetVolume);
+    const volume = Math.min((currentStep / 30) * (state.worldVolume ? state.worldVolume[state.sleep.wakeWorldIndex] : 0.3), (state.worldVolume ? state.worldVolume[state.sleep.wakeWorldIndex] : 0.3));
     
     if (state.worldMp3Gains && state.worldMp3Gains[state.sleep.wakeWorldIndex]) {
       state.worldMp3Gains[state.sleep.wakeWorldIndex].gain.setTargetAtTime(volume, audio.audioCtx.currentTime, 0.1);
@@ -135,10 +131,10 @@ function startWakeFadeIn() {
       state.synthMasterGain.gain.setTargetAtTime(volume, audio.audioCtx.currentTime, 0.1);
     }
     
-    if (currentStep >= fadeSteps) {
+    if (currentStep >= 30) {
       clearInterval(fadeInterval);
     }
-  }, stepDuration);
+  }, fadeDuration / 30);
 }
 
 function triggerAlarm() {
@@ -162,7 +158,6 @@ function triggerAlarm() {
 }
 
 function playAlarmSound() {
-  const { audio } = require('../audio.js');
   const now = audio.audioCtx.currentTime;
   
   // Sequência ascendente suave
@@ -178,10 +173,10 @@ function playAlarmSound() {
     const osc = audio.audioCtx.createOscillator();
     const gain = audio.audioCtx.createGain();
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(n.f, n.t);
+    osc.frequency.setValueAtTime(n.f, now + n.t);
     gain.gain.setValueAtTime(0, now + n.t);
-    gain.gain.linearRampToValueAtTime(0.15, n.t + 0.05);
-    gain.gain.exponentialRampToValueAtTime(0.001, n.t + n.dur);
+    gain.gain.linearRampToValueAtTime(0.15, now + n.t + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.dur);
     osc.connect(gain);
     gain.connect(audio.masterFilter);
     osc.start(now + n.t);
@@ -297,22 +292,24 @@ export function updateSleepUI() {
 
 // Handlers globais
 window.setSleepAlarmTime = function(timeStr) {
-  const { setAlarmTime } = require('./sleepMode.js');
   setAlarmTime(timeStr);
   updateAlarmTimerDisplay();
 };
 
 window.setSleepWakeWindow = function(minutes) {
-  const { setWakeWindow } = require('./sleepMode.js');
-  setWakeWindow(minutes);
+  state.sleep.wakeWindowMinutes = Math.max(5, Math.min(60, parseInt(minutes) || 15));
 };
 
 window.setSleepWakeWorld = function(index) {
-  const { setWakeWorld } = require('./sleepMode.js');
-  setWakeWorld(index);
+  if (index >= 0 && index < 8) {
+    state.sleep.wakeWorldIndex = index;
+  }
 };
 
 window.cancelSleepAlarm = function() {
-  const { cancelAlarm } = require('./sleepMode.js');
   cancelAlarm();
+};
+
+window.testSleepAlarm = function() {
+  playAlarmSound();
 };

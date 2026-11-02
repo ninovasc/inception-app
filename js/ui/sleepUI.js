@@ -129,7 +129,6 @@ window.setSleepAlarmTime = function(timeStr) {
   if (!/^\d{2}:\d{2}$/.test(timeStr)) return;
   state.sleep.alarmTime = timeStr;
   if (state.sleep.enabled) {
-    const { cancelAlarm, scheduleAlarm } = require('./sleepMode.js');
     cancelAlarm();
     scheduleAlarm();
   }
@@ -146,6 +145,5 @@ window.setSleepWorld = function(val) {
 };
 
 window.testSleepAlarm = function() {
-  const { playAlarmSound } = require('./sleepMode.js');
   playAlarmSound();
 };

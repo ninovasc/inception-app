@@ -465,6 +465,15 @@ if (state.autoMode && state.currentMode === 'narrative') {
   auto.startAutoMode();
 }
 
+// Initialize sleep UI (hidden by default, shown when sleep mode activated)
+if (typeof window.createSleepUI === 'function') {
+  const sleepContainer = document.getElementById('sleepUI');
+  if (sleepContainer) {
+    sleepContainer.innerHTML = '';
+    sleepContainer.appendChild(createSleepUI());
+  }
+}
+
 // ============================================================
 // Accordion behavior: only one panel open at a time
 // ============================================================
