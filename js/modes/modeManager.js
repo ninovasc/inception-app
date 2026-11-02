@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { MODES, MODE_ORDER, DEFAULT_MODE } from './config.js';
+import { MODES, MODE_ORDER, DEFAULT_MODE, WORLD_NAMES, POMODORO_WORLD_NAMES, SLEEP_WORLD_NAMES, WORLD_COUNT, POMODORO_WORLD_COUNT, SLEEP_WORLD_COUNT } from './config.js';
 import * as narrativeMode from './modes/narrativeMode.js';
 import * as pomodoroMode from './modes/pomodoroMode.js';
 import * as sleepMode from './modes/sleepMode.js';
@@ -147,19 +147,15 @@ export function updateWorldUI() {
 }
 
 // Retorna mundos disponíveis para o modo atual
-export async function getCurrentModeWorlds() {
+export function getCurrentModeWorlds() {
   switch (state.currentMode) {
     case 'narrative':
-      const { WORLD_NAMES } = await import('./config.js');
       return WORLD_NAMES;
     case 'pomodoro':
-      const { POMODORO_WORLD_NAMES } = await import('./config.js');
       return POMODORO_WORLD_NAMES;
     case 'sleep':
-      const { SLEEP_WORLD_NAMES } = await import('./config.js');
       return SLEEP_WORLD_NAMES;
     case 'free':
-      const { WORLD_NAMES } = await import('./config.js');
       return WORLD_NAMES;
     default:
       return [];
@@ -167,16 +163,13 @@ export async function getCurrentModeWorlds() {
 }
 
 // Retorna contagem de mundos do modo atual
-export async function getCurrentModeWorldCount() {
+export function getCurrentModeWorldCount() {
   switch (state.currentMode) {
     case 'pomodoro':
-      const { POMODORO_WORLD_COUNT } = await import('./config.js');
       return POMODORO_WORLD_COUNT;
     case 'sleep':
-      const { SLEEP_WORLD_COUNT } = await import('./config.js');
       return SLEEP_WORLD_COUNT;
     default:
-      const { WORLD_COUNT } = await import('./config.js');
       return WORLD_COUNT;
   }
 }
