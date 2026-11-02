@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType, TRIGGER_DEFS, WORLD_NAMES, WORLD_SYNTH, normalizeWorldTriggers } from './config.js';
+import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType, TRIGGER_DEFS, WORLD_NAMES, WORLD_SYNTH, normalizeWorldTriggers, POMODORO_LEVELS, POMODORO_WORLD_NAMES, SLEEP_LEVELS, SLEEP_WORLD_NAMES, MODES, MODE_ORDER } from './config.js';
 import * as audio from './audio.js';
 import * as sensors from './sensors.js';
 import * as mechanics from './mechanics.js';
@@ -11,6 +11,13 @@ import * as cap from './capture.js';
 import * as auto from './automode.js';
 import { SCREENSAVER_SVG } from './screensaver-svg.js';
 import { initI18n, t, setLang } from './i18n.js';
+import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode } from './modes/modeManager.js';
+import { initModeSelector } from './ui/modeSelector.js';
+import { createPomodoroUI, updatePomodoroUI, updateTimerDisplay } from './ui/pomodoroUI.js';
+import { createSleepUI, updateSleepUI } from './ui/sleepUI.js';
+import { activate as activatePomodoro, deactivate as deactivatePomodoro, startTimer as startPomodoroTimer, pauseTimer as pausePomodoroTimer, resumeTimer as resumePomodoroTimer, skipPhase as skipPomodoroPhase, resetPomodoro as resetPomodoroTimer } from './modes/pomodoroMode.js';
+import { activate as activateSleep, deactivate as deactivateSleep, setAlarmTime as setSleepAlarmTime, cancelAlarm as cancelSleepAlarm } from './modes/sleepMode.js';
+import { activate as activateNarrative, deactivate as deactivateNarrative } from './modes/narrativeMode.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -82,6 +89,74 @@ const baseToggleMasterPlay = audio.toggleMasterPlay;
 window.toggleMasterPlay = function() {
   if (!state.isPlaying) mechanics.activateDreamDefaults();
   return baseToggleMasterPlay();
+};
+
+// ============================================================
+// Global Mode Functions
+// ============================================================
+window.setMode = function(modeId) {
+  switchMode(modeId);
+};
+
+window.getCurrentMode = function() {
+  return state.currentMode;
+};
+
+window.isPomodoroMode = function() {
+  return isPomodoroMode();
+};
+
+window.isSleepMode = function() {
+  return isSleepMode();
+};
+
+window.isNarrativeMode = function() {
+  return isNarrativeMode();
+};
+
+window.isFreeMode = function() {
+  return isFreeMode();
+};
+
+// Pomodoro globals
+window.startPomodoro = function() {
+  if (!state.pomodoro.enabled) {
+    switchMode('pomodoro');
+  } else {
+    startPomodoroTimer();
+  }
+};
+
+window.pausePomodoro = () => pausePomodoroTimer();
+window.resumePomodoro = () => resumePomodoroTimer();
+window.skipPomodoroPhase = () => skipPomodoroPhase();
+window.resetPomodoro = () => resetPomodoroTimer();
+window.setPomodoroDurations = (config) => pomodoroMode.setDurations(config);
+window.setPomodoroActivityMp3 = (url) => pomodoroMode.setActivityMp3(url);
+window.setPomodoroBreakMp3 = (url) => pomodoroMode.setBreakMp3(url);
+
+// Sleep globals
+window.setSleepAlarmTime = function(timeStr) {
+  setSleepAlarmTime(timeStr);
+};
+
+window.setSleepWakeWindow = function(minutes) {
+  state.sleep.wakeWindowMinutes = Math.max(5, Math.min(60, parseInt(minutes) || 15));
+};
+
+window.setSleepWakeWorld = function(index) {
+  if (index >= 0 && index < 8) {
+    state.sleep.wakeWorldIndex = index;
+  }
+};
+
+window.cancelSleepAlarm = function() {
+  cancelSleepAlarm();
+};
+
+window.testSleepAlarm = function() {
+  const { playAlarmSound } = require('./modes/sleepMode.js');
+  playAlarmSound();
 };
 
 // Service worker
@@ -369,13 +444,26 @@ renderVoicePresets();
 renderSourceList();
 renderTriggerList();
 mechanics.syncMechanicsUI();
-auto.startAutoMode();
+
+// Inicializa modo manager e seletor
+initModeManager();
+initModeSelector();
 
 // Inicializa i18n
 initI18n();
 
 // Initial seed
 seed.generateFullSeed(true);
+
+// Auto-start narrative mode (default)
+if (state.currentMode === 'narrative') {
+  activateNarrative();
+}
+
+// Auto-start autoMode if was enabled (for backward compat)
+if (state.autoMode && state.currentMode === 'narrative') {
+  auto.startAutoMode();
+}
 
 // ============================================================
 // Accordion behavior: only one panel open at a time

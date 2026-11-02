@@ -184,3 +184,108 @@ export const CHORD_PROGRESSIONS = [
   [0, 7, 2, 8],    // 11 Time: hino (Bb–F–Gm–Eb)
   [0, 5, 8, 10]    // 12 Bonus Track: Old Souls reharmonizada (Gm–C–Eb–Bb)
 ];
+
+// ============================================================
+// MODO POMODORO — 2 Mundos: Atividade (Foco) + Descanso
+// ============================================================
+
+// Sínteses específicas para Pomodoro
+export const POMODORO_SYNTH_PRESETS = [
+  // 0 — Atividade (Focus): Beta/Gamma, pulse ritmado, binaural 40Hz
+  { name: 'Focus Pulse', freqs: [180, 200, 400, 800], types: ['square', 'sawtooth', 'square', 'sine'], gains: [0.08, 0.06, 0.04, 0.03], pulse: { gain: 0.12, bpm: 60, offbeat: false }, binaural: 40, drift: 0.0005, bpm: 60 },
+  // 1 — Descanso (Break): Alpha/Theta, drift lento, pads suaves
+  { name: 'Break Drift', freqs: [85, 110, 170, 220], types: ['sine', 'triangle', 'sine', 'sine'], gains: [0.15, 0.10, 0.07, 0.05], drift: 0.008, noise: { gain: 0.015, freq: 200 }, pulse: { gain: 0.04, bpm: 10, offbeat: true }, bpm: 10 }
+];
+
+// Mundos do Pomodoro (2 mundos)
+export const POMODORO_LEVELS = [
+  { name: 'Atividade', speed: 1.00, filter: 18000, delay: 0.12, reverb: 0.30, bgColor: '#0a1418' },
+  { name: 'Descanso', speed: 0.95, filter: 8000, delay: 0.30, reverb: 0.50, bgColor: '#0a1210' }
+];
+
+export const POMODORO_WORLD_NAMES = POMODORO_LEVELS.map(l => l.name);
+export const POMODORO_WORLD_COUNT = POMODORO_LEVELS.length; // 2
+
+// Sintetizador padrão para cada mundo Pomodoro (índice em POMODORO_SYNTH_PRESETS)
+export const POMODORO_WORLD_SYNTH = [0, 1];
+
+// Progressões de acordes Pomodoro
+export const POMODORO_CHORD_PROGRESSIONS = [
+  [0, 7, 3, 7],    // Atividade: pedal maior (foco)
+  [0, 5, 3, 5]     // Descanso: flutuante (relax)
+];
+
+// Configurações padrão do timer Pomodoro
+export const POMODORO_DEFAULTS = {
+  activityDuration: 25 * 60,      // 25 min
+  shortBreakDuration: 5 * 60,     // 5 min
+  longBreakDuration: 15 * 60,     // 15 min
+  cyclesUntilLongBreak: 4
+};
+
+// ============================================================
+// MODO SONO — 8 Mundos = 8 Batidas Binaurais/Isocrônicas
+// ============================================================
+
+// Sínteses para Sono (binaural/isocrônico puro)
+export const SLEEP_SYNTH_PRESETS = [
+  // 0 — Delta Profundo (0.5-2 Hz) — Binaural
+  { name: 'Delta Profundo', freqs: [100, 100.5, 200, 201], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.20, 0.20, 0.10, 0.10], binaural: 1.0, drift: 0.0002, bpm: 0 },
+  // 1 — Delta Sono (1-3 Hz) — Binaural
+  { name: 'Delta Sono', freqs: [100, 102, 200, 204], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.18, 0.18, 0.09, 0.09], binaural: 2.0, drift: 0.0003, bpm: 0 },
+  // 2 — Theta Meditação (4-7 Hz) — Binaural
+  { name: 'Theta Meditação', freqs: [100, 105, 200, 210], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.16, 0.16, 0.08, 0.08], binaural: 5.0, drift: 0.0005, bpm: 0 },
+  // 3 — Theta Sono (5-6 Hz) — Isocrônico
+  { name: 'Theta Sono', freqs: [100, 200, 300, 400], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.15, 0.10, 0.06, 0.04], pulse: { gain: 0.10, bpm: 5.5 }, drift: 0.001, bpm: 5.5 },
+  // 4 — Alpha Relax (8-12 Hz) — Binaural
+  { name: 'Alpha Relax', freqs: [100, 110, 200, 220], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.14, 0.14, 0.07, 0.07], binaural: 10.0, drift: 0.0004, bpm: 0 },
+  // 5 — Alpha Isocrônico (10 Hz) — Isocrônico
+  { name: 'Alpha Isocrônico', freqs: [100, 200, 300, 400], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.12, 0.08, 0.05, 0.03], pulse: { gain: 0.08, bpm: 10 }, drift: 0.0005, bpm: 10 },
+  // 6 — SMR 12-15 Hz — Binaural
+  { name: 'SMR 13Hz', freqs: [100, 113, 200, 226], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.12, 0.12, 0.06, 0.06], binaural: 13.0, drift: 0.0003, bpm: 0 },
+  // 7 — Despertar Suave (Beta baixo 14-18 Hz) — Binaural
+  { name: 'Despertar Suave', freqs: [100, 116, 200, 232], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.10, 0.10, 0.05, 0.05], binaural: 16.0, drift: 0.0002, bpm: 0 }
+];
+
+// Mundos do Sono (8 mundos = 8 batidas)
+export const SLEEP_LEVELS = [
+  { name: 'Delta Profundo', speed: 0.50, filter: 200, delay: 0.80, reverb: 0.90, bgColor: '#040408' },
+  { name: 'Delta Sono', speed: 0.55, filter: 300, delay: 0.75, reverb: 0.85, bgColor: '#05050a' },
+  { name: 'Theta Meditação', speed: 0.60, filter: 500, delay: 0.70, reverb: 0.80, bgColor: '#06060c' },
+  { name: 'Theta Sono', speed: 0.65, filter: 800, delay: 0.65, reverb: 0.75, bgColor: '#07070e' },
+  { name: 'Alpha Relax', speed: 0.70, filter: 1200, delay: 0.60, reverb: 0.70, bgColor: '#080810' },
+  { name: 'Alpha Isocrônico', speed: 0.75, filter: 1500, delay: 0.55, reverb: 0.65, bgColor: '#090912' },
+  { name: 'SMR 13Hz', speed: 0.80, filter: 2000, delay: 0.50, reverb: 0.60, bgColor: '#0a0a14' },
+  { name: 'Despertar Suave', speed: 0.90, filter: 3000, delay: 0.40, reverb: 0.50, bgColor: '#0c0c18' }
+];
+
+export const SLEEP_WORLD_NAMES = SLEEP_LEVELS.map(l => l.name);
+export const SLEEP_WORLD_COUNT = SLEEP_LEVELS.length; // 8
+
+// Sintetizador padrão para cada mundo Sono (índice em SLEEP_SYNTH_PRESETS)
+export const SLEEP_WORLD_SYNTH = [0, 1, 2, 3, 4, 5, 6, 7];
+
+// Progressões de acordes Sono (pedal simples)
+export const SLEEP_CHORD_PROGRESSIONS = [
+  [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0],
+  [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]
+];
+
+// Configurações padrão do Alarme Sono
+export const SLEEP_DEFAULTS = {
+  alarmTime: '07:00',           // HH:MM
+  wakeWindowMinutes: 15,        // janela de despertar antes do alarme
+  wakeWorldIndex: 7             // Despertar Suave
+};
+
+// Modos disponíveis
+export const MODES = [
+  { id: 'narrative', name: 'Narrativo', icon: '📖', description: '13 mundos, gatilhos sensoriais, narrativa automática' },
+  { id: 'pomodoro', name: 'Pomodoro', icon: '🍅', description: '2 mundos (Atividade/Descanso), timer, MP3 custom' },
+  { id: 'sleep', name: 'Sono', icon: '🌙', description: '8 batidas binaurais, alarme inteligente, tela preta' },
+  { id: 'free', name: 'Livre', icon: '✋', description: 'Controle manual total, sem automação' }
+];
+
+export const DEFAULT_MODE = 'narrative';
+
+export const MODE_ORDER = ['narrative', 'pomodoro', 'sleep', 'free'];
