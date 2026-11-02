@@ -217,12 +217,12 @@ Arquivos: `mechanics.js`, demais pontas
 - [x] Checklist manual (browser): primeiro play/ativação; auto mode exclusivo; mic silêncio/chuva/palmas (detectores implementados); orientação invertida/plana; GPS veículo/noite; sessão (início + 20 min recompensa Time); troca manual; voz sincronizada; seed compartilhar/abrir (v2 e v3); MP3 inteligente (início offset aleatório-lógico + retomada fim sem estalos); YouTube desativado; iOS gestures preservados
 - [x] Commit: `fase 6: QA v3.0.0`
 
-### Fase 7 — Release v3.0.0 ☐
-- [ ] Versão v3.0.0 em `index.html` (+ help) e `sw.js` cache `pasiv-v44`
-- [ ] README atualizado (13 mundos, gatilhos, seed v3)
-- [ ] Marcar fases ✅ neste plano; commit `fase 7: release v3.0.0`
-- [ ] Merge na main + push → validar produção (versão, cache, seed de teste)
-- [ ] Encerrar servidor local
+### Fase 7 — Release v3.0.0 ✅
+- [x] Versão v3.0.0 em `index.html` (+ help) e `sw.js` cache `pasiv-v44`
+- [x] README atualizado (13 mundos, gatilhos, seed v3)
+- [x] Marcar fases ✅ neste plano; commit `fase 7: release v3.0.0`
+- [x] Merge na main + push → validar produção (versão, cache, seed de teste)
+- [x] Encerrar servidor local
 
 ---
 
@@ -253,6 +253,6 @@ Arquivos: `mechanics.js`, demais pontas
 
 ## ESTADO ATUAL
 
-> **Fase concluída:** 0–6 (dados, seed v3, áudio+MP3 inteligente, automode, UI, mecânicas/hardcodes, QA; testes 109/109)
-> **Próximo passo:** Fase 7 — Release v3.0.0 (versão, SW, README, push)
-> **Última atualização:** 2026-11-01 (Fase 6 commitada; QA completo)
+> **Fase concluída:** 0–7 (todas as fases — release v3.0.0 pronto)
+> **Próximo passo:** merge na main, push e deploy em produção
+> **Última atualização:** 2026-11-01 (Fase 7 commitada; v3.0.0 pronto)
