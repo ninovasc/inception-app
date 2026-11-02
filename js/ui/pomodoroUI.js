@@ -6,7 +6,6 @@ import { t } from '../i18n.js';
 export function createPomodoroUI() {
   const container = document.createElement('div');
   container.id = 'pomodoroUI';
-  container.style.cssText = 'display: none;'; // escondido por padrão
   
   container.innerHTML = `
     <div style="margin-bottom: 12px;">

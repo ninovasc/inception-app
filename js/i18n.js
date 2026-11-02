@@ -13,6 +13,7 @@ const translations = {
     'btn.startDream': 'Start Dream',
     'btn.kick': 'The Kick (Piaf + BRAAAM)',
     'btn.autoMode': 'Narrative Mode (Sensors)',
+    'btn.startMode': 'Start',
     'sub.off': 'OFF',
     'sub.active': 'ACTIVE',
     'sub.freefall': 'Freefall',
@@ -223,6 +224,7 @@ const translations = {
     'btn.startDream': 'Iniciar Sueño',
     'btn.kick': 'La Patada (Piaf + BRAAAM)',
     'btn.autoMode': 'Modo Automático (Sensores)',
+    'btn.startMode': 'Iniciar',
     'sub.off': 'APAGADO',
     'sub.active': 'ACTIVO',
     'sub.freefall': 'Caída Libre',
@@ -424,6 +426,7 @@ const translations = {
     'btn.startDream': 'Iniciar Sonho',
     'btn.kick': 'O Chute (Piaf + BRAAAM)',
     'btn.autoMode': 'Modo Narrativo (Sensores)',
+    'btn.startMode': 'Iniciar',
     'sub.off': 'OFF',
     'sub.active': 'ATIVO',
     'sub.freefall': 'Queda Livre',
@@ -687,7 +690,7 @@ function updateDynamicSelects() {
 }
 
 function updateLangSelector() {
-  const sel = document.getElementById('langSelect');
+  const sel = document.getElementById('langSelector');
   if (sel) sel.value = currentLang;
 }
 
@@ -695,9 +698,6 @@ export function initI18n() {
   // Restaura idioma salvo
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved && translations[saved]) currentLang = saved;
-
-  // Cria seletor de idioma se não existir
-  createLangSelector();
 
   // Aplica traduções iniciais
   applyTranslations();

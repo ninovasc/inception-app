@@ -32,34 +32,63 @@
       </div>
       <div style="display:flex; align-items:center; gap:10px;">
         <div id="topStatus" class="status-mini">PARADO</div>
+        
+        <!-- Seletor de Idioma -->
+        <div style="margin-right:8px;">
+          <label style="font-size:0.6rem; color:var(--muted); margin-bottom:2px; display:block; font-family:monospace;" data-i18n="lang.label">Idioma</label>
+          <select id="langSelector" onchange="window.setLang(this.value)" aria-label="Idioma" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.7rem;border-radius:4px;">
+            <option value="en-US">English (US)</option>
+            <option value="es-ES">Español</option>
+            <option value="pt-BR" selected>Português (BR)</option>
+          </select>
+        </div>
+        
         <button class="help-btn" onclick="toggleHelp()" aria-label="Ajuda">?</button>
       </div>
     </header>
 
     <div class="menu-section">
       <div class="menu-title">Estado do Sonho</div>
-      <button class="menu-item" id="masterPlayBtn" onclick="toggleMasterPlay()" aria-pressed="false" aria-label="Iniciar Sonho">
-        <span data-i18n="btn.startDream">Iniciar Sonho</span>
-        <span class="sub" id="playSub" data-i18n="sub.off">OFF</span>
-      </button>
-      <button class="menu-item" onclick="triggerKick(true)" aria-label="Disparar O Chute">
+      <button class="menu-item" id="kickBtn" onclick="triggerKick(true)" aria-label="Disparar O Chute" style="display:none;">
         <span data-i18n="btn.kick">O Chute (Piaf + BRAAAM)</span>
         <span class="sub" data-i18n="sub.freefall">Queda Livre</span>
       </button>
-      
-      <!-- Seletor de Modo -->
+
+      <!-- Sensores (movido para antes do seletor, visível em todos os modos) -->
+      <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="menu-item" id="btnMic" onclick="toggleMic()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Microfone" aria-pressed="false">
+            <span data-i18n="btn.mic">Mic: OFF</span>
+          </button>
+          <button class="menu-item" id="btnMotion" onclick="toggleMotion()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Giroscópio" aria-pressed="false">
+            <span data-i18n="btn.motion">Giro: OFF</span>
+          </button>
+          <button class="menu-item" id="btnGps" onclick="toggleGPS()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="GPS" aria-pressed="false">
+            <span data-i18n="btn.gps">GPS: OFF</span>
+          </button>
+        </div>
+        <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus" data-i18n="sensorStatus.default">Toque em um sensor para ligar ou desligar.</div>
+      </div>
+
+      <!-- Seletor de Modo + Botão Iniciar -->
       <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
         <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">Modo</label>
-        <select id="modeSelector" onchange="window.setMode(this.value)" aria-label="Modo" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
-          <option value="narrative">📖 Narrativo</option>
-          <option value="pomodoro">🍅 Pomodoro</option>
-          <option value="sleep">🌙 Sono</option>
-          <option value="free">✋ Livre</option>
-        </select>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <select id="modeSelector" onchange="window.setMode(this.value)" aria-label="Modo" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;flex:1;">
+            <option value="" selected>Selecione o modo</option>
+            <option value="narrative">📖 Narrativo</option>
+            <option value="pomodoro">🍅 Pomodoro</option>
+            <option value="sleep">🌙 Sono</option>
+            <option value="free">✋ Livre</option>
+          </select>
+          <button id="startModeBtn" class="menu-item" onclick="window.startCurrentMode()" style="display:none; min-width:100px; justify-content:center;" aria-label="Iniciar modo">
+            <span data-i18n="btn.startMode">Iniciar</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <div class="menu-section">
+    <div class="menu-section" data-mode="narrative pomodoro sleep free">
       <div class="menu-title" onclick="window.toggleAccordion('worldsPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="worlds.title">Mundos</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
@@ -82,7 +111,7 @@
       </div>
     </div>
 
-    <div class="menu-section">
+    <div class="menu-section" data-mode="narrative pomodoro sleep free">
       <div class="menu-title" onclick="toggleAccordion('voicePanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="voice.title">Voz</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
@@ -110,7 +139,7 @@
       </div>
     </div>
 
-    <div class="menu-section">
+    <div class="menu-section" data-mode="narrative pomodoro free">
       <div class="menu-title" onclick="toggleAccordion('sourcePanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="source.title">Fonte Sonora</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
@@ -136,7 +165,7 @@
       </div>
     </div>
 
-    <div class="menu-section">
+    <div class="menu-section" data-mode="narrative">
       <div class="menu-title" onclick="toggleAccordion('triggerPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="triggers.title">Gatilhos de Mundo</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
@@ -159,7 +188,7 @@
       </div>
     </div>
 
-    <div class="menu-section">
+    <div class="menu-section" data-mode="narrative free">
       <div class="menu-title" onclick="toggleAccordion('mechPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="mechanics.title">Mecânicas do Sonho</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
@@ -192,28 +221,7 @@
       </div>
     </div>
 
-    <div class="menu-section">
-      <div class="menu-title" onclick="toggleAccordion('sensorPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
-        <span data-i18n="sensors.title">Sensores (Ligar / Desligar)</span>
-        <span style="color:#fff;" class="accordion-arrow">▶</span>
-      </div>
-      <div id="sensorPanel" class="accordion-panel">
-        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-          <button class="menu-item" id="btnMic" onclick="toggleMic()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Microfone" aria-pressed="false">
-            <span data-i18n="btn.mic">Mic: OFF</span>
-          </button>
-          <button class="menu-item" id="btnMotion" onclick="toggleMotion()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="Giroscópio" aria-pressed="false">
-            <span data-i18n="btn.motion">Giro: OFF</span>
-          </button>
-          <button class="menu-item" id="btnGps" onclick="toggleGPS()" style="flex:1; justify-content:center; font-size:0.75rem;" aria-label="GPS" aria-pressed="false">
-            <span data-i18n="btn.gps">GPS: OFF</span>
-          </button>
-        </div>
-        <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus" data-i18n="sensorStatus.default">Toque em um sensor para ligar ou desligar.</div>
-      </div>
-    </div>
-
-    <div class="menu-section">
+    <div class="menu-section" data-mode="pomodoro">
       <div class="menu-title" onclick="window.toggleAccordion('pomodoroPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="pomodoro.title">Pomodoro</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
@@ -223,7 +231,7 @@
       </div>
     </div>
 
-    <div class="menu-section">
+    <div class="menu-section" data-mode="sleep">
       <div class="menu-title" onclick="window.toggleAccordion('sleepPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="sleep.title">Sono</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
@@ -233,7 +241,7 @@
       </div>
     </div>
 
-    <div class="menu-section">
+    <div class="menu-section" style="display:none;">
       <div class="menu-title" onclick="toggleAccordion('dspPanel')" style="cursor:pointer; display:flex; justify-content:space-between;">
         <span data-i18n="seed.title">Código do Sonho</span>
         <span style="color:#fff;" class="accordion-arrow">▶</span>
@@ -316,6 +324,6 @@
     </div>
   </div>
 
-  <script type="module" src="./js/app.js?v=4"></script>
+  <script type="module" src="./js/app.js?v=14"></script>
 </body>
 </html>

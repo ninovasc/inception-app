@@ -9,7 +9,7 @@ export const state = {
   currentSynthType: WORLD_SYNTH[0],
   autoMode: true,
   // Modo atual: 'narrative' | 'pomodoro' | 'sleep' | 'free'
-  currentMode: 'narrative',
+  currentMode: '', // vazio até usuário escolher
   // Gatilhos de mundo: cada regra de sensor aponta para um mundo
   // (ou -1 = desativada). A avaliação é exclusiva: só a primeira
   // regra verdadeira (ordem curada) escolhe o mundo.

@@ -6,14 +6,13 @@ import { t } from '../i18n.js';
 export function createSleepUI() {
   const container = document.createElement('div');
   container.id = 'sleepUI';
-  container.style.cssText = 'display: none;'; // escondido por padrão
   
   container.innerHTML = `
     <div style="margin-bottom: 12px;">
       <!-- Seleção de mundo (batida) -->
       <div style="margin-bottom: 12px;">
-        <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">${t('sleep.world') || 'Batida'}</label>
-        <select id="sleepWorldSelect" onchange="window.setSleepWorld(this.value)" aria-label="${t('sleep.world') || 'Batida'}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
+        <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">${t('sleep.title') || 'Sono'}</label>
+        <select id="sleepWorldSelect" onchange="window.setSleepWorld(this.value)" aria-label="${t('sleep.title') || 'Batida'}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
           ${SLEEP_WORLD_NAMES.map((w, i) => `<option value="${i}">${w}</option>`).join('')}
         </select>
         <div style="font-size:0.62rem; color:var(--muted); font-family:monospace; margin-top:4px;">${t('sleep.worldDesc') || 'Cada mundo é uma batida binaural/isocrônica para indução de sono'}</div>
@@ -21,7 +20,7 @@ export function createSleepUI() {
       
       <!-- Alarme -->
       <div style="margin-bottom: 12px;">
-        <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">${t('sleep.alarm') || 'Alarme'}</label>
+        <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">${t('sleep.alarmTime') || 'Hora do Alarme'}</label>
         <input type="time" id="sleepAlarmTime" onchange="window.setSleepAlarmTime(this.value)" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
         <div style="font-size:0.62rem; color:var(--muted); font-family:monospace; margin-top:4px;">${t('sleep.alarmDesc') || 'Horário para acordar. O despertar suave começa 15 min antes.'}</div>
       </div>
@@ -32,15 +31,6 @@ export function createSleepUI() {
           <div class="slider-header"><span>${t('sleep.wakeWindow') || 'Janela de Despertar'}</span><span id="sleepWakeWindowVal">15 min</span></div>
           <input type="range" id="sleepWakeWindow" min="5" max="60" step="1" value="15" oninput="window.updateSleepWakeWindow(this.value)">
         </div>
-      </div>
-      
-      <!-- Mundo de despertar -->
-      <div style="margin-bottom: 12px;">
-        <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">${t('sleep.wakeWorld') || 'Mundo de Despertar'}</label>
-        <select id="sleepWakeWorldSelect" onchange="window.setSleepWakeWorld(parseInt(this.value))" aria-label="${t('sleep.wakeWorld') || 'Mundo de Despertar'}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
-          <option value="7">Despertar Suave (Beta 16Hz)</option>
-        </select>
-        <div style="font-size:0.62rem; color:var(--muted); font-family:monospace; margin-top:4px;">${t('sleep.wakeWorldDesc') || 'Mundo usado na transição de despertar suave (últimos 15 min)'}</div>
       </div>
       
       <!-- Timer até alarme -->

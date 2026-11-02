@@ -11,13 +11,14 @@ import * as cap from './capture.js';
 
 import { SCREENSAVER_SVG } from './screensaver-svg.js';
 import { initI18n, t, setLang } from './i18n.js';
-import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode } from './modes/modeManager.js';
+import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode, updateModeSpecificUI, modeModules } from './modes/modeManager.js';
 import { initModeSelector } from './ui/modeSelector.js';
 import { createPomodoroUI, updatePomodoroUI, updateTimerDisplay } from './ui/pomodoroUI.js';
 import { createSleepUI, updateSleepUI } from './ui/sleepUI.js';
-import { activate as activatePomodoro, deactivate as deactivatePomodoro, startTimer as startPomodoroTimer, pauseTimer as pausePomodoroTimer, resumeTimer as resumePomodoroTimer, skipPhase as skipPomodoroPhase, resetPomodoro as resetPomodoroTimer } from './modes/pomodoroMode.js';
-import { activate as activateSleep, deactivate as deactivateSleep, setAlarmTime as setSleepAlarmTime, cancelAlarm as cancelSleepAlarm } from './modes/sleepMode.js';
-import { startAutoMode as activateNarrative, stopAutoMode as deactivateNarrative, toggleAutoMode, isAutoMode, getActiveTrigger, evaluateAutoMode, startAutoMode } from './modes/narrativeMode.js';
+import { createNarrativeUI, updateNarrativeUI } from './ui/narrativeUI.js';
+import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
+import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList, updateActiveTriggerDisplay } from './ui/commonUI.js';
+import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -81,10 +82,19 @@ Object.assign(window, {
   stopCapture: cap.stopCapture,
   setCaptureVolume: cap.setCaptureVolume,
   toggleAutoMode,
+  getActiveTrigger,
   setWorldTrigger: (key, value) => setWorldTrigger(key, value),
   setWorldTriggerMotion: (value) => setWorldTriggerMotion(value),
   setWorldTriggerSilence: (value) => setWorldTriggerSilence(value),
-  state: state
+  state: state,
+  setLang,
+  // Common UI functions
+  renderWorldSelect,
+  renderVoicePresets,
+  renderSourceList,
+  renderTriggerList: () => {},
+  updateActiveTriggerDisplay,
+  initCommonUI
 });
 console.log('[App] window.state exposed:', !!window.state, 'currentMode:', window.state?.currentMode);
 
@@ -103,7 +113,54 @@ window.toggleMasterPlay = function() {
 // Global Mode Functions
 // ============================================================
 window.setMode = function(modeId) {
+  if (!modeId) {
+    // Volta para "sem modo" - esconde botões
+    const startBtn = document.getElementById('startModeBtn');
+    if (startBtn) startBtn.style.display = 'none';
+    const kickBtn = document.getElementById('kickBtn');
+    if (kickBtn) kickBtn.style.display = 'none';
+    return;
+  }
+  
   switchMode(modeId);
+  
+  // Mostra botão Iniciar e Chute quando modo selecionado
+  const startBtn = document.getElementById('startModeBtn');
+  if (startBtn) startBtn.style.display = 'flex';
+  const kickBtn = document.getElementById('kickBtn');
+  if (kickBtn) kickBtn.style.display = 'flex';
+};
+
+window.startCurrentMode = function() {
+  if (!state.currentMode) return;
+  
+  // Inicia áudio se necessário
+  if (!audio.audioCtx) audio.initAudio();
+  
+  // Ativa modo atual (inicia timer, alarme, etc)
+  const module = modeModules?.[state.currentMode];
+  if (module && module.activate) {
+    module.activate();
+  }
+  
+  // Marca como tocando
+  state.isPlaying = true;
+  
+  // Ativa mecânicas padrão
+  mechanics.activateDreamDefaults();
+  
+  // Atualiza UI
+  if (typeof window.updateFromSliders === 'function') window.updateFromSliders(true);
+  
+  // Esconde botão Iniciar
+  const startBtn = document.getElementById('startModeBtn');
+  if (startBtn) startBtn.style.display = 'none';
+  
+  // Atualiza status
+  const statusEl = document.getElementById('topStatus');
+  if (statusEl) statusEl.textContent = 'SONHANDO';
+  
+  console.log('[App] Modo iniciado:', state.currentMode);
 };
 
 window.getCurrentMode = function() {
@@ -216,142 +273,6 @@ function escapeHtml(str) {
   }[c]));
 }
 
-// --- Seleção de mundo: dropdown único (data-driven) ---
-function renderWorldSelect() {
-  const sel = document.getElementById('worldSelect');
-  if (!sel) return;
-  sel.innerHTML = WORLD_NAMES.map((w, i) =>
-    `<option value="${i}" ${i === state.currentLevel ? 'selected' : ''}>${w}</option>`
-  ).join('');
-}
-window.renderWorldSelect = renderWorldSelect;
-
-// --- Voz: dropdown único com os 13 presets (nomes dos mundos) ---
-function renderVoicePresets() {
-  const sel = document.getElementById('voicePresetSelect');
-  if (!sel) return;
-  const presets = sensors.MIC_PRESETS || {};
-  // Usa a ordem dos mundos (chaves numéricas como "528491" viriam antes
-  // na iteração de objeto).
-  const names = WORLD_NAMES.filter(n => presets[n]);
-  sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('')
-    + `<option value="custom">${t('voice.custom')}</option>`;
-  sel.value = names.includes(state.micPreset) ? state.micPreset : 'custom';
-}
-
-function renderSourceList() {
-  const container = document.getElementById('sourceList');
-  if (!container) return;
-  const synthNames = SYNTH_PRESETS.map(p => p.name);
-  container.innerHTML = WORLD_NAMES.map((w, i) => {
-    const type = (state.worldSourceType && state.worldSourceType[i]) || 'synth';
-    const vol = (state.worldVolume && state.worldVolume[i]) || 0.2;
-    const synthIdx = (state.worldSynth && state.worldSynth[i] != null) ? state.worldSynth[i] : WORLD_SYNTH[i];
-    const expanded = i === activeSourceWorld;
-    const badge = type === 'synth'
-      ? `<span style="font-size:0.58rem; color:var(--muted); font-family:monospace; flex-shrink:0; max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${synthNames[synthIdx] || ''}</span>`
-      : `<span style="font-size:0.58rem; color:var(--muted); font-family:monospace; flex-shrink:0;">${type.toUpperCase()}</span>`;
-    let controls = '';
-    if (expanded) {
-      if (type === 'synth') {
-        controls = `
-          <div style="margin-top:6px;">
-            <select onchange="setWorldSynth(${i}, this.value)" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.72rem;border-radius:6px;width:100%;margin-bottom:4px;">
-              ${synthNames.map((n, j) => `<option value="${j}" ${j === synthIdx ? 'selected' : ''}>${n}</option>`).join('')}
-            </select>
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
-              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolume(${i}, this.value)">
-              <span id="worldVolVal${i}" style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
-            </div>
-          </div>
-        `;
-      } else if (type === 'mp3') {
-        const label = state.worldSources && state.worldSources.mp3 && state.worldSources.mp3[i] ? state.worldSources.mp3[i].slice(0,20) : '[Selecionar MP3]';
-        controls = `
-          <div style="margin-top:6px;">
-            <label class="file-btn" for="mp3File${i}" style="margin:0; padding:6px 8px; font-size:0.7rem;">
-              <span id="mp3Label${i}">${escapeHtml(label)}</span><span>📁</span>
-            </label>
-            <input type="file" id="mp3File${i}" accept="*" onchange="loadWorldMp3(${i}, this.files[0])" style="display:none;">
-            <div style="display:flex; align-items:center; gap:6px; margin-top:4px;">
-              <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
-              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolume(${i}, this.value)">
-              <span id="worldVolVal${i}" style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
-            </div>
-          </div>
-        `;
-      } else if (type === 'youtube') {
-        const url = state.worldSources && state.worldSources.youtube && state.worldSources.youtube[i] ? 'https://youtu.be/' + state.worldSources.youtube[i] : '';
-        const label = state.worldSources && state.worldSources.youtube && state.worldSources.youtube[i] ? state.worldSources.youtube[i] : '[sem link]';
-        controls = `
-          <div style="margin-top:6px;">
-            <input type="text" id="ytUrl${i}" placeholder="Link YouTube" value="${url}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.72rem;border-radius:6px;width:100%;margin-bottom:4px;" onchange="loadYouTube(${i}, this.value)">
-            <div style="font-size:0.65rem;color:var(--muted);font-family:monospace;margin-bottom:4px;" id="ytLabel${i}">${label}</div>
-            <div style="display:flex; align-items:center; gap:6px;">
-              <span style="font-size:0.65rem; color:var(--muted);">Vol</span>
-              <input type="range" min="0" max="1" step="0.05" value="${vol}" style="flex:1;" oninput="setWorldVolume(${i}, this.value)">
-              <span id="worldVolVal${i}" style="font-size:0.65rem; color:#fff; font-family:monospace; min-width:28px;">${Math.round(vol*100)}%</span>
-            </div>
-          </div>
-        `;
-      }
-    }
-    return `
-      <div style="border-bottom:1px solid var(--border); padding:8px 0; ${i === state.currentLevel ? 'border-left:2px solid #fff; padding-left:6px;' : ''}">
-        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px; flex-wrap:wrap;">
-          <button onclick="toggleSourceRow(${i})" aria-label="${expanded ? 'Recolher' : 'Expandir'} ${w}" aria-expanded="${expanded}" style="flex:0 0 auto; width:20px; background:none; border:none; color:var(--muted); font-size:0.7rem; padding:0; cursor:pointer; line-height:1;">${expanded ? '▼' : '▶'}</button>
-          <button onclick="selectLevel(${i})" aria-label="Ir para o mundo ${w}" style="flex:1 1 60px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; text-align:left; background:none; border:none; color:#fff; font-size:0.75rem; font-weight:600; padding:0; cursor:pointer;">${w}</button>
-          ${badge}
-          <div style="display:flex; gap:2px; flex-shrink:0;">
-            <button class="src-type-btn ${type==='synth'?'active':''}" onclick="setWorldSourceType(${i},'synth')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='synth'?'#fff':'transparent'}; color:${type==='synth'?'#000':'#888'}; border-radius:4px; cursor:pointer;">Synth</button>
-            <button class="src-type-btn ${type==='mp3'?'active':''}" onclick="setWorldSourceType(${i},'mp3')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='mp3'?'#fff':'transparent'}; color:${type==='mp3'?'#000':'#888'}; border-radius:4px; cursor:pointer;">MP3</button>
-            ${YOUTUBE_ENABLED ? `<button class="src-type-btn ${type==='youtube'?'active':''}" onclick="setWorldSourceType(${i},'youtube')" style="font-size:0.6rem; padding:2px 6px; border:1px solid var(--border); background:${type==='youtube'?'#fff':'transparent'}; color:${type==='youtube'?'#000':'#888'}; border-radius:4px; cursor:pointer;">YT</button>` : ''}
-          </div>
-        </div>
-        ${expanded ? controls : ''}
-      </div>
-    `;
-  }).join('');
-}
-
-function syncSourceRow(idx) {
-  activeSourceWorld = idx;
-  renderSourceList();
-}
-
-window.renderSourceList = renderSourceList;
-window.syncSourceRow = syncSourceRow;
-
-window.toggleSourceRow = function(idx) {
-  activeSourceWorld = (activeSourceWorld === idx) ? -1 : idx;
-  renderSourceList();
-};
-
-window.setWorldSourceType = function(worldIdx, type) {
-  if (!['synth', 'mp3', 'youtube'].includes(type)) return;
-  // YouTube desativado: ignora qualquer chamada (inclusive links antigos).
-  if (type === 'youtube' && !YOUTUBE_ENABLED) return;
-
-  if (!state.worldSourceType) state.worldSourceType = Array(WORLD_NAMES.length).fill('synth');
-  state.worldSourceType[worldIdx] = type;
-  activeSourceWorld = worldIdx;
-
-  if (worldIdx === state.currentLevel) {
-    state.sourceMode = type;
-    audio.restartWorldAudio();
-  }
-
-  // Garante que o player do YouTube exista quando há um link salvo.
-  if (type === 'youtube' && window.loadYouTube) {
-    const id = state.worldSources && state.worldSources.youtube && state.worldSources.youtube[worldIdx];
-    if (id) window.loadYouTube(worldIdx, `https://youtu.be/${id}`);
-  }
-
-  renderSourceList();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-};
-
 // --- Gatilhos de Mundo (Modo Automático) ---
 function triggerOptions(current, allowOff) {
   const off = allowOff
@@ -446,12 +367,6 @@ function setWorldTriggerSilence(value) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-renderWorldSelect();
-renderVoicePresets();
-renderSourceList();
-renderTriggerList();
-mechanics.syncMechanicsUI();
-
 // Inicializa modo manager e seletor
 initModeManager();
 initModeSelector();
@@ -462,29 +377,38 @@ initI18n();
 // Initial seed
 seed.generateFullSeed(true);
 
-// Auto-start narrative mode (default)
-if (state.currentMode === 'narrative') {
-  activateNarrative();
-}
+// Modo não inicia automaticamente - usuário deve selecionar e clicar Iniciar
 
-// Auto-start autoMode if was enabled (for backward compat)
-if (state.autoMode && state.currentMode === 'narrative') {
-  startAutoMode();
-}
+// Initialize UI comum
+initCommonUI();
 
-// Initialize pomodoro UI (hidden by default, shown when pomodoro mode activated)
+// Initialize mode-specific UIs
 const pomodoroContainer = document.getElementById('pomodoroUI');
 if (pomodoroContainer) {
   pomodoroContainer.innerHTML = '';
   pomodoroContainer.appendChild(createPomodoroUI());
 }
 
-// Initialize sleep UI (hidden by default, shown when sleep mode activated)
 const sleepContainer = document.getElementById('sleepUI');
 if (sleepContainer) {
   sleepContainer.innerHTML = '';
   sleepContainer.appendChild(createSleepUI());
 }
+
+const narrativeContainer = document.getElementById('narrativeUI');
+if (narrativeContainer) {
+  narrativeContainer.innerHTML = '';
+  narrativeContainer.appendChild(createNarrativeUI());
+}
+
+const freeContainer = document.getElementById('freeUI');
+if (freeContainer) {
+  freeContainer.innerHTML = '';
+  freeContainer.appendChild(createFreeUI());
+}
+
+// Trigger initial UI update for current mode
+updateModeSpecificUI(state.currentMode);
 
 // ============================================================
 // Accordion behavior: only one panel open at a time
