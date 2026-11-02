@@ -5,19 +5,19 @@
 // ============================================================
 
 export const LEVELS = [
-  { name: 'Half Remembered Dream', speed: 1.00, filter: 18000, delay: 0.12, reverb: 0.30 },
-  { name: 'We Built Our Own World', speed: 1.18, filter: 16000, delay: 0.28, reverb: 0.30 },
-  { name: 'Dream Is Collapsing',   speed: 0.46, filter: 680,   delay: 0.70, reverb: 0.85 },
-  { name: 'Radical Notion',        speed: 0.92, filter: 9000,  delay: 0.45, reverb: 0.55 },
-  { name: 'Old Souls',             speed: 0.80, filter: 2400,  delay: 0.35, reverb: 0.45 },
-  { name: '528491',                speed: 1.06, filter: 12000, delay: 0.18, reverb: 0.35 },
-  { name: 'Mombasa',               speed: 1.15, filter: 14000, delay: 0.20, reverb: 0.25 },
-  { name: 'One Simple Idea',       speed: 0.98, filter: 8000,  delay: 0.30, reverb: 0.50 },
-  { name: 'Dream Within a Dream',  speed: 0.62, filter: 1100,  delay: 0.55, reverb: 0.70 },
-  { name: 'Waiting for a Train',   speed: 0.30, filter: 340,   delay: 0.84, reverb: 0.95 },
-  { name: 'Paradox',               speed: 1.10, filter: 7000,  delay: 0.50, reverb: 0.40 },
-  { name: 'Time',                  speed: 0.72, filter: 5000,  delay: 0.60, reverb: 0.80 },
-  { name: 'Bonus Track',           speed: 0.78, filter: 1800,  delay: 0.38, reverb: 0.50 }
+  { name: 'Half Remembered Dream', speed: 1.00, filter: 18000, delay: 0.12, reverb: 0.30, bgColor: '#0d0d12' },
+  { name: 'We Built Our Own World', speed: 1.18, filter: 16000, delay: 0.28, reverb: 0.30, bgColor: '#0a161a' },
+  { name: 'Dream Is Collapsing',   speed: 0.46, filter: 680,   delay: 0.70, reverb: 0.85, bgColor: '#1a0a0a' },
+  { name: 'Radical Notion',        speed: 0.92, filter: 9000,  delay: 0.45, reverb: 0.55, bgColor: '#0d1218' },
+  { name: 'Old Souls',             speed: 0.80, filter: 2400,  delay: 0.35, reverb: 0.45, bgColor: '#120a12' },
+  { name: '528491',                speed: 1.06, filter: 12000, delay: 0.18, reverb: 0.35, bgColor: '#0f0f1a' },
+  { name: 'Mombasa',               speed: 1.15, filter: 14000, delay: 0.20, reverb: 0.25, bgColor: '#1a0f08' },
+  { name: 'One Simple Idea',       speed: 0.98, filter: 8000,  delay: 0.30, reverb: 0.50, bgColor: '#0e1416' },
+  { name: 'Dream Within a Dream',  speed: 0.62, filter: 1100,  delay: 0.55, reverb: 0.70, bgColor: '#0a1014' },
+  { name: 'Waiting for a Train',   speed: 0.30, filter: 340,   delay: 0.84, reverb: 0.95, bgColor: '#080810' },
+  { name: 'Paradox',               speed: 1.10, filter: 7000,  delay: 0.50, reverb: 0.40, bgColor: '#140a14' },
+  { name: 'Time',                  speed: 0.72, filter: 5000,  delay: 0.60, reverb: 0.80, bgColor: '#100a18' },
+  { name: 'Bonus Track',           speed: 0.78, filter: 1800,  delay: 0.38, reverb: 0.50, bgColor: '#120810' }
 ];
 
 export const WORLD_NAMES = LEVELS.map(l => l.name);

@@ -1,11 +1,12 @@
-// SVG do screensaver (inline para animações CSS funcionarem)
+// SVG do screensaver (inline para animacoes CSS funcionarem)
+// Fundo transparente para herdar a cor do mundo ativo
 export const SCREENSAVER_SVG = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="60vmin" height="60vmin" max-width="90vw" max-height="90vh" preserveAspectRatio="xMidYMid slice">
   <defs>
-    <!-- Fundo preto puro para mesclar com o app -->
+    <!-- Fundo transparente (herda cor do mundo via CSS) -->
     <radialGradient id="splashBg" cx="50%" cy="52%" r="60%">
-      <stop offset="0%" stop-color="#000000"/>
-      <stop offset="100%" stop-color="#000000"/>
+      <stop offset="0%" stop-color="transparent"/>
+      <stop offset="100%" stop-color="transparent"/>
     </radialGradient>
     <radialGradient id="floorSpot" cx="50%" cy="50%" r="50%">
       <stop offset="0%" stop-color="#384354" stop-opacity="0.35"/>

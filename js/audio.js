@@ -849,7 +849,11 @@ export function selectLevel(idx, preserveParams = false) {
     if (worldSel) worldSel.value = idx;
 
     const l = LEVELS[idx];
-    const speedEl = document.getElementById('sliderSpeed');
+  // Aplica cor de fundo do mundo (app + screensaver transparente herda)
+  document.body.style.backgroundColor = l.bgColor;
+  document.documentElement.style.backgroundColor = l.bgColor;
+
+  const speedEl = document.getElementById('sliderSpeed');
     const filterEl = document.getElementById('sliderFilter');
     const delayEl = document.getElementById('sliderDelay');
     const reverbEl = document.getElementById('sliderReverb');
