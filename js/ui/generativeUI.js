@@ -79,8 +79,7 @@ export function toggleGenerative(enabled) {
   // Aplica/remove variação do synth atual
   applyGenerativeToCurrentSynth();
   
-  console.log('[Generative]', enabled ? 'Ativado' : 'Desativado');
-}
+  }
 
 // Atualiza slider de variação
 export function updateGenerativeVariation(val) {
@@ -104,8 +103,7 @@ export async function generateNewVariation() {
     // Aplica ao synth atual
     applyGenerativeToCurrentSynth();
     
-    console.log('[Generative] Nova variação gerada:', variation.seed);
-  } catch (err) {
+    } catch (err) {
     console.error('[Generative] Erro ao gerar variação:', err);
     const statusEl = document.getElementById('generativeStatus');
     if (statusEl) statusEl.textContent = 'Erro ao gerar';

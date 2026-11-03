@@ -16,14 +16,12 @@ export async function activate() {
   
   startTimer();
   renderPomodoroUI();
-  console.log('[Pomodoro] Modo ativado');
-}
+  }
 
 export function deactivate() {
   state.pomodoro.enabled = false;
   stopTimer();
-  console.log('[Pomodoro] Modo desativado');
-}
+  }
 
 export function startTimer() {
   if (timerInterval) clearInterval(timerInterval);

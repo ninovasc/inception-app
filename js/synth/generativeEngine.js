@@ -18,15 +18,12 @@ class GenerativeEngine {
     if (this.isLoaded || this.isLoading) return this.isLoaded;
     
     this.isLoading = true;
-    console.log('[GenerativeEngine] Carregando modelo:', modelUrl);
-    
     try {
       // Tenta carregar via TFLite Web (tflite-web ou @tensorflow/tfjs-tflite)
       // Por enquanto, usa implementação fallback procedural
       await this._loadFallbackModel();
       this.isLoaded = true;
       this.isLoading = false;
-      console.log('[GenerativeEngine] Modelo carregado com sucesso (fallback procedural)');
       return true;
     } catch (err) {
       console.error('[GenerativeEngine] Erro ao carregar modelo:', err);
@@ -59,7 +56,6 @@ class GenerativeEngine {
     }
     
     if (!this.isLoaded) {
-      console.warn('[GenerativeEngine] Modelo não carregado, retornando parâmetros originais');
       return this._emptyOutput();
     }
     

@@ -32,8 +32,9 @@ export function updateModeSelector() {
 }
 
 // Handler global para troca de modo
-window.setMode = function(modeId) {
-  import('../modes/modeManager.js').then(({ switchMode }) => switchMode(modeId));
+window.setMode = async function(modeId) {
+  const { switchMode } = await import('../modes/modeManager.js');
+  switchMode(modeId);
 };
 
 // Inicializa o seletor e insere no painel apropriado

@@ -22,8 +22,6 @@ import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
 
 window.__lucidModes = LUCID_MODES;
 
-console.log('[App] Module loaded, state:', !!state, 'currentMode:', state?.currentMode);
-
 // Expose to global scope for inline handlers
 Object.assign(window, {
   initAudio: audio.initAudio,
@@ -96,11 +94,12 @@ Object.assign(window, {
   updateActiveTriggerDisplay,
   initCommonUI
 });
-console.log('[App] window.state exposed:', !!window.state, 'currentMode:', window.state?.currentMode);
-
 // Debug: expose function to check module's state variable
 window.__getAppState = () => state;
-window.__getAppStateModule = () => import('./state.js').then(m => m.state);
+window.__getAppStateModule = async () => {
+  const m = await import('./state.js');
+  return m.state;
+};
 
 // Ao iniciar o sonho, ativa as mecânicas padrão (permissões exigem gesto).
 const baseToggleMasterPlay = audio.toggleMasterPlay;
@@ -160,8 +159,7 @@ window.startCurrentMode = function() {
   const statusEl = document.getElementById('topStatus');
   if (statusEl) statusEl.textContent = 'SONHANDO';
   
-  console.log('[App] Modo iniciado:', state.currentMode);
-};
+  };
 
 window.getCurrentMode = function() {
   return state.currentMode;
@@ -219,8 +217,9 @@ window.cancelSleepAlarm = function() {
   cancelSleepAlarm();
 };
 
-window.testSleepAlarm = function() {
-  import('./modes/sleepMode.js').then(({ playAlarmSound }) => playAlarmSound());
+window.testSleepAlarm = async function() {
+  const { playAlarmSound } = await import('./modes/sleepMode.js');
+  playAlarmSound();
 };
 
 // Service worker

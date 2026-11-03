@@ -30,14 +30,12 @@ export function activate() {
   // Renderiza UI
   renderSleepUI();
   
-  console.log('[Sleep] Modo ativado');
-}
+  }
 
 export function deactivate() {
   state.sleep.enabled = false;
   cancelAlarm();
-  console.log('[Sleep] Modo desativado');
-}
+  }
 
 function scheduleAlarm() {
   if (alarmTimer) clearTimeout(alarmTimer);
@@ -58,8 +56,6 @@ function scheduleAlarm() {
   const wakeDate = new Date(alarmDate.getTime() - wakeWindowMinutes * 60 * 1000);
   const msUntilWake = wakeDate.getTime() - Date.now();
   const msUntilAlarm = alarmDate.getTime() - Date.now();
-  
-  console.log(`[Sleep] Alarme agendado para ${alarmTime}, janela de despertar em ${msUntilWake}ms`);
   
   // Timer para iniciar fase de despertar
   if (msUntilWake > 0) {
@@ -95,8 +91,6 @@ export function cancelAlarm() {
 function startWakePhase() {
   state.sleep.isWaking = true;
   const { wakeWorldIndex } = state.sleep;
-  
-  console.log('[Sleep] Iniciando fase de despertar');
   
   // Transição suave para mundo de despertar
   if (state.currentLevel !== state.sleep.wakeWorldIndex) {
@@ -138,8 +132,6 @@ function startWakeFadeIn() {
 }
 
 function triggerAlarm() {
-  console.log('[Sleep] Alarme disparado!');
-  
   // Toca som de alarme suave (synth ascendente)
   playAlarmSound();
   
@@ -149,10 +141,11 @@ function triggerAlarm() {
   }
   
   // Para o modo sono após alarme
-  setTimeout(() => {
+  setTimeout(async () => {
     deactivate();
     // Volta para modo narrativo ou livre
-    import('./modeManager.js').then(({ switchMode }) => switchMode('narrative'));
+    const { switchMode } = await import('./modeManager.js');
+    switchMode('narrative');
   }, 60000); // 1 minuto de alarme
 }
 

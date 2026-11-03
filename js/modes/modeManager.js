@@ -44,13 +44,11 @@ export function switchMode(modeId) {
       updateWorldUI();
       updateModeSpecificUI('');
       
-      console.log(`[ModeManager] Modo parado: ${prevMode} → nenhum`);
-    }
+      }
     return true;
   }
   
   if (!MODES.find(m => m.id === modeId)) {
-    console.warn(`Modo desconhecido: ${modeId}`);
     return false;
   }
   
@@ -76,7 +74,6 @@ export function switchMode(modeId) {
   // Atualiza UI específica do modo
   updateModeSpecificUI(modeId);
   
-  console.log(`[ModeManager] Modo alterado: ${prevMode} → ${modeId}`);
   return true;
 }
 
