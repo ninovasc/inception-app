@@ -29,7 +29,7 @@ export const WORLD_COUNT = WORLD_NAMES.length; // 13
 
 // Presets legados (v2.x) — índices 0–4. Mantidos para compatibilidade de seeds antigas.
 // NÃO são atribuídos a mundos por padrão (WORLD_SYNTH usa 5–17).
-export const LEGACY_SYNTH_PRESETS = [
+const LEGACY_SYNTH_PRESETS = [
   { name: 'Zimmer Ambient', freqs: [36.71, 73.42, 110.0, 146.83], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.22, 0.14, 0.08, 0.06], lfo: 0 },
   { name: 'Brass Drone',    freqs: [55.0, 110.0, 164.81, 220.0],  types: ['triangle', 'sawtooth', 'triangle', 'sine'], gains: [0.18, 0.06, 0.09, 0.05], lfo: 0.15 },
   { name: 'Sub Limbo',      freqs: [32.70, 49.00, 65.41, 98.00],  types: ['sine', 'triangle', 'sine', 'sine'], gains: [0.28, 0.15, 0.10, 0.05], lfo: 0.08 },
@@ -40,7 +40,7 @@ export const LEGACY_SYNTH_PRESETS = [
 // 13 presets novos (um por mundo, índices 5–17). Campos opcionais consumidos pelo motor:
 // pluck {gain,bpm} | pulse {gain,bpm,offbeat} | noise {gain,freq} |
 // drift (profundidade do wobble) | binaural (ΔHz) | bpm (tempo do mundo)
-export const WORLD_SYNTH_PRESETS = [
+const WORLD_SYNTH_PRESETS = [
   { name: 'Half Dream Pad',    freqs: [55.0, 110.0, 164.81, 220.0],  types: ['sine', 'triangle', 'sine', 'sine'], gains: [0.20, 0.12, 0.08, 0.05], lfo: 0.05, noise: { gain: 0.015, freq: 400 }, drift: 0.0010 },
   { name: 'Architect Pluck',   freqs: [65.41, 130.81, 196.0, 261.63], types: ['sine', 'triangle', 'sine', 'triangle'], gains: [0.18, 0.10, 0.07, 0.05], lfo: 0.10, pluck: { gain: 0.10, bpm: 72 }, bpm: 72 },
   { name: 'Collapse Drone',    freqs: [36.71, 73.42, 92.50, 110.0],  types: ['sine', 'sine', 'sawtooth', 'triangle'], gains: [0.26, 0.14, 0.05, 0.07], lfo: 0.06, pulse: { gain: 0.10, bpm: 60 }, noise: { gain: 0.020, freq: 150 }, drift: 0.0040, bpm: 60 },
@@ -133,7 +133,7 @@ export const TIME_REWARD_SEC = 75;            // duração da passagem por Time
 
 // Ordem curada em índices de mundo (referência/documentação; a avaliação
 // real usa a ordem de TRIGGER_DEFS, pois os destinos são remapeáveis).
-export const CURATED_PRIORITY = [12, 5, 10, 2, 6, 3, 7, 8, 4, 1, 9, 11, 0];
+const CURATED_PRIORITY = [12, 5, 10, 2, 6, 3, 7, 8, 4, 1, 9, 11, 0];
 
 // Migração v2 → v3: mundo antigo (índice 0–5) → mundo novo (0–12).
 // Realidade→HRD, Chuva→Old Souls, Hotel→DWaD, Fortaleza→DIC,
@@ -190,7 +190,7 @@ export const CHORD_PROGRESSIONS = [
 // ============================================================
 
 // Sínteses específicas para Pomodoro
-export const POMODORO_SYNTH_PRESETS = [
+const POMODORO_SYNTH_PRESETS = [
   // 0 — Atividade (Focus): Beta/Gamma, pulse ritmado, binaural 40Hz
   { name: 'Focus Pulse', freqs: [180, 200, 400, 800], types: ['square', 'sawtooth', 'square', 'sine'], gains: [0.08, 0.06, 0.04, 0.03], pulse: { gain: 0.12, bpm: 60, offbeat: false }, binaural: 40, drift: 0.0005, bpm: 60 },
   // 1 — Descanso (Break): Alpha/Theta, drift lento, pads suaves

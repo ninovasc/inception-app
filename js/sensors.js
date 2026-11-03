@@ -406,7 +406,7 @@ export function stopMicPitchShift() {
   }
 }
 
-function setSensorStatus(msg) {
+export function setSensorStatus(msg) {
   const el = document.getElementById('sensorStatus');
   if (el) el.textContent = msg;
 }

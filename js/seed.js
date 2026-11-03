@@ -1,4 +1,5 @@
 import { state } from './state.js';
+import { setSensorStatus } from './sensors.js';
 import {
   normalizeSourceType,
   normalizeWorldTriggers,
@@ -410,7 +411,4 @@ export async function applySeed() {
   }
 }
 
-function setSensorStatus(msg) {
-  const el = document.getElementById('sensorStatus');
-  if (el) el.textContent = msg;
-}
+

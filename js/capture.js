@@ -1,4 +1,5 @@
 import { state } from './state.js';
+import { setSensorStatus } from './sensors.js';
 
 let captureStream = null;
 let captureSource = null;
@@ -74,3 +75,5 @@ function setSensorStatus(msg) {
   const cap = document.getElementById('capStatus');
   if (cap) cap.textContent = msg;
 }
+// Re-export for local use with capStatus support
+export { setSensorStatus };

@@ -1,5 +1,6 @@
 import { state } from './state.js';
 import { WORLD_NAMES } from './config.js';
+import { setSensorStatus } from './sensors.js';
 
 const WAITING_FOR_TRAIN_IDX = WORLD_NAMES.indexOf('Waiting for a Train'); // 9
 const BINAURAL_PULSE_IDX = 4; // Binaural Pulse preset index
@@ -361,9 +362,4 @@ export async function activateDreamDefaults() {
   if (state.isMemCatcherOn) await startMemoryCatcher();
   if (state.isDeprivationWatchOn) await startDeprivationWatch();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed(true);
-}
-
-function setSensorStatus(msg) {
-  const el = document.getElementById('sensorStatus');
-  if (el) el.textContent = msg;
 }
