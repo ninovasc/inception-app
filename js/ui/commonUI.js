@@ -1,6 +1,7 @@
 import { state } from '../state.js';
 import { t } from '../i18n.js';
 import { SYNTH_PRESETS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES } from '../config.js';
+import { getCurrentModeWorlds } from '../../modes/modeManager.js';
 
 // ============================================================
 // UI Base Comum - Funções compartilhadas entre todos os modos
@@ -110,42 +111,7 @@ export function syncSlidersFromState() {
   }
 }
 
-// Obtém mundos disponíveis para o modo atual
-export function getCurrentModeWorlds() {
-  switch (state.currentMode) {
-    case 'narrative':
-      return WORLD_NAMES;
-    case 'pomodoro':
-      return ['Atividade', 'Descanso'];
-    case 'sleep':
-      return ['Delta Profundo', 'Theta', 'Alpha', 'Beta 16Hz', 'Beta 20Hz', 'Gamma 40Hz', 'Ruído Branco', 'Ruído Rosa'];
-    case 'free':
-      return WORLD_NAMES;
-    default:
-      return [];
-  }
-}
-
 // Atualiza display do gatilho ativo
-export function updateActiveTriggerDisplay() {
-  const triggerActive = document.getElementById('triggerActive');
-  if (!triggerActive) return;
-  
-  const { worldTriggers } = state;
-  const TRIGGER_DEFS = [
-    { key: 'bonusRain', label: 'Chuva Intensa', icon: '🌧️' },
-    { key: 'clap', label: 'Duas Palmas', icon: '👏' },
-    { key: 'inverted', label: 'Invertido', icon: '🔄' },
-    { key: 'freefall', label: 'Queda Livre', icon: '💥' },
-    { key: 'motion', label: 'Movimento', icon: '🏃' },
-    { key: 'vehicle', label: 'Veículo', icon: '🚗' },
-    { key: 'sessionStart', label: 'Início Sessão', icon: '⏱️' },
-    { key: 'silence', label: 'Silêncio', icon: '🤫' },
-    { key: 'rain', label: 'Chuva', icon: '🌧️' },
-    { key: 'flat', label: 'Aparelho Apoiado', icon: '📱' },
-    { key: 'night', label: 'Noite', icon: '🌙' },
-    { key: 'sessionLong', label: 'Sessão Longa', icon: '🏆' },
-    { key: 'fallback', label: 'Sem Gatilho', icon: '🏠' }
   ];
   
   const t = window.t || ((k) => k);

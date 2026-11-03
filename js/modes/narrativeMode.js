@@ -100,16 +100,6 @@ export function evaluateAutoMode() {
   return w;
 }
 
-function syncAutoUI() {
-  const btn = document.getElementById('btnAutoMode');
-  const sub = document.getElementById('autoSub');
-  if (btn) {
-    btn.classList.toggle('active', state.autoMode);
-    btn.setAttribute('aria-pressed', state.autoMode ? 'true' : 'false');
-  }
-  if (sub) sub.textContent = state.autoMode ? 'ON' : 'OFF';
-}
-
 export function startAutoMode() {
   state.autoMode = true;
   if (!autoInterval) {

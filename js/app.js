@@ -11,14 +11,15 @@ import * as cap from './capture.js';
 
 import { SCREENSAVER_SVG } from './screensaver-svg.js';
 import { initI18n, t, setLang } from './i18n.js';
-import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode, updateModeSpecificUI, modeModules } from './modes/modeManager.js';
+import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode, updateModeSpecificUI, modeModules, updateTriggerIndicator, syncAutoUI } from './modes/modeManager.js';
 import { initModeSelector } from './ui/modeSelector.js';
-import { createPomodoroUI, updatePomodoroUI, updateTimerDisplay } from './ui/pomodoroUI.js';
-import { createSleepUI, updateSleepUI } from './ui/sleepUI.js';
+import { createPomodoroUI, updatePomodoroUI } from './ui/pomodoroUI.js';
+import { updateTimerDisplay } from './modes/modeManager.js';
+import { createSleepUI } from './ui/sleepUI.js';
 import { createNarrativeUI, updateNarrativeUI } from './ui/narrativeUI.js';
 import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
-import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList, updateActiveTriggerDisplay } from './ui/commonUI.js';
-import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
+import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
+import { updateSleepUI, updateAlarmTimerDisplay } from './modes/modeManager.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -91,7 +92,9 @@ Object.assign(window, {
   renderVoicePresets,
   renderSourceList,
   renderTriggerList: () => {},
-  updateActiveTriggerDisplay,
+  updateTriggerIndicator,
+  initCommonUI,
+  syncAutoUI
   initCommonUI
 });
 // Debug: expose function to check module's state variable
@@ -282,19 +285,6 @@ function triggerOptions(current, allowOff) {
   ).join('');
 }
 
-// Indicador do gatilho ativo (atualizado pelo automode a cada avaliação).
-function updateTriggerIndicator() {
-  const el = document.getElementById('triggerActive');
-  if (!el) return;
-  const d = getActiveTrigger();
-  if (d && d.key) {
-    const def = TRIGGER_DEFS.find(x => x.key === d.key);
-    el.textContent = t('trigger.active', { label: t(`trigger.label.${def.key}`), world: WORLD_NAMES[d.world] });
-  } else {
-    el.textContent = t('trigger.none');
-  }
-}
-window.updateTriggerIndicator = updateTriggerIndicator;
 
 function renderTriggerList() {
   const container = document.getElementById('triggerList');

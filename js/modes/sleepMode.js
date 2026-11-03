@@ -216,61 +216,6 @@ function renderSleepUI() {
   }
 }
 
-function updateAlarmTimerDisplay() {
-  const timerEl = document.getElementById('sleepAlarmTimer');
-  if (!timerEl) return;
-  
-  const { alarmTime, wakeWindowMinutes } = state.sleep;
-  const [hours, minutes] = alarmTime.split(':').map(Number);
-  
-  const now = new Date();
-  let alarmDate = new Date();
-  alarmDate.setHours(hours, minutes, 0, 0);
-  
-  if (alarmDate <= new Date()) {
-    alarmDate.setDate(alarmDate.getDate() + 1);
-  }
-  
-  const diffMs = alarmDate.getTime() - Date.now();
-  if (diffMs <= 0) {
-    timerEl.textContent = 'Despertando...';
-    return;
-  }
-  
-  const totalMinutes = Math.ceil(diffMs / 60000);
-  const hoursLeft = Math.floor(totalMinutes / 60);
-  const minsLeft = totalMinutes % 60;
-  
-  let label = '';
-  if (state.sleep.isWaking) {
-    label = 'Despertando...';
-  } else if (totalMinutes <= wakeWindowMinutes) {
-    label = 'Janela de despertar';
-  } else {
-    label = 'Até alarme';
-  }
-  
-  document.getElementById('sleepAlarmTimer').textContent = 
-    `${label}: ${String(hoursLeft).padStart(2, '0')}:${String(minsLeft).padStart(2, '0')}`;
-}
-
-export function updateSleepUI() {
-  // Atualiza seletor de mundo
-  const worldSelect = document.getElementById('sleepWorldSelect');
-  if (worldSelect) {
-    worldSelect.value = state.sleep.currentWorld;
-  }
-  
-  // Atualiza time picker
-  const alarmTimeInput = document.getElementById('sleepAlarmTime');
-  if (alarmTimeInput) {
-    alarmTimeInput.value = state.sleep.alarmTime;
-  }
-  
-  // Atualiza display do timer
-  updateAlarmTimerDisplay();
-}
-
 // Handlers globais
 window.setSleepAlarmTime = function(timeStr) {
   setAlarmTime(timeStr);
