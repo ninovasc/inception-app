@@ -16,12 +16,12 @@ export async function activate() {
   
   startTimer();
   renderPomodoroUI();
-  }
+}
 
 export function deactivate() {
   state.pomodoro.enabled = false;
   stopTimer();
-  }
+}
 
 export function startTimer() {
   if (timerInterval) clearInterval(timerInterval);
@@ -44,6 +44,24 @@ export function startTimer() {
   }, 1000);
   
   updateTimerDisplay();
+}
+
+function updateTimerDisplay() {
+  const timerEl = document.getElementById('pomodoroTimer');
+  if (!timerEl) return;
+  
+  const mins = Math.floor(state.pomodoro.timeRemaining / 60);
+  const secs = state.pomodoro.timeRemaining % 60;
+  timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  
+  // Atualiza progress ring se existir
+  const progressRing = document.getElementById('pomodoroProgressRing');
+  if (progressRing) {
+    const progress = 1 - (state.pomodoro.timeRemaining / state.pomodoro.totalTime);
+    const circumference = 2 * Math.PI * 45; // r=45
+    const offset = circumference * (1 - progress);
+    progressRing.style.strokeDashoffset = offset;
+  }
 }
 
 export function stopTimer() {
