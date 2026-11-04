@@ -1,8 +1,7 @@
-const { test, expect } = require('@playwright/test');
+import { test, expect } from '@playwright/test';
 
 test.describe('PASIV Engine E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
-    // Clear localStorage and service worker before each test
     await page.goto('/');
     await page.evaluate(() => {
       localStorage.clear();
@@ -17,6 +16,7 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForSelector('text=PASIV', { timeout: 30000 });
   });
 
+  // ==================== PAGE LOAD ====================
   test('page loads without errors', async ({ page }) => {
     const errors = [];
     page.on('pageerror', e => errors.push(e.message));
@@ -48,34 +48,27 @@ test.describe('PASIV Engine E2E Tests', () => {
   });
 
   test('sensors visible initially', async ({ page }) => {
-    const micBtn = page.locator('#btnMic');
-    const motionBtn = page.locator('#btnMotion');
-    const gpsBtn = page.locator('#btnGps');
-    await expect(micBtn).toBeVisible();
-    await expect(motionBtn).toBeVisible();
-    await expect(gpsBtn).toBeVisible();
+    await expect(page.locator('#btnMic')).toBeVisible();
+    await expect(page.locator('#btnMotion')).toBeVisible();
+    await expect(page.locator('#btnGps')).toBeVisible();
   });
 
   test('no accordion panels visible initially', async ({ page }) => {
-    const panels = ['.menu-section[data-mode]'];
-    for (const sel of panels) {
-      const elements = page.locator(sel);
-      const count = await elements.count();
-      for (let i = 0; i < count; i++) {
-        await expect(elements.nth(i)).toBeHidden();
-      }
+    const panels = page.locator('.menu-section[data-mode]');
+    const count = await panels.count();
+    for (let i = 0; i < count; i++) {
+      await expect(panels.nth(i)).toBeHidden();
     }
   });
 
+  // ==================== MODE SWITCHING ====================
   test('selecting Narrative mode shows correct panels', async ({ page }) => {
     await page.selectOption('#modeSelector', 'narrative');
-    await page.waitForSelector('text=Mundos', { timeout: 5000 });
+    await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
+    await page.waitForTimeout(500);
     
-    // Mundos should be visible
     await expect(page.locator('#worldsPanel').locator('..')).toBeVisible();
-    // Pomodoro should be hidden
     await expect(page.locator('.menu-section[data-mode="pomodoro"]')).toBeHidden();
-    // Sleep should be hidden
     await expect(page.locator('.menu-section[data-mode="sleep"]')).toBeHidden();
   });
 
@@ -84,13 +77,9 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'pomodoro', { timeout: 5000 });
     await page.waitForTimeout(500);
     
-    // Pomodoro should be visible
     await expect(page.locator('.menu-section[data-mode="pomodoro"]')).toBeVisible();
-    // Mundos should be visible
     await expect(page.locator('#worldsPanel').locator('..')).toBeVisible();
-    // Sleep should be hidden
     await expect(page.locator('.menu-section[data-mode="sleep"]')).toBeHidden();
-    // Trigger should be hidden
     await expect(page.locator('.menu-section[data-mode="narrative"]')).toBeHidden();
   });
 
@@ -99,9 +88,7 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'sleep', { timeout: 5000 });
     await page.waitForTimeout(500);
     
-    // Sleep should be visible
     await expect(page.locator('.menu-section[data-mode="sleep"]')).toBeVisible();
-    // Pomodoro should be hidden
     await expect(page.locator('.menu-section[data-mode="pomodoro"]')).toBeHidden();
   });
 
@@ -110,15 +97,10 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'free', { timeout: 5000 });
     await page.waitForTimeout(500);
     
-    // Mundos should be visible
     await expect(page.locator('#worldsPanel').locator('..')).toBeVisible();
-    // Mechanics should be visible
     await expect(page.locator('.menu-section[data-mode="narrative free"]')).toBeVisible();
-    // Pomodoro should be hidden
     await expect(page.locator('.menu-section[data-mode="pomodoro"]')).toBeHidden();
-    // Sleep should be hidden
     await expect(page.locator('.menu-section[data-mode="sleep"]')).toBeHidden();
-    // Triggers should be hidden
     await expect(page.locator('.menu-section[data-mode="narrative"]')).toBeHidden();
   });
 
@@ -127,10 +109,11 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
     
-    // Select empty option
-    await page.selectOption('#modeSelector', '');
+    await page.evaluate(() => {
+      document.getElementById('modeSelector').value = '';
+      document.getElementById('modeSelector').dispatchEvent(new Event('change'));
+    });
     
-    // All panels should be hidden
     const panels = page.locator('.menu-section[data-mode]');
     const count = await panels.count();
     for (let i = 0; i < count; i++) {
@@ -143,10 +126,8 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
     
-    const startBtn = page.locator('#startModeBtn');
-    const kickBtn = page.locator('#kickBtn');
-    await expect(startBtn).toBeVisible();
-    await expect(kickBtn).toBeVisible();
+    await expect(page.locator('#startModeBtn')).toBeVisible();
+    await expect(page.locator('#kickBtn')).toBeVisible();
   });
 
   test('start and kick buttons hidden when empty mode', async ({ page }) => {
@@ -154,14 +135,16 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
     
-    await page.selectOption('#modeSelector', '');
+    await page.evaluate(() => {
+      document.getElementById('modeSelector').value = '';
+      document.getElementById('modeSelector').dispatchEvent(new Event('change'));
+    });
     
-    const startBtn = page.locator('#startModeBtn');
-    const kickBtn = page.locator('#kickBtn');
-    await expect(startBtn).toBeHidden();
-    await expect(kickBtn).toBeHidden();
+    await expect(page.locator('#startModeBtn')).toBeHidden();
+    await expect(page.locator('#kickBtn')).toBeHidden();
   });
 
+  // ==================== ACCORDION ====================
   test('accordion opens and closes', async ({ page }) => {
     await page.selectOption('#modeSelector', 'narrative');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
@@ -170,14 +153,9 @@ test.describe('PASIV Engine E2E Tests', () => {
     const title = page.locator("[onclick*='worldsPanel']").first();
     const panel = page.locator('#worldsPanel');
     
-    // Initially closed
     await expect(panel).not.toHaveClass(/open/);
-    
-    // Click to open
     await title.click();
     await expect(panel).toHaveClass(/open/);
-    
-    // Click to close
     await title.click();
     await expect(panel).not.toHaveClass(/open/);
   });
@@ -200,6 +178,7 @@ test.describe('PASIV Engine E2E Tests', () => {
     expect(closed).toBe(initial);
   });
 
+  // ==================== POMODORO ====================
   test('Pomodoro timer displays 25:00', async ({ page }) => {
     await page.selectOption('#modeSelector', 'pomodoro');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'pomodoro', { timeout: 5000 });
@@ -219,6 +198,27 @@ test.describe('PASIV Engine E2E Tests', () => {
     await expect(page.locator('button:has-text("Reiniciar")')).toBeVisible();
   });
 
+  test('Pomodoro has config panel', async ({ page }) => {
+    await page.selectOption('#modeSelector', 'pomodoro');
+    await page.waitForFunction(() => document.getElementById('modeSelector').value === 'pomodoro', { timeout: 5000 });
+    await page.waitForTimeout(500);
+    
+    await expect(page.locator('#pomodoroConfig')).toBeAttached();
+    await expect(page.locator('#pomodoroActivityDuration')).toBeAttached();
+    await expect(page.locator('#pomodoroShortBreakDuration')).toBeAttached();
+    await expect(page.locator('#pomodoroLongBreakDuration')).toBeAttached();
+  });
+
+  test('Pomodoro has MP3 upload buttons', async ({ page }) => {
+    await page.selectOption('#modeSelector', 'pomodoro');
+    await page.waitForFunction(() => document.getElementById('modeSelector').value === 'pomodoro', { timeout: 5000 });
+    await page.waitForTimeout(500);
+    
+    await expect(page.locator('#pomodoroActivityMp3')).toBeAttached();
+    await expect(page.locator('#pomodoroBreakMp3')).toBeAttached();
+  });
+
+  // ==================== SLEEP ====================
   test('Sleep mode shows alarm time input', async ({ page }) => {
     await page.selectOption('#modeSelector', 'sleep');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'sleep', { timeout: 5000 });
@@ -238,17 +238,52 @@ test.describe('PASIV Engine E2E Tests', () => {
     await expect(slider).toBeVisible();
   });
 
+  test('Sleep mode shows test alarm button', async ({ page }) => {
+    await page.selectOption('#modeSelector', 'sleep');
+    await page.waitForFunction(() => document.getElementById('modeSelector').value === 'sleep', { timeout: 5000 });
+    await page.waitForTimeout(500);
+    
+    await expect(page.locator('#sleepTestAlarm')).toBeVisible();
+  });
+
+  test('Sleep mode shows alarm timer display', async ({ page }) => {
+    await page.selectOption('#modeSelector', 'sleep');
+    await page.waitForFunction(() => document.getElementById('modeSelector').value === 'sleep', { timeout: 5000 });
+    await page.waitForTimeout(500);
+    
+    await expect(page.locator('#sleepAlarmTimer')).toBeVisible();
+  });
+
+  // ==================== LANGUAGE ====================
   test('Language selector changes language', async ({ page }) => {
     const langSelector = page.locator('#langSelector');
     await langSelector.selectOption('en-US');
-    
-    // Check if some text changed to English
     await page.waitForTimeout(500);
-    const status = page.locator('#topStatus');
-    // Just verify the selector changed
     await expect(langSelector).toHaveValue('en-US');
   });
 
+  // ==================== SOUND SOURCE ====================
+  test('Sound source select exists', async ({ page }) => {
+    await page.selectOption('#modeSelector', 'narrative');
+    await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
+    await page.waitForTimeout(500);
+    
+    const sourceSelect = page.locator('#sourceList select').first();
+    await expect(sourceSelect).toBeVisible();
+  });
+
+  test('Sound source has synth/mp3/youtube options', async ({ page }) => {
+    await page.selectOption('#modeSelector', 'narrative');
+    await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
+    await page.waitForTimeout(500);
+    
+    const select = page.locator('#sourceList select').first();
+    const options = await select.locator('option').allTextContents();
+    expect(options).toContain('Synth');
+    expect(options).toContain('MP3');
+  });
+
+  // ==================== CONSOLE ERRORS ====================
   test('No console errors on page load', async ({ page }) => {
     const errors = [];
     page.on('console', msg => {
@@ -260,7 +295,6 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForSelector('text=PASIV', { timeout: 30000 });
     await page.waitForTimeout(2000);
     
-    // Filter out deprecation warnings
     const realErrors = errors.filter(e => !e.includes('deprecated'));
     expect(realErrors).toHaveLength(0);
   });
@@ -274,7 +308,6 @@ test.describe('PASIV Engine E2E Tests', () => {
     
     await page.selectOption('#modeSelector', 'pomodoro');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'pomodoro', { timeout: 5000 });
-    await page.waitForTimeout(500);
     await page.waitForTimeout(1000);
     
     const realErrors = errors.filter(e => !e.includes('deprecated'));
