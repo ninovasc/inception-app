@@ -276,51 +276,6 @@ window.applyGenerativeSeed = function() {
 };
 
 // Inicializa UI do generativo
-export function createGenerativeUI() {
-  const container = document.createElement('div');
-  container.id = 'generativeUI';
-  container.style.cssText = 'display: none;';
-  
-  container.innerHTML = `
-    <div style="margin-bottom: 12px;">
-      <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:12px;">
-        <input type="checkbox" id="generativeEnabled" onchange="toggleGenerative(this.checked)" style="width:18px; height:18px; accent-color:#fff;">
-        <span style="font-size:0.7rem; color:#fff; font-family:monospace; text-transform:uppercase; letter-spacing:1px;">IA Generativa</span>
-        <span id="generativeBadge" style="margin-left:auto; font-size:0.55rem; color:var(--muted); font-family:monospace; background:#1a1a1a; padding:2px 6px; border-radius:4px;">OFF</span>
-      </label>
-      
-      <div style="font-size:0.6rem; color:var(--muted); font-family:monospace; margin-bottom:12px;">Gera variações infinitas e musicais do sintetizador atual</div>
-      
-      <div class="slider-group" style="margin-bottom:10px;">
-        <div class="slider-header"><span>Variação</span><span id="generativeVariationVal">50%</span></div>
-        <input type="range" id="generativeVariation" min="0" max="100" step="1" value="50" oninput="updateGenerativeVariation(this.value)">
-      </div>
-      
-      <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px;">
-        <button id="generativeNew" class="menu-item" style="flex:1; max-width:120px; justify-content:center;" onclick="generateNewVariation()">
-          <span>Nova Variação</span>
-        </button>
-        <button id="generativeSave" class="menu-item" style="flex:1; max-width:120px; justify-content:center;" onclick="saveGenerativeVariation()">
-          <span>Salvar</span>
-        </button>
-        <button id="generativeReset" class="menu-item" style="flex:1; max-width:120px; justify-content:center;" onclick="resetGenerative()">
-          <span>Reset</span>
-        </button>
-      </div>
-      
-      <div id="generativeStatus" style="margin-top:8px; font-size:0.6rem; color:var(--muted); font-family:monospace; text-align:center; min-height:1.2em;">
-        Pronto para gerar
-      </div>
-      
-      <div style="margin-top:12px; display:flex; gap:6px;">
-        <input type="text" id="generativeSeedInput" placeholder="Seed (opcional)" style="flex:1; background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.7rem;border-radius:4px;font-family:monospace;width:100%;">
-        <button class="menu-item" style="padding:0 10px; font-size:0.7rem;" onclick="applyGenerativeSeed()">Aplicar</button>
-      </div>
-    </div>
-  `;
-  
-  return container;
-}
 
 // Inicializa UI do generativo
 export function initGenerativeUI() {
