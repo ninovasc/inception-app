@@ -12,7 +12,7 @@ export function renderWorldSelect() {
   const sel = document.getElementById('worldSelect');
   if (!sel) return;
   
-  const worlds = getCurrentModeWorlds();
+  const worlds = getCurrentModeWorlds(state.currentMode);
   const currentLevel = state.currentLevel;
   
   sel.innerHTML = worlds.map((w, i) =>
@@ -25,7 +25,7 @@ export function renderVoicePresets() {
   const sel = document.getElementById('voicePresetSelect');
   if (!sel) return;
   
-  const worlds = getCurrentModeWorlds();
+  const worlds = getCurrentModeWorlds(state.currentMode);
   const currentWorld = state.currentLevel;
   
   sel.innerHTML = [
@@ -41,7 +41,7 @@ export function renderSourceList() {
   const container = document.getElementById('sourceList');
   if (!container) return;
   
-  const worlds = getCurrentModeWorlds();
+  const worlds = getCurrentModeWorlds(state.currentMode);
   let html = '';
   
   for (let i = 0; i < worlds.length; i++) {
