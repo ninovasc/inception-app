@@ -43,8 +43,7 @@ export function switchMode(modeId) {
       updateModeUI();
       updateWorldUI();
       updateModeSpecificUI('');
-      
-      }
+    }
     return true;
   }
   

@@ -149,7 +149,7 @@ async function getNewVariation() {
 
 // Determina mood baseado no mundo atual
 function getCurrentMood() {
-  const { state } = await import('../state.js');
+  const state = window.state || {};
   const moodMap = {
     0: 'neutral',    // Half Remembered Dream
     1: 'energy',     // We Built Our Own World

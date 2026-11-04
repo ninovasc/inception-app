@@ -131,11 +131,12 @@ window.toggleMasterPlay = function() {
 // ============================================================
 window.setMode = function(modeId) {
   if (!modeId) {
-    // Volta para "sem modo" - esconde botões
+    // Volta para "sem modo" - esconde botões e painéis
     const startBtn = document.getElementById('startModeBtn');
     if (startBtn) startBtn.style.display = 'none';
     const kickBtn = document.getElementById('kickBtn');
     if (kickBtn) kickBtn.style.display = 'none';
+    switchMode(''); // Call switchMode to update panel visibility
     return;
   }
   
