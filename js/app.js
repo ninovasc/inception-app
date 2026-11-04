@@ -21,6 +21,15 @@ import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
 import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
 import { updateSleepUI, updateAlarmTimerDisplay } from './modes/modeManager.js';
 import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
+import * as pomodoroMode from './modes/pomodoroMode.js';
+import { cancelAlarm as cancelSleepAlarm, setAlarmTime as setSleepAlarmTime } from './modes/sleepMode.js';
+
+// Import pomodoro mode functions
+const startPomodoroTimer = pomodoroMode.startTimer;
+const pausePomodoroTimer = pomodoroMode.pauseTimer;
+const resumePomodoroTimer = pomodoroMode.resumeTimer;
+const skipPomodoroPhase = pomodoroMode.skipPhase;
+const resetPomodoroTimer = pomodoroMode.resetPomodoro;
 
 window.__lucidModes = LUCID_MODES;
 
