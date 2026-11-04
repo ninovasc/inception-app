@@ -163,10 +163,15 @@ function createImpulse(duration, decay) {
 }
 
 // Compatibilidade: o tipo de fonte agora é definido por mundo em worldSourceType.
-export function setSourceMode(mode) {
+export function setSourceMode(worldIdx, mode) {
+  if (worldIdx === undefined) {
+    // Backward compatibility: if called with just mode
+    mode = worldIdx;
+    worldIdx = state.currentLevel;
+  }
   const normalized = normalizeSourceType(mode);
   if (!state.worldSourceType) state.worldSourceType = Array(WORLD_NAMES.length).fill('synth');
-  state.worldSourceType[state.currentLevel] = normalized;
+  state.worldSourceType[worldIdx] = normalized;
   state.sourceMode = normalized;
   restartWorldAudio();
   if (typeof window.renderSourceList === 'function') window.renderSourceList();
