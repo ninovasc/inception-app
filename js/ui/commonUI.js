@@ -1,7 +1,7 @@
 import { state } from '../state.js';
 import { t } from '../i18n.js';
 import { SYNTH_PRESETS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES } from '../config.js';
-import { getCurrentModeWorlds } from '../../modes/modeManager.js';
+import { getCurrentModeWorlds } from '../config.js';
 
 // ============================================================
 // UI Base Comum - Funções compartilhadas entre todos os modos
@@ -111,30 +111,11 @@ export function syncSlidersFromState() {
   }
 }
 
-// Atualiza display do gatilho ativo
-  ];
-  
-  const t = window.t || ((k) => k);
-  
-  for (const def of TRIGGER_DEFS) {
-    const targetWorld = worldTriggers[def.key];
-    if (targetWorld === -1 || targetWorld === undefined) continue;
-    
-    const worldName = WORLD_NAMES?.[targetWorld] || `Mundo ${targetWorld}`;
-    triggerActive.textContent = `${t('trigger.active') || 'gatilho ativo'}: ${def.icon} ${t('trigger.label.' + def.key) || def.label} → ${worldName}`;
-    triggerActive.dataset.activeTrigger = def.key;
-    return;
-  }
-  
-  triggerActive.textContent = t('trigger.none') || 'gatilho ativo: nenhum';
-  triggerActive.dataset.activeTrigger = 'none';
-}
-
 // Função principal para inicializar UI comum
 export function initCommonUI() {
   renderWorldSelect();
   renderVoicePresets();
   renderSourceList();
   syncSlidersFromState();
-  updateActiveTriggerDisplay();
+  if (typeof window.updateTriggerIndicator === 'function') window.updateTriggerIndicator();
 }

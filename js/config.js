@@ -289,3 +289,19 @@ export const MODES = [
 export const DEFAULT_MODE = 'narrative';
 
 export const MODE_ORDER = ['narrative', 'pomodoro', 'sleep', 'free'];
+
+// Retorna mundos disponíveis para o modo atual
+export function getCurrentModeWorlds(currentMode) {
+  switch (currentMode) {
+    case 'narrative':
+      return WORLD_NAMES;
+    case 'pomodoro':
+      return POMODORO_WORLD_NAMES;
+    case 'sleep':
+      return SLEEP_WORLD_NAMES;
+    case 'free':
+      return WORLD_NAMES;
+    default:
+      return [];
+  }
+}

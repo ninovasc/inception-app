@@ -6,7 +6,7 @@ import * as sleepMode from './sleepMode.js';
 import { updateNarrativeUI } from '../ui/narrativeUI.js';
 import { updateFreeUI } from '../ui/freeUI.js';
 import { updatePomodoroUI } from '../ui/pomodoroUI.js';
-import { updateSleepUI } from '../ui/sleepUI.js';
+// updateSleepUI is now defined locally in modeManager.js
 
 export const modeModules = {
   narrative: narrativeMode,
@@ -178,22 +178,6 @@ export function updateWorldUI() {
   // Atualiza gatilhos se no modo narrativo
   if (state.currentMode === 'narrative' && typeof window.renderTriggerList === 'function') {
     window.renderTriggerList();
-  }
-}
-
-// Retorna mundos disponíveis para o modo atual
-export function getCurrentModeWorlds() {
-  switch (state.currentMode) {
-    case 'narrative':
-      return WORLD_NAMES;
-    case 'pomodoro':
-      return POMODORO_WORLD_NAMES;
-    case 'sleep':
-      return SLEEP_WORLD_NAMES;
-    case 'free':
-      return WORLD_NAMES;
-    default:
-      return [];
   }
 }
 

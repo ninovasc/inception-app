@@ -69,11 +69,8 @@ export function isCapturing() {
   return !!captureStream;
 }
 
-function setSensorStatus(msg) {
-  const el = document.getElementById('sensorStatus');
-  if (el) el.textContent = msg;
+// Wrapper that also updates capStatus element
+function updateCaptureStatus(msg) {
   const cap = document.getElementById('capStatus');
   if (cap) cap.textContent = msg;
 }
-// Re-export for local use with capStatus support
-export { setSensorStatus };

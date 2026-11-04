@@ -1,5 +1,5 @@
 import { state } from '../state.js';
-import { initCommonUI, updateActiveTriggerDisplay } from './commonUI.js';
+import { initCommonUI } from './commonUI.js';
 import { syncMechanicsUI } from '../mechanics.js';
 
 // ============================================================
@@ -19,7 +19,7 @@ export function updateNarrativeUI() {
   initCommonUI();
   
   // Específico do Narrativo
-  updateActiveTriggerDisplay();
+  if (typeof window.updateTriggerIndicator === 'function') window.updateTriggerIndicator();
   if (typeof syncMechanicsUI === 'function') syncMechanicsUI();
   
   // Renderiza lista de gatilhos

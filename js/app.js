@@ -20,8 +20,15 @@ import { createNarrativeUI, updateNarrativeUI } from './ui/narrativeUI.js';
 import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
 import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
 import { updateSleepUI, updateAlarmTimerDisplay } from './modes/modeManager.js';
+import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
 
 window.__lucidModes = LUCID_MODES;
+
+// App version for cache busting verification
+window.APP_VERSION = 18;
+
+// App version for cache busting verification
+console.log('[PASIV] App version:', window.APP_VERSION);
 
 // Expose to global scope for inline handlers
 Object.assign(window, {
@@ -95,7 +102,6 @@ Object.assign(window, {
   updateTriggerIndicator,
   initCommonUI,
   syncAutoUI
-  initCommonUI
 });
 // Debug: expose function to check module's state variable
 window.__getAppState = () => state;
