@@ -1,5 +1,5 @@
 import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType, TRIGGER_DEFS, WORLD_NAMES, WORLD_SYNTH, normalizeWorldTriggers, POMODORO_LEVELS, POMODORO_WORLD_NAMES, SLEEP_LEVELS, SLEEP_WORLD_NAMES, MODES, MODE_ORDER } from './config.js';
+import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType, WORLD_SYNTH, POMODORO_LEVELS, POMODORO_WORLD_NAMES, SLEEP_LEVELS, SLEEP_WORLD_NAMES, MODES, MODE_ORDER } from './config.js';
 import * as audio from './audio.js';
 import * as sensors from './sensors.js';
 import * as mechanics from './mechanics.js';
@@ -10,27 +10,21 @@ import * as yt from './youtube.js';
 import * as cap from './capture.js';
 
 import './screensaver.js';
+import './features/modeController.js';
+import './features/triggerController.js';
+import './features/pomodoroController.js';
+import './features/sleepController.js';
+import './features/accordionController.js';
 import { initI18n, t, setLang } from './i18n.js';
 import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode, updateModeSpecificUI, modeModules, updateTriggerIndicator, syncAutoUI } from './modes/modeManager.js';
 import { initModeSelector } from './ui/modeSelector.js';
 import { createPomodoroUI, updatePomodoroUI } from './ui/pomodoroUI.js';
-import { updateTimerDisplay } from './modes/modeManager.js';
 import { createSleepUI } from './ui/sleepUI.js';
 import { createNarrativeUI, updateNarrativeUI } from './ui/narrativeUI.js';
 import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
 import { initGenerativeUI, updateGenerativeUIVisibility } from './ui/generativeUI.js';
 import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
-import { updateSleepUI, updateAlarmTimerDisplay } from './modes/modeManager.js';
 import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
-import * as pomodoroMode from './modes/pomodoroMode.js';
-import { cancelAlarm as cancelSleepAlarm, setAlarmTime as setSleepAlarmTime } from './modes/sleepMode.js';
-
-// Import pomodoro mode functions
-const startPomodoroTimer = pomodoroMode.startTimer;
-const pausePomodoroTimer = pomodoroMode.pauseTimer;
-const resumePomodoroTimer = pomodoroMode.resumeTimer;
-const skipPomodoroPhase = pomodoroMode.skipPhase;
-const resetPomodoroTimer = pomodoroMode.resetPomodoro;
 
 window.__lucidModes = LUCID_MODES;
 
@@ -108,7 +102,6 @@ Object.assign(window, {
   renderWorldSelect,
   renderVoicePresets,
   renderSourceList,
-  renderTriggerList: () => {},
   updateTriggerIndicator,
   initCommonUI,
   syncAutoUI
@@ -127,125 +120,7 @@ window.toggleMasterPlay = function() {
   return baseToggleMasterPlay();
 };
 
-// ============================================================
-// Global Mode Functions
-// ============================================================
-window.setMode = function(modeId) {
-  if (!modeId) {
-    // Volta para "sem modo" - esconde botões e painéis
-    const startBtn = document.getElementById('startModeBtn');
-    if (startBtn) startBtn.style.display = 'none';
-    const kickBtn = document.getElementById('kickBtn');
-    if (kickBtn) kickBtn.style.display = 'none';
-    switchMode(''); // Call switchMode to update panel visibility
-    if (typeof updateGenerativeUIVisibility === 'function') updateGenerativeUIVisibility();
-    return;
-  }
-  
-  switchMode(modeId);
-
-  if (typeof updateGenerativeUIVisibility === 'function') updateGenerativeUIVisibility();
-
-  // Mostra botão Iniciar e Chute quando modo selecionado
-  const startBtn = document.getElementById('startModeBtn');
-  if (startBtn) startBtn.style.display = 'flex';
-  const kickBtn = document.getElementById('kickBtn');
-  if (kickBtn) kickBtn.style.display = 'flex';
-};
-
-window.startCurrentMode = function() {
-  if (!state.currentMode) return;
-  
-  // Inicia áudio se necessário
-  if (!audio.audioCtx) audio.initAudio();
-  
-  // Ativa modo atual (inicia timer, alarme, etc)
-  const module = modeModules?.[state.currentMode];
-  if (module && module.activate) {
-    module.activate();
-  }
-  
-  // Marca como tocando
-  state.isPlaying = true;
-  
-  // Ativa mecânicas padrão
-  mechanics.activateDreamDefaults();
-  
-  // Atualiza UI
-  if (typeof window.updateFromSliders === 'function') window.updateFromSliders(true);
-  
-  // Esconde botão Iniciar
-  const startBtn = document.getElementById('startModeBtn');
-  if (startBtn) startBtn.style.display = 'none';
-  
-  // Atualiza status
-  const statusEl = document.getElementById('topStatus');
-  if (statusEl) statusEl.textContent = 'SONHANDO';
-  
-  };
-
-window.getCurrentMode = function() {
-  return state.currentMode;
-};
-
-window.isPomodoroMode = function() {
-  return isPomodoroMode();
-};
-
-window.isSleepMode = function() {
-  return isSleepMode();
-};
-
-window.isNarrativeMode = function() {
-  return isNarrativeMode();
-};
-
-window.isFreeMode = function() {
-  return isFreeMode();
-};
-
-// Pomodoro globals
-window.startPomodoro = function() {
-  if (!state.pomodoro.enabled) {
-    switchMode('pomodoro');
-  } else {
-    startPomodoroTimer();
-  }
-};
-
-window.pausePomodoro = () => pausePomodoroTimer();
-window.resumePomodoro = () => resumePomodoroTimer();
-window.skipPomodoroPhase = () => skipPomodoroPhase();
-window.resetPomodoro = () => resetPomodoroTimer();
-window.setPomodoroDurations = (config) => pomodoroMode.setDurations(config);
-window.setPomodoroActivityMp3 = (url) => pomodoroMode.setActivityMp3(url);
-window.setPomodoroBreakMp3 = (url) => pomodoroMode.setBreakMp3(url);
-
-// Sleep globals
-window.setSleepAlarmTime = function(timeStr) {
-  setSleepAlarmTime(timeStr);
-};
-
-window.setSleepWakeWindow = function(minutes) {
-  state.sleep.wakeWindowMinutes = Math.max(5, Math.min(60, parseInt(minutes) || 15));
-};
-
-window.setSleepWakeWorld = function(index) {
-  if (index >= 0 && index < 8) {
-    state.sleep.wakeWorldIndex = index;
-  }
-};
-
-window.cancelSleepAlarm = function() {
-  cancelSleepAlarm();
-};
-
-window.testSleepAlarm = async function() {
-  const { playAlarmSound } = await import('./modes/sleepMode.js');
-  playAlarmSound();
-};
-
-// Service worker
+// Service worker:
 if ('serviceWorker' in navigator) {
   // Se já havia um SW controlando a página, um SW novo assumindo indica
   // que houve deploy: recarrega uma única vez para evitar arquivos misturados
@@ -289,92 +164,6 @@ document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(
 // Render source list (vertical, one world at a time expanded)
 let activeSourceWorld = 0;
 
-function escapeHtml(str) {
-  return String(str).replace(/[&<>"']/g, c => ({
-    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-  }[c]));
-}
-
-// --- Gatilhos de Mundo (Modo Automático) ---
-function triggerOptions(current, allowOff) {
-  const off = allowOff
-    ? `<option value="-1" ${current === -1 ? 'selected' : ''}>${t('trigger.disabled')}</option>`
-    : '';
-  return off + WORLD_NAMES.map((name, i) =>
-    `<option value="${i}" ${current === i ? 'selected' : ''}>${name}</option>`
-  ).join('');
-}
-
-
-function renderTriggerList() {
-  const container = document.getElementById('triggerList');
-  if (!container) return;
-  if (!state.worldTriggers) state.worldTriggers = normalizeWorldTriggers(null);
-  const t = state.worldTriggers;
-  const active = getActiveTrigger();
-  container.innerHTML = TRIGGER_DEFS.map((def, i) => {
-    const current = (t[def.key] != null) ? t[def.key] : -1;
-    const allowOff = def.key !== 'fallback';
-    // Agrupamento visual por sensor (a ordem curada é preservada).
-    const isActive = !!(active && active.key === def.key);
-    return `
-      <div style="display:flex; align-items:center; gap:6px; padding:4px 0; border-bottom:1px solid #151515; ${isActive ? 'background:#151515; border-radius:4px; padding-left:4px;' : ''}">
-        <span style="font-size:0.62rem; color:var(--muted); font-family:monospace; width:14px;">${i + 1}</span>
-        <span style="font-size:0.7rem; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${def.label}</span>
-        <span style="font-size:0.55rem; color:var(--muted); font-family:monospace; flex-shrink:0;">${def.sensor}</span>
-        <select onchange="setWorldTrigger('${def.key}', this.value)" aria-label="${def.label}" style="background:#0a0a0a; border:1px solid var(--border); color:#fff; padding:4px 6px; font-size:0.68rem; border-radius:6px; max-width:130px;">
-          ${triggerOptions(current, allowOff)}
-        </select>
-      </div>
-    `;
-  }).join('');
-  updateTriggerIndicator();
-
-  const mEl = document.getElementById('triggerMotion');
-  const sEl = document.getElementById('triggerSilence');
-  const mVal = document.getElementById('triggerMotionVal');
-  const sVal = document.getElementById('triggerSilenceVal');
-  if (mEl) mEl.value = state.triggerMotion;
-  if (mVal) mVal.textContent = Math.round(state.triggerMotion * 100) + '%';
-  if (sEl) sEl.value = state.triggerSilenceSec;
-  if (sVal) sVal.textContent = state.triggerSilenceSec + 's';
-}
-window.renderTriggerList = renderTriggerList;
-
-function setWorldTrigger(key, value) {
-  if (!state.worldTriggers) state.worldTriggers = normalizeWorldTriggers(null);
-  if (!(key in state.worldTriggers)) return;
-  const idx = parseInt(value, 10);
-  if (key === 'fallback') {
-    if (idx < 0 || idx >= WORLD_NAMES.length) return; // fallback sempre ativo
-    state.worldTriggers.fallback = idx;
-  } else {
-    state.worldTriggers[key] = (idx >= 0 && idx < WORLD_NAMES.length) ? idx : -1;
-  }
-  renderTriggerList();
-  if (state.autoMode && state.isPlaying) evaluateAutoMode();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-}
-
-function setWorldTriggerMotion(value) {
-  const v = parseFloat(value);
-  if (isNaN(v)) return;
-  state.triggerMotion = Math.max(0, Math.min(1, v));
-  const el = document.getElementById('triggerMotionVal');
-  if (el) el.textContent = Math.round(state.triggerMotion * 100) + '%';
-  if (state.autoMode && state.isPlaying) evaluateAutoMode();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-}
-
-function setWorldTriggerSilence(value) {
-  const v = parseInt(value, 10);
-  if (isNaN(v)) return;
-  state.triggerSilenceSec = Math.max(5, Math.min(300, v));
-  const el = document.getElementById('triggerSilenceVal');
-  if (el) el.textContent = state.triggerSilenceSec + 's';
-  if (state.autoMode && state.isPlaying) evaluateAutoMode();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
-}
 
 // Inicializa modo manager e seletor
 initModeManager();
@@ -424,38 +213,4 @@ if (freeContainer) {
 // Trigger initial UI update for current mode
 updateModeSpecificUI(state.currentMode);
 
-// ============================================================
-// Accordion behavior: only one panel open at a time
-// ============================================================
-function toggleAccordion(panelId) {
-  const panel = document.getElementById(panelId);
-  if (!panel) return;
 
-  const isOpen = panel.classList.contains('open');
-
-  // Close all other accordion panels
-  document.querySelectorAll('.accordion-panel').forEach(p => {
-    if (p !== panel) {
-      p.classList.remove('open');
-      // Update arrow
-      const title = p.previousElementSibling;
-      if (title) {
-        const arrow = title.querySelector('.accordion-arrow');
-        if (arrow) arrow.textContent = '▶';
-      }
-    }
-  });
-
-  // Toggle current panel
-  panel.classList.toggle('open');
-
-  // Update arrow for current panel
-  const title = panel.previousElementSibling;
-  if (title) {
-    const arrow = title.querySelector('.accordion-arrow');
-    if (arrow) arrow.textContent = panel.classList.contains('open') ? '▼' : '▶';
-  }
-}
-
-// Expose globally
-window.toggleAccordion = toggleAccordion;

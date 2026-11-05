@@ -70,13 +70,13 @@ describe('Runtime: Panel Visibility', () => {
 
 describe('Runtime: Accordion', () => {
   test('toggleAccordion is defined and exposed', () => {
-    const content = readFile('js/app.js');
+    const content = readFile('js/features/accordionController.js');
     assert.ok(content.includes('function toggleAccordion(panelId)'), 'Should define toggleAccordion');
     assert.ok(content.includes('window.toggleAccordion = toggleAccordion'), 'Should expose on window');
   });
 
   test('toggleAccordion toggles open class', () => {
-    const content = readFile('js/app.js');
+    const content = readFile('js/features/accordionController.js');
     assert.ok(content.includes("panel.classList.toggle('open')"), 'Should toggle open class');
   });
 
@@ -86,7 +86,7 @@ describe('Runtime: Accordion', () => {
   });
 
   test('accordion arrows update on toggle', () => {
-    const content = readFile('js/app.js');
+    const content = readFile('js/features/accordionController.js');
     assert.ok(content.includes("arrow.textContent = panel.classList.contains('open') ? '▼' : '▶'"), 'Should update arrow on toggle');
   });
 });
@@ -103,18 +103,23 @@ describe('Runtime: Mode Selector', () => {
     assert.ok(html.includes('window.setMode(this.value)'), 'Should call window.setMode');
   });
 
+  test('modeSelector no longer overrides window.setMode', () => {
+    const content = readFile('js/ui/modeSelector.js');
+    assert.ok(!content.includes('window.setMode ='), 'Should not override window.setMode');
+  });
+
   test('setMode function is exposed', () => {
-    const content = readFile('js/app.js');
-    assert.ok(content.includes('window.setMode = function(modeId)'), 'Should expose setMode');
+    const content = readFile('js/features/modeController.js');
+    assert.ok(content.includes('window.setMode = setMode') || content.includes('export function setMode'), 'Should expose setMode');
   });
 
   test('setMode shows start button when mode selected', () => {
-    const content = readFile('js/app.js');
+    const content = readFile('js/features/modeController.js');
     assert.ok(content.includes("startBtn.style.display = 'flex'"), 'Should show start button');
   });
 
   test('setMode hides start button when empty', () => {
-    const content = readFile('js/app.js');
+    const content = readFile('js/features/modeController.js');
     assert.ok(content.includes("startBtn.style.display = 'none'"), 'Should hide start button');
   });
 
@@ -133,12 +138,12 @@ describe('Runtime: Kick Button', () => {
   });
 
   test('kickBtn shown when mode selected', () => {
-    const content = readFile('js/app.js');
+    const content = readFile('js/features/modeController.js');
     assert.ok(content.includes("kickBtn.style.display = 'flex'"), 'Should show kickBtn');
   });
 
   test('kickBtn hidden when empty mode', () => {
-    const content = readFile('js/app.js');
+    const content = readFile('js/features/modeController.js');
     assert.ok(content.includes("kickBtn.style.display = 'none'"), 'Should hide kickBtn');
   });
 });
