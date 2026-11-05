@@ -281,10 +281,8 @@ window.applyGenerativeSeed = function() {
 export function initGenerativeUI() {
   // Cria container se não existir
   if (!document.getElementById('generativeUI')) {
-    const container = document.createElement('div');
-    container.id = 'generativeUI';
+    const container = createGenerativeUI();
     container.style.display = 'none';
-    container.appendChild(createGenerativeUI());
     document.body.appendChild(container);
   }
   
@@ -303,7 +301,6 @@ export function updateGenerativeUIVisibility() {
   const container = document.getElementById('generativeUI');
   if (!container) return;
   
-  const { state } = require('../state.js');
   // Mostra apenas nos modos que suportam (narrative, free, pomodoro)
   const show = ['narrative', 'free', 'pomodoro'].includes(state.currentMode);
   container.style.display = show ? 'block' : 'none';

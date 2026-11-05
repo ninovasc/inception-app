@@ -79,13 +79,14 @@ function checkBrackets(content) {
 describe('File Structure', () => {
   test('all required JS files exist', () => {
     const requiredFiles = [
-      'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js',
+      'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
       'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
-      'js/screensaver-svg.js', 'js/synth/generativeEngine.js',
+      'js/screensaver-svg.js', 'js/screensaver.js', 'js/synth/generativeEngine.js',
       'js/ui/commonUI.js', 'js/ui/freeUI.js', 'js/ui/generativeUI.js',
       'js/ui/modeSelector.js', 'js/ui/narrativeUI.js', 'js/ui/pomodoroUI.js',
-      'js/ui/sleepUI.js', 'js/modes/modeManager.js', 'js/modes/narrativeMode.js',
+      'js/ui/sleepUI.js', 'js/modes/modeManager.js', 'js/modes/modeSwitcher.js',
+       'js/modes/panelManager.js', 'js/modes/uiUpdater.js', 'js/modes/narrativeMode.js',
       'js/modes/pomodoroMode.js', 'js/modes/sleepMode.js'
     ];
     requiredFiles.forEach(f => {
@@ -95,13 +96,14 @@ describe('File Structure', () => {
 
   test('all JS files have balanced brackets', () => {
     const files = [
-      'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js',
+      'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
       'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
-      'js/screensaver-svg.js', 'js/synth/generativeEngine.js',
+      'js/screensaver-svg.js', 'js/screensaver.js', 'js/synth/generativeEngine.js',
       'js/ui/commonUI.js', 'js/ui/freeUI.js', 'js/ui/generativeUI.js',
       'js/ui/modeSelector.js', 'js/ui/narrativeUI.js', 'js/ui/pomodoroUI.js',
-      'js/ui/sleepUI.js', 'js/modes/modeManager.js', 'js/modes/narrativeMode.js',
+      'js/ui/sleepUI.js', 'js/modes/modeManager.js', 'js/modes/modeSwitcher.js',
+       'js/modes/panelManager.js', 'js/modes/uiUpdater.js', 'js/modes/narrativeMode.js',
       'js/modes/pomodoroMode.js', 'js/modes/sleepMode.js'
     ];
     files.forEach(f => {
@@ -133,13 +135,14 @@ describe('File Structure', () => {
 describe('Import/Export Consistency', () => {
   test('all imports resolve to existing files', () => {
     const files = [
-      'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js',
+      'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
       'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
-      'js/screensaver-svg.js', 'js/synth/generativeEngine.js',
+      'js/screensaver-svg.js', 'js/screensaver.js', 'js/synth/generativeEngine.js',
       'js/ui/commonUI.js', 'js/ui/freeUI.js', 'js/ui/generativeUI.js',
       'js/ui/modeSelector.js', 'js/ui/narrativeUI.js', 'js/ui/pomodoroUI.js',
-      'js/ui/sleepUI.js', 'js/modes/modeManager.js', 'js/modes/narrativeMode.js',
+      'js/ui/sleepUI.js', 'js/modes/modeManager.js', 'js/modes/modeSwitcher.js',
+       'js/modes/panelManager.js', 'js/modes/uiUpdater.js', 'js/modes/narrativeMode.js',
       'js/modes/pomodoroMode.js', 'js/modes/sleepMode.js'
     ];
     
@@ -328,14 +331,14 @@ describe('Mode Manager', () => {
     assert.ok(content.includes('export const modeModules'), 'Should export modeModules');
   });
 
-  test('modeManager.js handles empty modeId in switchMode', () => {
-    const content = readFile('js/modes/modeManager.js');
+  test('modeSwitcher.js handles empty modeId in switchMode', () => {
+    const content = readFile('js/modes/modeSwitcher.js');
     assert.ok(content.includes("if (!modeId)"), 'Should handle empty modeId');
     assert.ok(content.includes("localStorage.removeItem('pasiv-mode')"), 'Should remove from localStorage');
   });
 
-  test('modeManager.js has updatePanelVisibility', () => {
-    const content = readFile('js/modes/modeManager.js');
+  test('panelManager.js has updatePanelVisibility', () => {
+    const content = readFile('js/modes/panelManager.js');
     assert.ok(content.includes('function updatePanelVisibility'), 'Should have updatePanelVisibility');
     assert.ok(content.includes("const show = modes.includes(state.currentMode)"), 'Should check mode inclusion');
   });
@@ -376,17 +379,29 @@ describe('Mode Implementations', () => {
 });
 
 describe('Audio Engine', () => {
-  test('audio.js exports required functions', () => {
+  test('audio.js (orchestrator) exports orchestrator functions', () => {
     const content = readFile('js/audio.js');
-    assert.ok(content.includes('export function initAudio'), 'Should export initAudio');
     assert.ok(content.includes('export function setSourceMode'), 'Should export setSourceMode');
+    assert.ok(content.includes('export function selectLevel'), 'Should export selectLevel');
+    assert.ok(content.includes('export function toggleMasterPlay'), 'Should export toggleMasterPlay');
+    assert.ok(content.includes('export function triggerKick'), 'Should export triggerKick');
+    assert.ok(content.includes('export function restartWorldAudio'), 'Should export restartWorldAudio');
+  });
+  test('audio core module exports initAudio', () => {
+    const content = readFile('js/audio/core.js');
+    assert.ok(content.includes('export function initAudio'), 'Should export initAudio');
+  });
+  test('audio synth module exports synth functions', () => {
+    const content = readFile('js/audio/synth.js');
     assert.ok(content.includes('export function selectSynthType'), 'Should export selectSynthType');
     assert.ok(content.includes('export function setSynthVolume'), 'Should export setSynthVolume');
     assert.ok(content.includes('export function startSynth'), 'Should export startSynth');
     assert.ok(content.includes('export function stopSynth'), 'Should export stopSynth');
-    assert.ok(content.includes('export function selectLevel'), 'Should export selectLevel');
-    assert.ok(content.includes('export function toggleMasterPlay'), 'Should export toggleMasterPlay');
-    assert.ok(content.includes('export function triggerKick'), 'Should export triggerKick');
+  });
+  test('audio mp3 module exports mp3 functions', () => {
+    const content = readFile('js/audio/mp3.js');
+    assert.ok(content.includes('export function computeAnchors'), 'Should export computeAnchors');
+    assert.ok(content.includes('export async function loadWorldMp3') || content.includes('export function loadWorldMp3'), 'Should export loadWorldMp3');
   });
 });
 

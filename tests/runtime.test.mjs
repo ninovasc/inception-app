@@ -15,19 +15,18 @@ function readFile(path) {
 
 describe('Runtime: Mode Switching', () => {
   test('initial state has empty mode', () => {
-    // This would be tested in browser - for now, verify the code sets empty mode
-    const content = readFile('js/modes/modeManager.js');
+    const content = readFile('js/modes/modeSwitcher.js');
     assert.ok(content.includes("state.currentMode = ''"), 'Should set empty mode on init');
   });
 
   test('switchMode handles empty modeId', () => {
-    const content = readFile('js/modes/modeManager.js');
+    const content = readFile('js/modes/modeSwitcher.js');
     assert.ok(content.includes("if (!modeId)"), 'Should handle empty modeId');
     assert.ok(content.includes("localStorage.removeItem('pasiv-mode')"), 'Should remove from localStorage');
   });
 
   test('switchMode updates panel visibility', () => {
-    const content = readFile('js/modes/modeManager.js');
+    const content = readFile('js/modes/uiUpdater.js');
     assert.ok(content.includes('updatePanelVisibility()'), 'Should call updatePanelVisibility');
   });
 
@@ -42,7 +41,7 @@ describe('Runtime: Mode Switching', () => {
 
 describe('Runtime: Panel Visibility', () => {
   test('updatePanelVisibility hides all when no mode selected', () => {
-    const content = readFile('js/modes/modeManager.js');
+    const content = readFile('js/modes/panelManager.js');
     assert.ok(content.includes("const show = modes.includes(state.currentMode)"), 'Should check mode inclusion');
     assert.ok(content.includes("section.style.display = show ? '' : 'none'"), 'Should set display');
   });
@@ -333,8 +332,8 @@ describe('Runtime: Mechanics', () => {
 });
 
 describe('Runtime: Screensaver', () => {
-  test('screensaver is defined in app.js', () => {
-    const content = readFile('js/app.js');
+  test('screensaver is defined in screensaver.js', () => {
+    const content = readFile('js/screensaver.js');
     assert.ok(content.includes('createScreensaver'), 'Should have createScreensaver');
     assert.ok(content.includes('showScreensaver'), 'Should have showScreensaver');
     assert.ok(content.includes('hideScreensaver'), 'Should have hideScreensaver');

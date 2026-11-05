@@ -9,7 +9,7 @@ import './power.js';
 import * as yt from './youtube.js';
 import * as cap from './capture.js';
 
-import { SCREENSAVER_SVG } from './screensaver-svg.js';
+import './screensaver.js';
 import { initI18n, t, setLang } from './i18n.js';
 import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode, updateModeSpecificUI, modeModules, updateTriggerIndicator, syncAutoUI } from './modes/modeManager.js';
 import { initModeSelector } from './ui/modeSelector.js';
@@ -18,6 +18,7 @@ import { updateTimerDisplay } from './modes/modeManager.js';
 import { createSleepUI } from './ui/sleepUI.js';
 import { createNarrativeUI, updateNarrativeUI } from './ui/narrativeUI.js';
 import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
+import { initGenerativeUI, updateGenerativeUIVisibility } from './ui/generativeUI.js';
 import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
 import { updateSleepUI, updateAlarmTimerDisplay } from './modes/modeManager.js';
 import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
@@ -137,11 +138,14 @@ window.setMode = function(modeId) {
     const kickBtn = document.getElementById('kickBtn');
     if (kickBtn) kickBtn.style.display = 'none';
     switchMode(''); // Call switchMode to update panel visibility
+    if (typeof updateGenerativeUIVisibility === 'function') updateGenerativeUIVisibility();
     return;
   }
   
   switchMode(modeId);
-  
+
+  if (typeof updateGenerativeUIVisibility === 'function') updateGenerativeUIVisibility();
+
   // Mostra botão Iniciar e Chute quando modo selecionado
   const startBtn = document.getElementById('startModeBtn');
   if (startBtn) startBtn.style.display = 'flex';
@@ -387,6 +391,11 @@ seed.generateFullSeed(true);
 // Initialize UI comum
 initCommonUI();
 
+// Initialize generative UI
+initGenerativeUI();
+window.updateGenerativeUIVisibility = updateGenerativeUIVisibility;
+updateGenerativeUIVisibility();
+
 // Initialize mode-specific UIs
 const pomodoroContainer = document.getElementById('pomodoroUI');
 if (pomodoroContainer) {
@@ -450,86 +459,3 @@ function toggleAccordion(panelId) {
 
 // Expose globally
 window.toggleAccordion = toggleAccordion;
-
-// ============================================================
-// Screensaver de inatividade (1 min) — overlay com SVG animado
-// ============================================================
-const SCREENSAVER_DELAY_MS = 60000; // 1 minuto
-let screensaverTimer = null;
-let screensaverEl = null;
-let screensaverVisible = false;
-
-function createScreensaver() {
-  if (screensaverEl) return screensaverEl;
-  const el = document.createElement('div');
-  el.id = 'screensaverOverlay';
-  el.style.cssText = `
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: #000000;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 1.2s ease;
-  `;
-  // SVG inline (animações CSS funcionam direto no DOM, ao contrário de <object>)
-  el.innerHTML = SCREENSAVER_SVG;
-  // Click no overlay esconde o screensaver (touchstart removido: click já cobre touch com passive)
-  el.addEventListener('click', hideScreensaver);
-  document.body.appendChild(el);
-  screensaverEl = el;
-  return el;
-}
-
-function showScreensaver() {
-  if (screensaverVisible) return;
-  const el = createScreensaver();
-  // Force reflow para a transição funcionar
-  el.offsetHeight;
-  el.style.pointerEvents = 'auto';
-  el.style.opacity = '1';
-  screensaverVisible = true;
-}
-
-function hideScreensaver() {
-  if (!screensaverVisible) return;
-  const el = screensaverEl;
-  if (!el) return;
-  el.style.opacity = '0';
-  el.style.pointerEvents = 'none';
-  screensaverVisible = false;
-  // Reset timer ao voltar
-  resetScreensaverTimer();
-}
-
-function resetScreensaverTimer() {
-  if (screensaverTimer) clearTimeout(screensaverTimer);
-  // Só inicia o timer se o app estiver "ativo" (não em screensaver)
-  if (!screensaverVisible) {
-    screensaverTimer = setTimeout(showScreensaver, SCREENSAVER_DELAY_MS);
-  }
-}
-
-// Eventos de atividade do usuário
-const activityEvents = ['mousedown', 'mousemove', 'keydown', 'touchstart', 'touchmove', 'wheel', 'click'];
-activityEvents.forEach(evt => {
-  document.addEventListener(evt, resetScreensaverTimer, { passive: true });
-});
-
-// Pausar timer quando tab não visível (evita screensaver em background)
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    if (screensaverTimer) clearTimeout(screensaverTimer);
-  } else {
-    resetScreensaverTimer();
-  }
-});
-
-// Iniciar timer
-resetScreensaverTimer();
-
-// Expor para debug/teste
-window.__screensaver = { show: showScreensaver, hide: hideScreensaver, reset: resetScreensaverTimer };
