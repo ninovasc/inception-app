@@ -15,6 +15,11 @@ import './features/triggerController.js';
 import './features/pomodoroController.js';
 import './features/sleepController.js';
 import './features/accordionController.js';
+import { setMode, startCurrentMode } from './features/modeController.js';
+import { setWorldTrigger, setWorldTriggerMotion, setWorldTriggerSilence } from './features/triggerController.js';
+import { toggleAccordion } from './features/accordionController.js';
+import './eventDelegate.js';
+import { registerAction } from './eventDelegate.js';
 import { initI18n, t, setLang } from './i18n.js';
 import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode, updateModeSpecificUI, modeModules, updateTriggerIndicator, syncAutoUI } from './modes/modeManager.js';
 import { initModeSelector } from './ui/modeSelector.js';
@@ -119,6 +124,35 @@ window.toggleMasterPlay = function() {
   if (!state.isPlaying) mechanics.activateDreamDefaults();
   return baseToggleMasterPlay();
 };
+
+// ============================================================
+// Event delegation: registra ações para data-action
+// ============================================================
+registerAction('setLang', function () { setLang(this.value); });
+registerAction('toggleHelp', function () { ui.toggleHelp(); });
+registerAction('triggerKick', function () { audio.triggerKick(this.dataset.arg === 'true'); });
+registerAction('toggleMic', function () { sensors.toggleMic(); });
+registerAction('toggleMotion', function () { sensors.toggleMotion(); });
+registerAction('toggleGPS', function () { sensors.toggleGPS(); });
+registerAction('setMode', function () { setMode(this.value); });
+registerAction('startCurrentMode', function () { startCurrentMode(); });
+registerAction('toggleAccordion', function () { toggleAccordion(this.dataset.arg); });
+registerAction('selectLevel', function () { audio.selectLevel(parseInt(this.value)); });
+registerAction('updateFromSliders', function () { audio.updateFromSliders(this.dataset.arg === 'true'); });
+registerAction('applyMicPreset', function () { sensors.applyMicPreset(this.value); });
+registerAction('setMicParam', function () { sensors.setMicParam(this.dataset.param, this.value); });
+registerAction('setWorldTriggerMotion', function () { setWorldTriggerMotion(this.value); });
+registerAction('setWorldTriggerSilence', function () { setWorldTriggerSilence(this.value); });
+registerAction('setWorldTrigger', function () { setWorldTrigger(this.dataset.key, this.value); });
+registerAction('toggleMemoryCatcher', function () { mechanics.toggleMemoryCatcher(); });
+registerAction('toggleAutoKick', function () { mechanics.toggleAutoKick(); });
+registerAction('toggleSpatial3D', function () { mechanics.toggleSpatial3D(); });
+registerAction('cycleLucidTimer', function () { mechanics.cycleLucidTimer(); });
+registerAction('toggleDeprivationWatch', function () { mechanics.toggleDeprivationWatch(); });
+registerAction('autoResizeSeed', function () { ui.autoResizeSeed.call(this); });
+registerAction('copySeed', function () { seed.copySeed(); });
+registerAction('applySeed', function () { seed.applySeed(); });
+registerAction('toggleHelpBackdrop', function (e) { if (e.target === this) ui.toggleHelp(); });
 
 // Service worker:
 if ('serviceWorker' in navigator) {

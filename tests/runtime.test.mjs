@@ -100,7 +100,7 @@ describe('Runtime: Mode Selector', () => {
 
   test('modeSelector calls window.setMode', () => {
     const html = readFile('index.html');
-    assert.ok(html.includes('window.setMode(this.value)'), 'Should call window.setMode');
+    assert.ok(html.includes('data-action="setMode"'), 'Should call window.setMode');
   });
 
   test('modeSelector no longer overrides window.setMode', () => {
@@ -126,7 +126,7 @@ describe('Runtime: Mode Selector', () => {
   test('startModeBtn exists in HTML', () => {
     const html = readFile('index.html');
     assert.ok(html.includes('id="startModeBtn"'), 'Should have startModeBtn');
-    assert.ok(html.includes('window.startCurrentMode()'), 'Should call startCurrentMode');
+    assert.ok(html.includes('data-action="startCurrentMode"'), 'Should call startCurrentMode');
   });
 });
 
@@ -152,7 +152,7 @@ describe('Runtime: Language Selector', () => {
   test('langSelector exists in header', () => {
     const html = readFile('index.html');
     assert.ok(html.includes('id="langSelector"'), 'Should have langSelector');
-    assert.ok(html.includes('window.setLang(this.value)'), 'Should call setLang');
+    assert.ok(html.includes('data-action="setLang"'), 'Should call setLang');
   });
 
   test('lang label exists', () => {
@@ -312,7 +312,7 @@ describe('Runtime: Seed/Code', () => {
 describe('Runtime: Voice', () => {
   test('voice select has applyMicPreset handler', () => {
     const html = readFile('index.html');
-    assert.ok(html.includes('onchange="applyMicPreset(this.value)"'), 'Should have applyMicPreset handler');
+    assert.ok(html.includes('data-action="applyMicPreset"'), 'Should have applyMicPreset handler');
   });
 
   test('voice has parameter sliders', () => {

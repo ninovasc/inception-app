@@ -79,7 +79,7 @@ function checkBrackets(content) {
 describe('File Structure', () => {
   test('all required JS files exist', () => {
     const requiredFiles = [
-      'js/app.js', 'js/features/modeController.js', 'js/features/triggerController.js', 'js/features/pomodoroController.js', 'js/features/sleepController.js', 'js/features/accordionController.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
+      'js/app.js', 'js/eventDelegate.js', 'js/features/modeController.js', 'js/features/triggerController.js', 'js/features/pomodoroController.js', 'js/features/sleepController.js', 'js/features/accordionController.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
       'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
       'js/screensaver-svg.js', 'js/screensaver.js', 'js/synth/generativeEngine.js',
@@ -96,7 +96,7 @@ describe('File Structure', () => {
 
   test('all JS files have balanced brackets', () => {
     const files = [
-      'js/app.js', 'js/features/modeController.js', 'js/features/triggerController.js', 'js/features/pomodoroController.js', 'js/features/sleepController.js', 'js/features/accordionController.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
+      'js/app.js', 'js/eventDelegate.js', 'js/features/modeController.js', 'js/features/triggerController.js', 'js/features/pomodoroController.js', 'js/features/sleepController.js', 'js/features/accordionController.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
       'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
       'js/screensaver-svg.js', 'js/screensaver.js', 'js/synth/generativeEngine.js',
@@ -135,7 +135,7 @@ describe('File Structure', () => {
 describe('Import/Export Consistency', () => {
   test('all imports resolve to existing files', () => {
     const files = [
-      'js/app.js', 'js/features/modeController.js', 'js/features/triggerController.js', 'js/features/pomodoroController.js', 'js/features/sleepController.js', 'js/features/accordionController.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
+      'js/app.js', 'js/eventDelegate.js', 'js/features/modeController.js', 'js/features/triggerController.js', 'js/features/pomodoroController.js', 'js/features/sleepController.js', 'js/features/accordionController.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
       'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
       'js/screensaver-svg.js', 'js/screensaver.js', 'js/synth/generativeEngine.js',
@@ -481,13 +481,13 @@ describe('HTML Structure', () => {
   test('index.html has language selector', () => {
     const html = readFile('index.html');
     assert.ok(html.includes('id="langSelector"'), 'Should have langSelector');
-    assert.ok(html.includes('window.setLang(this.value)'), 'Should have setLang handler');
+    assert.ok(html.includes('data-action="setLang"'), 'Should have setLang handler');
   });
 
   test('index.html has startModeBtn', () => {
     const html = readFile('index.html');
     assert.ok(html.includes('id="startModeBtn"'), 'Should have startModeBtn');
-    assert.ok(html.includes('window.startCurrentMode()'), 'Should have startCurrentMode handler');
+    assert.ok(html.includes('data-action="startCurrentMode"'), 'Should have startCurrentMode handler');
   });
 
   test('index.html has kickBtn (hidden)', () => {

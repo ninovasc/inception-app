@@ -35,7 +35,7 @@ export function renderTriggerList() {
         <span style="font-size:0.62rem; color:var(--muted); font-family:monospace; width:14px;">${i + 1}</span>
         <span style="font-size:0.7rem; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${def.label}</span>
         <span style="font-size:0.55rem; color:var(--muted); font-family:monospace; flex-shrink:0;">${def.sensor}</span>
-        <select onchange="setWorldTrigger('${def.key}', this.value)" aria-label="${def.label}" style="background:#0a0a0a; border:1px solid var(--border); color:#fff; padding:4px 6px; font-size:0.68rem; border-radius:6px; max-width:130px;">
+        <select data-action="setWorldTrigger" data-key="${def.key}" aria-label="${def.label}" style="background:#0a0a0a; border:1px solid var(--border); color:#fff; padding:4px 6px; font-size:0.68rem; border-radius:6px; max-width:130px;">
           ${triggerOptions(current, allowOff)}
         </select>
       </div>
