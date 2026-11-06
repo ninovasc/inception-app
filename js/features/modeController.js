@@ -2,6 +2,7 @@ import { state } from '../state.js';
 import { switchMode, modeModules } from '../modes/modeManager.js';
 import * as mechanics from '../mechanics.js';
 import * as audio from '../audio.js';
+import * as narrativeMode from '../modes/narrativeMode.js';
 import { updateGenerativeUIVisibility } from '../ui/generativeUI.js';
 
 // Troca de modo via seletor
@@ -10,6 +11,8 @@ export function setMode(modeId) {
     // Volta para "sem modo" - esconde botões e painéis
     const startBtn = document.getElementById('startModeBtn');
     if (startBtn) startBtn.style.display = 'none';
+    const stopBtn = document.getElementById('stopModeBtn');
+    if (stopBtn) stopBtn.style.display = 'none';
     const kickBtn = document.getElementById('kickBtn');
     if (kickBtn) kickBtn.style.display = 'none';
     switchMode(''); // Call switchMode to update panel visibility
@@ -24,6 +27,8 @@ export function setMode(modeId) {
   // Mostra botão Iniciar e Chute quando modo selecionado
   const startBtn = document.getElementById('startModeBtn');
   if (startBtn) startBtn.style.display = 'flex';
+  const stopBtn = document.getElementById('stopModeBtn');
+  if (stopBtn) stopBtn.style.display = 'none';
   const kickBtn = document.getElementById('kickBtn');
   if (kickBtn) kickBtn.style.display = 'flex';
 }
@@ -50,13 +55,45 @@ export function startCurrentMode() {
   // Atualiza UI
   if (typeof window.updateFromSliders === 'function') window.updateFromSliders(true);
 
-  // Esconde botão Iniciar
+  // Esconde botão Iniciar, mostra botão Parar
   const startBtn = document.getElementById('startModeBtn');
   if (startBtn) startBtn.style.display = 'none';
+  const stopBtn = document.getElementById('stopModeBtn');
+  if (stopBtn) stopBtn.style.display = 'flex';
 
   // Atualiza status
   const statusEl = document.getElementById('topStatus');
   if (statusEl) statusEl.textContent = 'SONHANDO';
+}
+
+// Para o modo atual em execução
+export function stopCurrentMode() {
+  if (!state.currentMode || !state.isPlaying) return;
+
+  // Para áudio
+  if (typeof window.toggleMasterPlay === 'function' && state.isPlaying) {
+    window.toggleMasterPlay();
+  }
+
+  // Desativa módulo do modo
+  const module = modeModules?.[state.currentMode];
+  if (module && module.deactivate) {
+    module.deactivate();
+  }
+  if (state.currentMode === 'narrative') {
+    narrativeMode.stopAutoMode();
+  }
+
+  state.isPlaying = false;
+
+  // UI: mostra Iniciar, esconde Parar
+  const startBtn = document.getElementById('startModeBtn');
+  if (startBtn) startBtn.style.display = 'flex';
+  const stopBtn = document.getElementById('stopModeBtn');
+  if (stopBtn) stopBtn.style.display = 'none';
+
+  const statusEl = document.getElementById('topStatus');
+  if (statusEl) statusEl.textContent = 'PRONTO';
 }
 
 export function getCurrentMode() {
@@ -66,4 +103,5 @@ export function getCurrentMode() {
 // Expose to global scope for inline handlers
 window.setMode = setMode;
 window.startCurrentMode = startCurrentMode;
+window.stopCurrentMode = stopCurrentMode;
 window.getCurrentMode = getCurrentMode;

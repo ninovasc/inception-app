@@ -128,6 +128,18 @@ describe('Runtime: Mode Selector', () => {
     assert.ok(html.includes('id="startModeBtn"'), 'Should have startModeBtn');
     assert.ok(html.includes('data-action="startCurrentMode"'), 'Should call startCurrentMode');
   });
+
+  test('stopModeBtn exists in HTML', () => {
+    const html = readFile('index.html');
+    assert.ok(html.includes('id="stopModeBtn"'), 'Should have stopModeBtn');
+    assert.ok(html.includes('data-action="stopCurrentMode"'), 'Should call stopCurrentMode');
+  });
+
+  test('stopCurrentMode is defined in modeController', () => {
+    const content = readFile('js/features/modeController.js');
+    assert.ok(content.includes('export function stopCurrentMode'), 'Should define stopCurrentMode');
+    assert.ok(content.includes('window.stopCurrentMode = stopCurrentMode'), 'Should expose on window');
+  });
 });
 
 describe('Runtime: Kick Button', () => {

@@ -491,6 +491,12 @@ describe('HTML Structure', () => {
     assert.ok(html.includes('data-action="startCurrentMode"'), 'Should have startCurrentMode handler');
   });
 
+  test('index.html has stopModeBtn', () => {
+    const html = readFile('index.html');
+    assert.ok(html.includes('id="stopModeBtn"'), 'Should have stopModeBtn');
+    assert.ok(html.includes('data-action="stopCurrentMode"'), 'Should have stopCurrentMode handler');
+  });
+
   test('index.html has kickBtn (hidden)', () => {
     const html = readFile('index.html');
     assert.ok(html.includes('id="kickBtn"'), 'Should have kickBtn');
