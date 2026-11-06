@@ -1,10 +1,12 @@
 import { SCREENSAVER_SVG } from './screensaver-svg.js';
+import { state } from './state.js';
 
 // Screensaver de inatividade (1 min) — overlay com SVG animado
 const SCREENSAVER_DELAY_MS = 60000; // 1 minuto
 let screensaverTimer = null;
 let screensaverEl = null;
 let screensaverVisible = false;
+let screensaverWakeLock = null;
 
 export function createScreensaver() {
   if (screensaverEl) return screensaverEl;
@@ -39,6 +41,19 @@ export function showScreensaver() {
   el.style.pointerEvents = 'auto';
   el.style.opacity = '1';
   screensaverVisible = true;
+  // Mantém a tela acesa enquanto o screensaver estiver visível
+  requestScreensaverWakeLock();
+}
+
+async function requestScreensaverWakeLock() {
+  try {
+    if ('wakeLock' in navigator && navigator.wakeLock && typeof navigator.wakeLock.request === 'function' && !screensaverWakeLock && !state.wakeLock) {
+      screensaverWakeLock = await navigator.wakeLock.request('screen');
+      if (screensaverWakeLock && typeof screensaverWakeLock.addEventListener === 'function') {
+        screensaverWakeLock.addEventListener('release', () => { screensaverWakeLock = null; });
+      }
+    }
+  } catch (e) {}
 }
 
 export function hideScreensaver() {
@@ -48,8 +63,19 @@ export function hideScreensaver() {
   el.style.opacity = '0';
   el.style.pointerEvents = 'none';
   screensaverVisible = false;
+  // Libera wake lock adquirido pelo screensaver
+  releaseScreensaverWakeLock();
   // Reset timer ao voltar
   resetScreensaverTimer();
+}
+
+async function releaseScreensaverWakeLock() {
+  try {
+    if (screensaverWakeLock && typeof screensaverWakeLock.release === 'function') {
+      await screensaverWakeLock.release();
+    }
+  } catch (e) {}
+  screensaverWakeLock = null;
 }
 
 export function resetScreensaverTimer() {
