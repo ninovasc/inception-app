@@ -5,6 +5,7 @@ const N = 13; // mundos narrativo (v3.0.0)
 export const state = {
   audioCtx: null,
   isPlaying: false,
+  wakeLock: null,
   sourceMode: 'synth', // 'synth' | 'mp3' | 'youtube'
   currentSynthType: WORLD_SYNTH[0],
   autoMode: true,

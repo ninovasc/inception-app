@@ -5,6 +5,26 @@ import * as audio from '../audio.js';
 import * as narrativeMode from '../modes/narrativeMode.js';
 import { updateGenerativeUIVisibility } from '../ui/generativeUI.js';
 
+// Wake Lock: mantém a tela acesa durante a reprodução (iOS/Android)
+async function requestWakeLock() {
+  try {
+    if ('wakeLock' in navigator && navigator.wakeLock && typeof navigator.wakeLock.request === 'function') {
+      state.wakeLock = await navigator.wakeLock.request('screen');
+      if (state.wakeLock && typeof state.wakeLock.addEventListener === 'function') {
+        state.wakeLock.addEventListener('release', () => { state.wakeLock = null; });
+      }
+    }
+  } catch (e) {}
+}
+async function releaseWakeLock() {
+  try {
+    if (state.wakeLock && typeof state.wakeLock.release === 'function') {
+      await state.wakeLock.release();
+    }
+  } catch (e) {}
+  state.wakeLock = null;
+}
+
 // Troca de modo via seletor
 export function setMode(modeId) {
   if (!modeId) {
@@ -49,6 +69,12 @@ export function startCurrentMode() {
   // Marca como tocando
   state.isPlaying = true;
 
+  // Mantém a tela acesa e pausa o screensaver durante a reprodução
+  requestWakeLock();
+  if (window.__screensaver && typeof window.__screensaver.pause === 'function') {
+    window.__screensaver.pause();
+  }
+
   // Ativa mecânicas padrão
   mechanics.activateDreamDefaults();
 
@@ -86,6 +112,12 @@ export function stopCurrentMode() {
 
   state.isPlaying = false;
 
+  // Libera wake lock e retoma screensaver
+  releaseWakeLock();
+  if (window.__screensaver && typeof window.__screensaver.resume === 'function') {
+    window.__screensaver.resume();
+  }
+
   // UI: mostra Iniciar, esconde Parar
   const startBtn = document.getElementById('startModeBtn');
   if (startBtn) startBtn.style.display = 'flex';
@@ -105,3 +137,12 @@ window.setMode = setMode;
 window.startCurrentMode = startCurrentMode;
 window.stopCurrentMode = stopCurrentMode;
 window.getCurrentMode = getCurrentMode;
+
+// Re-adquire wake lock quando a aba volta a ficar visível durante reprodução
+if (typeof document !== 'undefined') {
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && state.isPlaying && !state.wakeLock) {
+      requestWakeLock();
+    }
+  });
+}

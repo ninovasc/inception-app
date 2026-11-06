@@ -78,5 +78,14 @@ document.addEventListener('visibilitychange', () => {
 // Iniciar timer
 resetScreensaverTimer();
 
+// Pausa/retoma o timer (usado durante reprodução para evitar overlay/tela apagar)
+export function pauseScreensaver() {
+  if (screensaverTimer) { clearTimeout(screensaverTimer); screensaverTimer = null; }
+  if (screensaverVisible) hideScreensaver();
+}
+export function resumeScreensaver() {
+  resetScreensaverTimer();
+}
+
 // Expor para debug/teste
-window.__screensaver = { show: showScreensaver, hide: hideScreensaver, reset: resetScreensaverTimer };
+window.__screensaver = { show: showScreensaver, hide: hideScreensaver, reset: resetScreensaverTimer, pause: pauseScreensaver, resume: resumeScreensaver };
