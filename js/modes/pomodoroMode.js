@@ -6,14 +6,21 @@ let timerInterval = null;
 
 export async function activate() {
   state.pomodoro.enabled = true;
-  state.pomodoro.isRunning = true;
+  state.pomodoro.isRunning = false;
   state.autoMode = false; // Pomodoro não usa autoMode narrativo
   
-  // Garante que está no mundo Atividade (0) ao iniciar
+  // Garante que está no mundo Atividade (0) ao selecionar o modo
   if (state.currentLevel !== 0) {
     audio.selectLevel(0);
   }
   
+  renderPomodoroUI();
+}
+
+// Inicia o timer (chamado ao clicar em "Iniciar")
+export function start() {
+  if (state.pomodoro.isRunning) return;
+  state.pomodoro.isRunning = true;
   startTimer();
   renderPomodoroUI();
 }
@@ -81,9 +88,21 @@ export function pauseTimer() {
 }
 
 export function resumeTimer() {
-  if (!state.pomodoro.isRunning && state.pomodoro.enabled) {
-    startTimer();
-  }
+  if (state.pomodoro.isRunning || !state.pomodoro.enabled) return;
+  state.pomodoro.isRunning = true;
+  if (timerInterval) clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    if (!state.pomodoro.isRunning || !state.pomodoro.enabled) {
+      stopTimer();
+      return;
+    }
+    state.pomodoro.timeRemaining--;
+    updateTimerDisplay();
+    if (state.pomodoro.timeRemaining <= 0) {
+      nextPhase();
+    }
+  }, 1000);
+  updateTimerDisplay();
 }
 
 export function skipPhase() {

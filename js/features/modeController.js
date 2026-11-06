@@ -58,7 +58,9 @@ export function startCurrentMode() {
 
   // Ativa modo atual (inicia timer, alarme, etc)
   const module = modeModules?.[state.currentMode];
-  if (module && module.activate) {
+  if (module && typeof module.start === 'function') {
+    module.start();
+  } else if (module && module.activate) {
     module.activate();
   }
 

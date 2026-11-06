@@ -217,13 +217,13 @@ test.describe('PASIV Engine E2E Tests', () => {
     await expect(page.locator('#pomodoroCyclesUntilLongBreak')).toBeAttached();
   });
 
-  test('Pomodoro has MP3 upload buttons', async ({ page }) => {
+  test('Pomodoro config has no MP3 upload buttons', async ({ page }) => {
     await page.selectOption('#modeSelector', 'pomodoro');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'pomodoro', { timeout: 5000 });
     await page.waitForTimeout(500);
     
-    await expect(page.locator('#pomodoroActivityMp3')).toBeAttached();
-    await expect(page.locator('#pomodoroBreakMp3')).toBeAttached();
+    await expect(page.locator('#pomodoroActivityMp3')).toHaveCount(0);
+    await expect(page.locator('#pomodoroBreakMp3')).toHaveCount(0);
   });
 
   test('Pomodoro phase label shows Atividade', async ({ page }) => {

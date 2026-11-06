@@ -24,7 +24,7 @@ export function createPomodoroUI() {
       
       <!-- Controles -->
       <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px;">
-        <button id="pomodoroPlayPause" class="menu-item" style="flex:1; max-width:100px; justify-content:center;" onclick="window.togglePomodoro()">
+        <button id="pomodoroPlayPause" class="menu-item" style="flex:1; max-width:100px; justify-content:center;" data-action="togglePomodoro">
           <span id="pomodoroPlayPauseText">${t('pomodoro.start') || 'Iniciar'}</span>
         </button>
         <button class="menu-item" style="flex:1; max-width:100px; justify-content:center;" onclick="window.skipPomodoroPhase()">
@@ -57,24 +57,6 @@ export function createPomodoroUI() {
           <div class="slider-group" style="margin-bottom:10px;">
             <div class="slider-header"><span>${t('pomodoro.cyclesUntilLongBreak') || 'Ciclos p/ Pausa Longa'}</span><span id="pomodoroCyclesVal">4</span></div>
             <input type="range" id="pomodoroCyclesUntilLongBreak" min="2" max="8" step="1" value="4" oninput="updatePomodoroCyclesUntilLongBreak(this.value)">
-          </div>
-          
-          <!-- MP3 para Atividade -->
-          <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
-            <div style="font-size:0.65rem; color:var(--muted); font-family:monospace; margin-bottom:6px;">${t('pomodoro.activityMp3') || 'MP3 Atividade'}</div>
-            <label class="file-btn" for="pomodoroActivityMp3" style="margin:0; padding:6px 8px; font-size:0.7rem;">
-              <span id="pomodoroActivityMp3Label">${t('source.selectMp3') || '[Selecionar MP3]'}</span><span>📁</span>
-            </label>
-            <input type="file" id="pomodoroActivityMp3" accept="audio/*" onchange="loadPomodoroActivityMp3(this.files[0])" style="display:none;">
-          </div>
-          
-          <!-- MP3 para Pausa -->
-          <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border);">
-            <div style="font-size:0.65rem; color:var(--muted); font-family:monospace; margin-bottom:6px;">${t('pomodoro.breakMp3') || 'MP3 Pausa'}</div>
-            <label class="file-btn" for="pomodoroBreakMp3" style="margin:0; padding:6px 8px; font-size:0.7rem;">
-              <span id="pomodoroBreakMp3Label">${t('source.selectMp3') || '[Selecionar MP3]'}</span><span>📁</span>
-            </label>
-            <input type="file" id="pomodoroBreakMp3" accept="audio/*" onchange="loadPomodoroBreakMp3(this.files[0])" style="display:none;">
           </div>
         </div>
       </div>

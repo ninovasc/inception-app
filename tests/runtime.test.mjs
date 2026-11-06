@@ -174,14 +174,10 @@ describe('Runtime: Pomodoro', () => {
     assert.ok(content.includes('id="pomodoroConfig"'), 'Should have pomodoroConfig');
   });
 
-  test('pomodoroUI has MP3 upload for activity', () => {
+  test('pomodoroUI no longer has MP3 upload buttons', () => {
     const content = readFile('js/ui/pomodoroUI.js');
-    assert.ok(content.includes('id="pomodoroActivityMp3"'), 'Should have pomodoroActivityMp3');
-  });
-
-  test('pomodoroUI has MP3 upload for break', () => {
-    const content = readFile('js/ui/pomodoroUI.js');
-    assert.ok(content.includes('id="pomodoroBreakMp3"'), 'Should have pomodoroBreakMp3');
+    assert.ok(!content.includes('id="pomodoroActivityMp3"'), 'Should not have pomodoroActivityMp3');
+    assert.ok(!content.includes('id="pomodoroBreakMp3"'), 'Should not have pomodoroBreakMp3');
   });
 
   test('pomodoroMode exports activate/deactivate', () => {
