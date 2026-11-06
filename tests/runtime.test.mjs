@@ -185,6 +185,32 @@ describe('Runtime: Pomodoro', () => {
     assert.ok(content.includes('export async function activate'), 'Should export activate');
     assert.ok(content.includes('export function deactivate'), 'Should export deactivate');
   });
+
+  test('pomodoroMode activate does not start timer automatically', () => {
+    const content = readFile('js/modes/pomodoroMode.js');
+    const idx = content.indexOf('export async function activate');
+    const end = content.indexOf('renderPomodoroUI();', idx) + 'renderPomodoroUI();'.length;
+    const body = content.slice(idx, end);
+    assert.ok(!body.includes('startTimer()'), 'activate should not call startTimer');
+    assert.ok(body.includes('isRunning = false'), 'activate should set isRunning false');
+  });
+
+  test('pomodoroMode exports start and resumeTimer', () => {
+    const content = readFile('js/modes/pomodoroMode.js');
+    assert.ok(content.includes('export function start()'), 'Should export start');
+    assert.ok(content.includes('export function resumeTimer'), 'Should export resumeTimer');
+  });
+
+  test('pomodoroController defines togglePomodoro', () => {
+    const content = readFile('js/features/pomodoroController.js');
+    assert.ok(content.includes('export function togglePomodoro'), 'Should define togglePomodoro');
+    assert.ok(content.includes('window.togglePomodoro = togglePomodoro'), 'Should expose on window');
+  });
+
+  test('pomodoroUI uses data-action for play/pause', () => {
+    const content = readFile('js/ui/pomodoroUI.js');
+    assert.ok(content.includes('data-action="togglePomodoro"'), 'Should use data-action');
+  });
 });
 
 describe('Runtime: Sleep', () => {
