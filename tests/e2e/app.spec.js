@@ -35,9 +35,8 @@ test.describe('PASIV Engine E2E Tests', () => {
     await expect(placeholder).toHaveText('Selecione o modo');
   });
 
-  test('start and kick buttons hidden initially', async ({ page }) => {
+  test('start button hidden initially', async ({ page }) => {
     await expect(page.locator('#startModeBtn')).toBeHidden();
-    await expect(page.locator('#kickBtn')).toBeHidden();
   });
 
   test('language selector exists in header', async ({ page }) => {
@@ -76,7 +75,6 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForTimeout(500);
     
     await expect(page.locator('.menu-section[data-mode="pomodoro"]')).toBeVisible();
-    await expect(page.locator('#worldsPanel').locator('..')).toBeVisible();
     await expect(page.locator('.menu-section[data-mode="sleep"]')).toBeHidden();
     await expect(page.locator('.menu-section[data-mode="narrative"]')).toBeHidden();
   });
@@ -96,7 +94,7 @@ test.describe('PASIV Engine E2E Tests', () => {
     await page.waitForTimeout(500);
     
     await expect(page.locator('#worldsPanel').locator('..')).toBeVisible();
-    await expect(page.locator('.menu-section[data-mode="narrative free"]')).toBeVisible();
+    await expect(page.locator('#mechPanel').locator('..')).toBeVisible();
     await expect(page.locator('.menu-section[data-mode="pomodoro"]')).toBeHidden();
     await expect(page.locator('.menu-section[data-mode="sleep"]')).toBeHidden();
     await expect(page.locator('.menu-section[data-mode="narrative"]')).toBeHidden();
@@ -119,16 +117,15 @@ test.describe('PASIV Engine E2E Tests', () => {
     }
   });
 
-  test('start and kick buttons appear when mode selected', async ({ page }) => {
+  test('start button appears when mode selected', async ({ page }) => {
     await page.selectOption('#modeSelector', 'narrative');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
     
     await expect(page.locator('#startModeBtn')).toBeVisible();
-    await expect(page.locator('#kickBtn')).toBeVisible();
   });
 
-  test('start and kick buttons hidden when empty mode', async ({ page }) => {
+  test('start button hidden when empty mode', async ({ page }) => {
     await page.selectOption('#modeSelector', 'narrative');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
@@ -139,7 +136,6 @@ test.describe('PASIV Engine E2E Tests', () => {
     });
     
     await expect(page.locator('#startModeBtn')).toBeHidden();
-    await expect(page.locator('#kickBtn')).toBeHidden();
   });
 
   // ==================== ACCORDION ====================
@@ -427,17 +423,12 @@ test.describe('PASIV Engine E2E Tests', () => {
     expect(options).toBe(13);
   });
 
-  test('Pomodoro world select has 2 options', async ({ page }) => {
+  test('Pomodoro mode hides Mundos section', async ({ page }) => {
     await page.selectOption('#modeSelector', 'pomodoro');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'pomodoro', { timeout: 5000 });
     await page.waitForTimeout(500);
     
-    await page.locator("[data-action='toggleAccordion'][data-arg='worldsPanel']").first().click();
-    await page.waitForTimeout(300);
-    
-    const worldSelect = page.locator('#worldSelect');
-    const options = await worldSelect.locator('option').count();
-    expect(options).toBe(2);
+    await expect(page.locator('.menu-section:has(#worldsPanel)')).toBeHidden();
   });
 
   test('Sleep mode has 8 worlds', async ({ page}) => {

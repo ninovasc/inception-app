@@ -142,23 +142,6 @@ describe('Runtime: Mode Selector', () => {
   });
 });
 
-describe('Runtime: Kick Button', () => {
-  test('kickBtn is hidden initially', () => {
-    const html = readFile('index.html');
-    assert.ok(html.includes('id="kickBtn"'), 'Should have kickBtn');
-    assert.ok(html.includes('style="display:none;"'), 'Should be hidden');
-  });
-
-  test('kickBtn shown when mode selected', () => {
-    const content = readFile('js/features/modeController.js');
-    assert.ok(content.includes("kickBtn.style.display = 'flex'"), 'Should show kickBtn');
-  });
-
-  test('kickBtn hidden when empty mode', () => {
-    const content = readFile('js/features/modeController.js');
-    assert.ok(content.includes("kickBtn.style.display = 'none'"), 'Should hide kickBtn');
-  });
-});
 
 describe('Runtime: Language Selector', () => {
   test('langSelector exists in header', () => {

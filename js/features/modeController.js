@@ -33,8 +33,6 @@ export function setMode(modeId) {
     if (startBtn) startBtn.style.display = 'none';
     const stopBtn = document.getElementById('stopModeBtn');
     if (stopBtn) stopBtn.style.display = 'none';
-    const kickBtn = document.getElementById('kickBtn');
-    if (kickBtn) kickBtn.style.display = 'none';
     switchMode(''); // Call switchMode to update panel visibility
     if (typeof updateGenerativeUIVisibility === 'function') updateGenerativeUIVisibility();
     return;
@@ -44,13 +42,11 @@ export function setMode(modeId) {
 
   if (typeof updateGenerativeUIVisibility === 'function') updateGenerativeUIVisibility();
 
-  // Mostra botão Iniciar e Chute quando modo selecionado
+  // Mostra botão Iniciar quando modo selecionado
   const startBtn = document.getElementById('startModeBtn');
   if (startBtn) startBtn.style.display = 'flex';
   const stopBtn = document.getElementById('stopModeBtn');
   if (stopBtn) stopBtn.style.display = 'none';
-  const kickBtn = document.getElementById('kickBtn');
-  if (kickBtn) kickBtn.style.display = 'flex';
 }
 
 // Inicia o modo atual selecionado

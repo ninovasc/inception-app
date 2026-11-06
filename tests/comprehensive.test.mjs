@@ -128,7 +128,6 @@ describe('File Structure', () => {
     assert.ok(html.includes('pomodoroPanel'), 'Should have pomodoroPanel');
     assert.ok(html.includes('sleepPanel'), 'Should have sleepPanel');
     assert.ok(html.includes('langSelector'), 'Should have langSelector');
-    assert.ok(html.includes('kickBtn'), 'Should have kickBtn');
     assert.ok(html.includes('startModeBtn'), 'Should have startModeBtn');
   });
 });
@@ -497,11 +496,7 @@ describe('HTML Structure', () => {
     assert.ok(html.includes('data-action="stopCurrentMode"'), 'Should have stopCurrentMode handler');
   });
 
-  test('index.html has kickBtn (hidden)', () => {
-    const html = readFile('index.html');
-    assert.ok(html.includes('id="kickBtn"'), 'Should have kickBtn');
-    assert.ok(html.includes('style="display:none;"'), 'Should be hidden initially');
-  });
+
 
   test('index.html loads app.js as module', () => {
     const html = readFile('index.html');
