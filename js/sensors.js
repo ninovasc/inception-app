@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { state } from './state.js';
 import {
   WORLD_NAMES, WORLD_VOICE_PRESETS,

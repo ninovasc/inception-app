@@ -107,6 +107,7 @@ describe('File Structure', () => {
       'js/modes/pomodoroMode.js', 'js/modes/sleepMode.js'
     ];
     files.forEach(f => {
+      if (f.endsWith('.ts')) return; // TS checked by tsc separately
       // Use node --check instead of our bracket counter
       try {
         execSync('node --check ' + f, { stdio: 'pipe', cwd: ROOT });

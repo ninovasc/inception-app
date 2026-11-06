@@ -64,11 +64,6 @@ export const state = {
   micLedOn: false,
   crossfadeGain: null,
   masterOut: null,
-  delayLeft: null,
-  delayRight: null,
-  delayWet: null,
-  feedbackLeft: null,
-  feedbackRight: null,
   breathLfo: null,
   breathLfoGain: null,
   breathVolLfo: null,
@@ -119,7 +114,6 @@ export const state = {
     activityDuration: POMODORO_DEFAULTS.activityDuration,
     shortBreakDuration: POMODORO_DEFAULTS.shortBreakDuration,
     longBreakDuration: POMODORO_DEFAULTS.longBreakDuration,
-    cyclesUntilLongBreak: POMODORO_DEFAULTS.cyclesUntilLongBreak,
     // MP3 por fase
     activityMp3: '',
     breakMp3: ''

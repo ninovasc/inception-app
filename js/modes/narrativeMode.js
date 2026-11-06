@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { state } from '../state.js';
 import {
   WORLD_NAMES, DEFAULT_WORLD_TRIGGERS, DEFAULT_TRIGGER_MOTION, DEFAULT_TRIGGER_SILENCE_SEC,

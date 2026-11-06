@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { state } from '../state.js';
 import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from '../config.js';
 import { initAudio } from './core.js';

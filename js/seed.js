@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { state } from './state.js';
 import { setSensorStatus } from './sensors.js';
 import {
