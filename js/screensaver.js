@@ -36,6 +36,8 @@ export function createScreensaver() {
 export function showScreensaver() {
   if (screensaverVisible) return;
   const el = createScreensaver();
+  // Conteúdo depende do modo atual
+  renderScreensaverContent(el);
   // Force reflow para a transição funcionar
   el.offsetHeight;
   el.style.pointerEvents = 'auto';
@@ -44,6 +46,46 @@ export function showScreensaver() {
   // Mantém a tela acesa enquanto o screensaver estiver visível
   requestScreensaverWakeLock();
 }
+
+function renderScreensaverContent(el) {
+  const mode = (state && state.currentMode) || '';
+  if (mode === 'sleep') {
+    // Tela preta
+    el.innerHTML = '';
+    el.style.background = '#000000';
+    return;
+  }
+  if (mode === 'pomodoro') {
+    // Timer do Pomodoro (replica a seção Pomodoro)
+    el.style.background = '#000000';
+    const t = (typeof window !== 'undefined' && typeof window.t === 'function') ? window.t : (k => k);
+    el.innerHTML = `
+      <div style="text-align:center; color:#fff; font-family:monospace;">
+        <div style="font-size:0.7rem; color:#888; margin-bottom:8px;">${t('pomodoro.title') || 'Pomodoro'}</div>
+        <div id="screensaverPomodoroTimer" style="font-size:4rem; font-weight:700; letter-spacing:2px;">25:00</div>
+        <div style="font-size:0.7rem; color:#888; margin-top:8px;" id="screensaverPomodoroPhase">Atividade</div>
+      </div>
+    `;
+    // Sincroniza com o timer atual
+    syncScreensaverPomodoroTimer();
+    return;
+  }
+  // Padrão: SVG animado
+  el.style.background = '#000000';
+  el.innerHTML = SCREENSAVER_SVG;
+}
+
+export function syncScreensaverPomodoroTimer() {
+  const src = document.getElementById('pomodoroTimer');
+  const dst = document.getElementById('screensaverPomodoroTimer');
+  if (src && dst) dst.textContent = src.textContent;
+  const srcPhase = document.getElementById('pomodoroPhaseLabel');
+  const dstPhase = document.getElementById('screensaverPomodoroPhase');
+  if (srcPhase && dstPhase) dstPhase.textContent = srcPhase.textContent;
+}
+
+// Expor para sincronização externa
+window.syncScreensaverPomodoroTimer = syncScreensaverPomodoroTimer;
 
 async function requestScreensaverWakeLock() {
   try {

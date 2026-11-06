@@ -76,6 +76,11 @@ export function updateTimerDisplay() {
     const offset = circumference * (1 - progress);
     progressRing.style.strokeDashoffset = offset;
   }
+
+  // Sincroniza timer do screensaver (modo Pomodoro)
+  if (typeof window.syncScreensaverPomodoroTimer === 'function') {
+    window.syncScreensaverPomodoroTimer();
+  }
 }
 
 // Atualiza display do timer Sono
