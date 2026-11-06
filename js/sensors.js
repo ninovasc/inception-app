@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { state } from './state.js';
+import { t } from './i18n.js';
 import {
   WORLD_NAMES, WORLD_VOICE_PRESETS,
   MIC_RAIN_INTENSE_DB, MIC_RAIN_INTENSE_HOLD_SEC, TRIGGER_CLAP_WINDOW_SEC,
@@ -25,7 +26,7 @@ export async function toggleMic() {
       state.isMicOn = true;
       btn.classList.add('active');
       btn.setAttribute('aria-pressed', 'true');
-      btn.textContent = 'Mic: ON';
+      btn.textContent = t('btn.mic') + ': ON';
       setSensorStatus('Microfone ligado.');
       // habilitar presets e sliders
       document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(el => {
@@ -46,7 +47,7 @@ export async function toggleMic() {
     state.isMicOn = false;
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');
-    btn.textContent = 'Mic: OFF';
+    btn.textContent = t('btn.mic') + ': OFF';
     setSensorStatus('Microfone desligado.');
     // desabilitar presets e sliders
     document.querySelectorAll('.mic-preset, #voicePanel input[type=range]').forEach(el => {
@@ -73,7 +74,7 @@ export async function toggleMotion() {
       state.isMotionOn = true;
       btn.classList.add('active');
       btn.setAttribute('aria-pressed', 'true');
-      btn.textContent = 'Giro: ON';
+      btn.textContent = t('btn.motion') + ': ON';
       setSensorStatus('Giroscópio ligado.');
     } catch (e) {
       setSensorStatus('Erro ao ligar Giroscópio.');
@@ -83,7 +84,7 @@ export async function toggleMotion() {
     state.isMotionOn = false;
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');
-    btn.textContent = 'Giro: OFF';
+    btn.textContent = t('btn.motion') + ': OFF';
     setSensorStatus('Giroscópio desligado.');
   }
 }
@@ -186,7 +187,7 @@ export function toggleGPS() {
         state.isGpsOn = true;
         btn.classList.add('active');
         btn.setAttribute('aria-pressed', 'true');
-        btn.textContent = 'GPS: ON';
+        btn.textContent = t('btn.gps') + ': ON';
         // Velocidade do GPS alimenta o gatilho "Veículo" (Radical Notion).
         state.gpsSpeedMps = (pos.coords && typeof pos.coords.speed === 'number' && !isNaN(pos.coords.speed))
           ? Math.max(0, pos.coords.speed) : 0;
@@ -211,7 +212,7 @@ export function toggleGPS() {
         if (state.gpsWatchId !== null) { navigator.geolocation.clearWatch(state.gpsWatchId); state.gpsWatchId = null; }
         btn.classList.remove('active');
         btn.setAttribute('aria-pressed', 'false');
-        btn.textContent = 'GPS: OFF';
+        btn.textContent = t('btn.gps') + ': OFF';
         setSensorStatus('GPS negado nos Ajustes do iOS.');
       },
       { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
@@ -225,7 +226,7 @@ export function toggleGPS() {
     state.gpsSpeedMps = 0;
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');
-    btn.textContent = 'GPS: OFF';
+    btn.textContent = t('btn.gps') + ': OFF';
     setSensorStatus('GPS desligado.');
   }
 }
@@ -410,4 +411,21 @@ export function stopMicPitchShift() {
 export function setSensorStatus(msg) {
   const el = document.getElementById('sensorStatus');
   if (el) el.textContent = msg;
+}
+
+// Sincroniza labels dos sensores com o idioma/estado atual (sem alternar)
+export function syncSensorsUI() {
+  const btnMic = document.getElementById('btnMic');
+  if (btnMic) btnMic.textContent = t('btn.mic') + ': ' + (state.isMicOn ? 'ON' : 'OFF');
+  const btnMotion = document.getElementById('btnMotion');
+  if (btnMotion) btnMotion.textContent = t('btn.motion') + ': ' + (state.isMotionOn ? 'ON' : 'OFF');
+  const btnGps = document.getElementById('btnGps');
+  if (btnGps) btnGps.textContent = t('btn.gps') + ': ' + (state.isGpsOn ? 'ON' : 'OFF');
+  const ledLabel = document.getElementById('micLedLabel');
+  if (ledLabel) ledLabel.textContent = state.micLedOn ? t('voice.led.capturing') : t('voice.led.silence');
+}
+
+// Expor globalmente
+if (typeof window !== 'undefined') {
+  window.syncSensorsUI = syncSensorsUI;
 }

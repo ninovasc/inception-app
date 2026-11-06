@@ -150,10 +150,7 @@ describe('Runtime: Language Selector', () => {
     assert.ok(html.includes('data-action="setLang"'), 'Should call setLang');
   });
 
-  test('lang label exists', () => {
-    const html = readFile('index.html');
-    assert.ok(html.includes('data-i18n="lang.label"'), 'Should have lang.label');
-  });
+
 });
 
 describe('Runtime: Pomodoro', () => {

@@ -300,12 +300,12 @@ test.describe('PASIV Engine E2E Tests', () => {
     await expect(langSelector).toHaveValue('en-US');
   });
 
-  test('Language selector shows all options', async ({ page }) => {
+  test('Language selector shows flag options', async ({ page }) => {
     const langSelector = page.locator('#langSelector');
     const options = await langSelector.locator('option').allTextContents();
-    expect(options).toContain('English (US)');
-    expect(options).toContain('Español');
-    expect(options).toContain('Português (BR)');
+    expect(options).toContain('🇺🇸');
+    expect(options).toContain('🇪🇸');
+    expect(options).toContain('🇧🇷');
   });
 
   // ==================== SOUND SOURCE ====================

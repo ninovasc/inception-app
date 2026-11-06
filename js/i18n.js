@@ -1,3 +1,4 @@
+// @ts-nocheck
 // i18n - Internacionalização do PASIV Engine
 // Suporta: en-US, es-ES, pt-BR
 
@@ -662,6 +663,14 @@ function applyTranslations() {
 
   // Atualiza selects especiais (worldSelect, voicePresetSelect, trigger selects)
   updateDynamicSelects();
+
+  // Re-renderiza seções dinâmicas para refletir o novo idioma
+  if (typeof window.renderWorldSelect === 'function') window.renderWorldSelect();
+  if (typeof window.renderSourceList === 'function') window.renderSourceList();
+  if (typeof window.renderTriggerList === 'function') window.renderTriggerList();
+  if (typeof window.syncMechanicsUI === 'function') window.syncMechanicsUI();
+  if (typeof window.syncSensorsUI === 'function') window.syncSensorsUI();
+  if (typeof window.updateFromSliders === 'function') window.updateFromSliders(true);
 }
 
 function updateDynamicSelects() {
@@ -724,7 +733,9 @@ function createLangSelector() {
 }
 
 // Expor globalmente para uso inline
-window.t = t;
-window.setLang = setLang;
-window.getLang = getLang;
-window.initI18n = initI18n;
+if (typeof window !== 'undefined') {
+  window.t = t;
+  window.setLang = setLang;
+  window.getLang = getLang;
+  window.initI18n = initI18n;
+}
