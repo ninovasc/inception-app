@@ -122,10 +122,10 @@ export function toggleMasterPlay() {
     state.isPlaying = true;
     restartWorldAudio();
 
-    btn.classList.add('active');
-    btn.setAttribute('aria-pressed', 'true');
-    sub.textContent = 'ATIVO';
-    topSt.textContent = 'SONHANDO';
+    if (btn) btn.classList.add('active');
+    if (btn) btn.setAttribute('aria-pressed', 'true');
+    if (sub) sub.textContent = 'ATIVO';
+    if (topSt) topSt.textContent = 'SONHANDO';
     const logo = document.querySelector('.logo');
     if (logo) logo.classList.add('breathing');
 
@@ -143,10 +143,10 @@ export function toggleMasterPlay() {
     if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
     if (window.stopCapture) window.stopCapture();
     stopDeprivationHeartbeat();
-    btn.classList.remove('active');
-    btn.setAttribute('aria-pressed', 'false');
-    sub.textContent = 'OFF';
-    topSt.textContent = 'PARADO';
+    if (btn) btn.classList.remove('active');
+    if (btn) btn.setAttribute('aria-pressed', 'false');
+    if (sub) sub.textContent = 'OFF';
+    if (topSt) topSt.textContent = 'PARADO';
     const logo = document.querySelector('.logo');
     if (logo) logo.classList.remove('breathing');
 

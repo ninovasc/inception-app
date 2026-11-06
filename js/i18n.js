@@ -15,7 +15,7 @@ const translations = {
     'btn.kick': 'The Kick (Piaf + BRAAAM)',
     'btn.autoMode': 'Narrative Mode (Sensors)',
     'btn.startMode': 'Start',
-    'sub.off': 'OFF',
+    'btn.stopMode': 'Stop',    'sub.off': 'OFF',
     'sub.active': 'ACTIVE',
     'sub.freefall': 'Freefall',
 
@@ -226,7 +226,7 @@ const translations = {
     'btn.kick': 'La Patada (Piaf + BRAAAM)',
     'btn.autoMode': 'Modo Automático (Sensores)',
     'btn.startMode': 'Iniciar',
-    'sub.off': 'APAGADO',
+    'btn.stopMode': 'Parar',    'sub.off': 'APAGADO',
     'sub.active': 'ACTIVO',
     'sub.freefall': 'Caída Libre',
 
@@ -428,7 +428,7 @@ const translations = {
     'btn.kick': 'O Chute (Piaf + BRAAAM)',
     'btn.autoMode': 'Modo Narrativo (Sensores)',
     'btn.startMode': 'Iniciar',
-    'sub.off': 'OFF',
+    'btn.stopMode': 'Parar',    'sub.off': 'OFF',
     'sub.active': 'ATIVO',
     'sub.freefall': 'Queda Livre',
 
