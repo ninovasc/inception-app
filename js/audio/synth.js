@@ -26,7 +26,7 @@ export function setSynthVolume(val) {
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
-export function startSynth(transposeSemitones = 0, fadeMs = 40) {
+export function startSynth(transposeSemitones = 0, fadeMs = 80) {
   if (!state.audioCtx) return;
   const preset = SYNTH_PRESETS[state.currentSynthType] || SYNTH_PRESETS[0];
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
@@ -107,7 +107,8 @@ export function startSynth(transposeSemitones = 0, fadeMs = 40) {
     pOsc.type = 'square';
     pOsc.frequency.value = preset.freqs[0] * 2 * speed * factor;
     const pGain = state.audioCtx.createGain();
-    pGain.gain.value = preset.pulse.gain / 2;
+    pGain.gain.setValueAtTime(0.0001, now);
+    pGain.gain.linearRampToValueAtTime(preset.pulse.gain / 2, now + Math.max(0.05, fade));
     const pLfo = state.audioCtx.createOscillator();
     pLfo.type = 'square';
     pLfo.frequency.value = 1 / beat;
@@ -192,7 +193,7 @@ function playPluckNote(freq, gain) {
   osc.onended = () => { try { g.disconnect(); filt.disconnect(); } catch (e) {} };
 }
 
-export function stopSynth(fadeMs = 60) {
+export function stopSynth(fadeMs = 100) {
   if (pluckTimer) { clearInterval(pluckTimer); pluckTimer = null; }
   // Parar LFOs de respiração (vazam recursos se não parados)
   if (state.breathLfo) {

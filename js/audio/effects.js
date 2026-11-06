@@ -10,7 +10,7 @@ export function playHeartbeatPulse(offsetGain) {
   osc.frequency.setValueAtTime(52, now);
   osc.frequency.exponentialRampToValueAtTime(28, now + 0.16);
   g.gain.setValueAtTime(0.32 - offsetGain, now);
-  g.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
+  g.gain.exponentialRampToValueAtTime(0.0001, now + 0.18);
   osc.connect(g);
   g.connect(state.compressor);
   osc.start(now);
@@ -41,7 +41,9 @@ export function captureAndPlaySubconsciousMemory() {
           const g = state.audioCtx.createGain();
           src.buffer = buffer;
           src.playbackRate.value = 0.62 * pitchFactor;
-          g.gain.value = 0.75;
+          const now = state.audioCtx.currentTime;
+          g.gain.setValueAtTime(0.0001, now);
+          g.gain.linearRampToValueAtTime(0.75, now + 0.05);
           src.connect(g);
           g.connect(state.convolverNode);
           g.connect(state.delayLeft);
