@@ -57,7 +57,7 @@ const translations = {
     // World Triggers
     'triggers.title': 'World Triggers',
     'triggers.desc': 'The first true trigger chooses the world (curated priority, top to bottom). Use "disabled" to ignore a trigger.',
-    'trigger.active': 'active trigger: {label} → {world}',
+    'trigger.active': 'gatilho ativo',
     'trigger.none': 'active trigger: none',
     'trigger.fallbackNote': '"No trigger" is the resting world and cannot be disabled.',
     'trigger.motionThreshold': 'Motion threshold',
@@ -301,7 +301,7 @@ const translations = {
 
     'triggers.title': 'Gatillos de Mundo',
     'triggers.desc': 'El primer gatillo verdadero elige el mundo (prioridad curada, de arriba a abajo). Usa "desactivado" para ignorar un gatillo.',
-    'trigger.active': 'gatillo activo: {label} → {world}',
+    'trigger.active': 'gatilho ativo',
     'trigger.none': 'gatillo activo: ninguno',
     'trigger.fallbackNote': '"Sin gatillo" es el mundo de reposo y no puede desactivarse.',
     'trigger.motionThreshold': 'Umbral de movimiento',
@@ -538,7 +538,7 @@ const translations = {
 
     'triggers.title': 'Gatilhos de Mundo',
     'triggers.desc': 'O primeiro gatilho verdadeiro escolhe o mundo (prioridade curada, de cima para baixo). Use "desativado" para ignorar um gatilho.',
-    'trigger.active': 'gatilho ativo: {label} → {world}',
+    'trigger.active': 'gatilho ativo',
     'trigger.none': 'gatilho ativo: nenhum',
     'trigger.fallbackNote': '"Sem gatilho" é o mundo de repouso e não pode ser desativado.',
     'trigger.motionThreshold': 'Limiar de movimento',
