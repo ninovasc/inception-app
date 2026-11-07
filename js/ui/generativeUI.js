@@ -125,7 +125,11 @@ async function getNewVariation(seed = null) {
   const { state } = await import('../state.js');
   const { WORLD_SYNTH, SYNTH_PRESETS } = await import('../config.js');
   
-  const synthIdx = state.currentSynthType || WORLD_SYNTH[state.currentLevel];
+  const synthIdx = (state.currentSynthType != null && SYNTH_PRESETS[state.currentSynthType] != null)
+    ? state.currentSynthType
+    : (WORLD_SYNTH[state.currentLevel] != null && SYNTH_PRESETS[WORLD_SYNTH[state.currentLevel]] != null)
+      ? WORLD_SYNTH[state.currentLevel]
+      : 0;
   const baseSynth = SYNTH_PRESETS[synthIdx];
   
   if (!baseSynth) throw new Error('Synth base não encontrado');
@@ -186,7 +190,11 @@ export async function applyGenerativeToCurrentSynth() {
   const { applyGenerativeVariation } = await import('../synth/generativeEngine.js');
   const { audio } = await import('../audio.js');
   
-  const synthIdx = state.currentSynthType || WORLD_SYNTH[state.currentLevel];
+  const synthIdx = (state.currentSynthType != null && SYNTH_PRESETS[state.currentSynthType] != null)
+    ? state.currentSynthType
+    : (WORLD_SYNTH[state.currentLevel] != null && SYNTH_PRESETS[WORLD_SYNTH[state.currentLevel]] != null)
+      ? WORLD_SYNTH[state.currentLevel]
+      : 0;
   const baseSynth = SYNTH_PRESETS[synthIdx];
   
   if (!baseSynth || !_currentVariation) return;
