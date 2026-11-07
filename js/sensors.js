@@ -160,8 +160,11 @@ export function orientationHandler(e) {
         lastGyroTs = nowMs;
         const beta = e.beta || 0;
         const gamma = e.gamma || 0;
+        const alpha = e.alpha || 0;
         const bn = Math.abs(beta) / 180;
         const gn = Math.abs(gamma) / 90;
+        const an = Math.abs(alpha) / 360;
+        // World sliders (non-linear combos of 3 axes)
         const speed = 0.4 + 0.6 * Math.sin(bn * Math.PI) + 0.2 * (gn * gn);
         const filter = 200 + ((1 - Math.cos(gn * Math.PI)) / 2) * (18000 - 200);
         const delay = 0.05 + Math.abs(Math.sin(bn * gn * Math.PI)) * 0.8;
@@ -175,6 +178,19 @@ export function orientationHandler(e) {
         if (delayEl) delayEl.value = Math.max(0, Math.min(0.85, delay)).toFixed(2);
         if (reverbEl) reverbEl.value = Math.max(0, Math.min(1, reverb)).toFixed(2);
         if (typeof window.updateFromSliders === 'function') window.updateFromSliders(false);
+        // Voice sliders (non-linear combos of 3 axes)
+        const gate = -60 + 50 * Math.abs(Math.sin(beta * Math.PI / 180) * Math.cos(gamma * Math.PI / 90));
+        const delayV = Math.abs(Math.sin(beta * gn * Math.PI)) * 1;
+        const fb = bn * gn * 0.8;
+        const rev = (1 - Math.cos(gn * Math.PI)) / 2;
+        const dw = (Math.abs(alpha) / 360) * 0.5 + 0.5;
+        if (typeof window.setMicParam === 'function') {
+          window.setMicParam('gate', Math.max(-60, Math.min(-10, gate)));
+          window.setMicParam('delay', Math.max(0, Math.min(1, delayV)));
+          window.setMicParam('feedback', Math.max(0, Math.min(0.8, fb)));
+          window.setMicParam('reverb', Math.max(0, Math.min(1, rev)));
+          window.setMicParam('dw', Math.max(0, Math.min(1, dw)));
+        }
       }
     }
   }
