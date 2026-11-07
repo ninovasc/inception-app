@@ -318,7 +318,7 @@ test.describe('PASIV Engine E2E Tests', () => {
     await expect(sourceSelect).toBeVisible();
   });
 
-  test('Sound source has synth/mp3/youtube options', async ({ page }) => {
+  test('Sound source has synth/mp3 options', async ({ page }) => {
     await page.selectOption('#modeSelector', 'narrative');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);

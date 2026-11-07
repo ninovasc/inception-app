@@ -36,9 +36,6 @@ export function setWorldVolume(worldIdx, val) {
     if (state.sourceMode === 'synth' && state.synthMasterGain) {
       state.synthMasterGain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
     }
-    if (state.sourceMode === 'youtube' && window.setYouTubeVolume) {
-      window.setYouTubeVolume(worldIdx, v);
-    }
   }
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }

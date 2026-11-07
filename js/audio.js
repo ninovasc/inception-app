@@ -225,8 +225,6 @@ export function selectLevel(idx, preserveParams = false) {
         synth.startChordProgression();
       } else if (state.sourceMode === 'mp3') {
         mp3.startMp3World();
-      } else if (state.sourceMode === 'youtube') {
-        if (window.startYouTubeWorld) window.startYouTubeWorld();
       } else if (state.sourceMode === 'capture') {
         if (window.startCapture) window.startCapture();
       }
@@ -275,8 +273,6 @@ export function restartWorldAudio() {
     synth.startChordProgression();
   } else if (type === 'mp3') {
     mp3.startMp3World();
-  } else if (type === 'youtube') {
-    if (window.startYouTubeWorld) window.startYouTubeWorld();
   } else if (type === 'capture') {
     if (window.startCapture) window.startCapture();
   }

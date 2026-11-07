@@ -81,7 +81,7 @@ describe('File Structure', () => {
     const requiredFiles = [
       'js/app.js', 'js/eventDelegate.js', 'js/features/modeController.js', 'js/features/triggerController.js', 'js/features/pomodoroController.js', 'js/features/sleepController.js', 'js/features/accordionController.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
-      'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
+      'js/ui.js', 'js/power.js', 'js/capture.js',
       'js/screensaver-svg.js', 'js/screensaver.js', 'js/synth/generativeEngine.js',
       'js/ui/commonUI.js', 'js/ui/freeUI.js', 'js/ui/generativeUI.js',
       'js/ui/modeSelector.js', 'js/ui/narrativeUI.js', 'js/ui/pomodoroUI.js',
@@ -98,7 +98,7 @@ describe('File Structure', () => {
     const files = [
       'js/app.js', 'js/eventDelegate.js', 'js/features/modeController.js', 'js/features/triggerController.js', 'js/features/pomodoroController.js', 'js/features/sleepController.js', 'js/features/accordionController.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
-      'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
+      'js/ui.js', 'js/power.js', 'js/capture.js',
       'js/screensaver-svg.js', 'js/screensaver.js', 'js/synth/generativeEngine.js',
       'js/ui/commonUI.js', 'js/ui/freeUI.js', 'js/ui/generativeUI.js',
       'js/ui/modeSelector.js', 'js/ui/narrativeUI.js', 'js/ui/pomodoroUI.js',
@@ -137,7 +137,7 @@ describe('Import/Export Consistency', () => {
     const files = [
       'js/app.js', 'js/eventDelegate.js', 'js/features/modeController.js', 'js/features/triggerController.js', 'js/features/pomodoroController.js', 'js/features/sleepController.js', 'js/features/accordionController.js', 'js/state.js', 'js/config.js', 'js/audio.js', 'js/audio/core.js', 'js/audio/synth.js', 'js/audio/mp3.js', 'js/audio/stems.js', 'js/audio/world.js', 'js/audio/effects.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
-      'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
+      'js/ui.js', 'js/power.js', 'js/capture.js',
       'js/screensaver-svg.js', 'js/screensaver.js', 'js/synth/generativeEngine.js',
       'js/ui/commonUI.js', 'js/ui/freeUI.js', 'js/ui/generativeUI.js',
       'js/ui/modeSelector.js', 'js/ui/narrativeUI.js', 'js/ui/pomodoroUI.js',

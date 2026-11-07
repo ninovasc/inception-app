@@ -12,7 +12,6 @@ const ASSETS = [
   './js/seed.js',
   './js/ui.js',
   './js/power.js',
-  './js/youtube.js',
   './js/capture.js',
   './manifest.webmanifest',
   './assets/icons/icon-192.png',

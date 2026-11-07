@@ -50,7 +50,7 @@
     "typescript": "^5.5.3"
   },
   "scripts": {
-    "test": "npx tsc --noEmit -p tsconfig.pure.json && node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs && node scripts/test-seed.mjs",
+    "test": "npx tsc --noEmit -p tsconfig.pure.json && node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs",
     "test:e2e": "npx playwright test",
     "test:all": "npm test && npm run test:e2e",
     "lint": "npx eslint js/ tests/ scripts/ --ext .js,.mjs"

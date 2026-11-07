@@ -32,7 +32,6 @@ const KEYMAP = {
   reverb: 'r',
   mechanics: 'h',
   lucidModeIdx: 'i',
-  ytLinks: 'y',
   worldSourceType: 't',
   worldSynth: 'w',
   worldVolume: 'o',
@@ -65,7 +64,7 @@ function encodeTypeString13(arr) {
   const out = [];
   for (let i = 0; i < N; i++) {
     const t = (arr && arr[i]) || 'synth';
-    out.push(t === 'synth' ? '0' : (t === 'youtube' ? '1' : '2'));
+    out.push(t === 'synth' ? '0' : (t === 'mp3' ? '2' : '0'));
   }
   return out.join('');
 }
@@ -75,7 +74,7 @@ function decodeTypeString13(str) {
   const out = [];
   for (let i = 0; i < N; i++) {
     const ch = str[i] || '0';
-    out.push(ch === '1' ? 'youtube' : (ch === '2' ? 'mp3' : 'synth'));
+    out.push(ch === '2' ? 'mp3' : 'synth');
   }
   return out;
 }
@@ -101,7 +100,7 @@ function remapLegacyArray(oldArr, defaultFor) {
 export function encodeState(s) {
   const compact = {};
   compact[KEYMAP.schemaVersion] = SCHEMA_VERSION;
-  if (s.sourceMode !== undefined) compact[KEYMAP.sourceMode] = s.sourceMode === 'synth' ? 0 : (s.sourceMode === 'youtube' ? 1 : (s.sourceMode === 'capture' ? 2 : 3));
+  if (s.sourceMode !== undefined) compact[KEYMAP.sourceMode] = s.sourceMode === 'synth' ? 0 : (s.sourceMode === 'capture' ? 2 : 0);
   if (s.currentSynthType !== undefined) compact[KEYMAP.currentSynthType] = s.currentSynthType;
   if (s.currentLevel !== undefined) compact[KEYMAP.currentLevel] = s.currentLevel;
   if (s.xyState) compact[KEYMAP.xyState] = [Math.round(s.xyState.x * 100), Math.round(s.xyState.y * 100)];
@@ -116,13 +115,9 @@ export function encodeState(s) {
     compact[KEYMAP.mechanics] = `${m.mem ? 1 : 0}${m.auto ? 1 : 0}${m.spatial ? 1 : 0}${lucidMin}${m.depr ? 1 : 0}`;
   }
   if (s.lucidModeIdx !== undefined) compact[KEYMAP.lucidModeIdx] = s.lucidModeIdx;
-  if (s.ytLinks && s.ytLinks.some(x => x)) compact[KEYMAP.ytLinks] = s.ytLinks.map(x => x || '_').join(',');
   if (s.worldSourceType) compact[KEYMAP.worldSourceType] = encodeTypeString13(s.worldSourceType);
   if (s.worldSynth) compact[KEYMAP.worldSynth] = encodeSynthString13(s.worldSynth);
   if (s.worldVolume) compact[KEYMAP.worldVolume] = padArray(s.worldVolume, N, 0.2).map(v => Math.round(v * 100));
-  if (s.worldSources && s.worldSources.youtube && s.worldSources.youtube.some(x => x)) {
-    compact[KEYMAP.worldSources] = padArray(s.worldSources.youtube, N, '').map(x => x || '_').join(',');
-  }
   if (s.autoMode !== undefined) compact[KEYMAP.autoMode] = s.autoMode ? 1 : 0;
   if (s.worldTriggers) {
     const t = s.worldTriggers;
@@ -151,7 +146,7 @@ export function decodeState(str) {
     const out = {};
     const isV3 = c.V === SCHEMA_VERSION;
 
-    if (c.m !== undefined) out.sourceMode = c.m === 0 ? 'synth' : (c.m === 1 ? 'youtube' : (c.m === 2 ? 'capture' : 'mp3'));
+    if (c.m !== undefined) out.sourceMode = c.m === 0 ? 'synth' : (c.m === 2 ? 'capture' : 'mp3');
     if (c.s !== undefined) out.currentSynthType = c.s;
     if (c.l !== undefined) out.currentLevel = c.l;
     if (c.x) out.xyState = { x: c.x[0] / 100, y: c.x[1] / 100 };
@@ -171,18 +166,12 @@ export function decodeState(str) {
       };
     }
     if (c.i !== undefined) out.lucidModeIdx = c.i;
-    if (c.y) out.ytLinks = c.y.split(',').map(x => (x === '_' ? '' : x));
     if (c.a !== undefined) out.autoMode = !!c.a;
 
     if (isV3) {
       if (c.t !== undefined) out.worldSourceType = decodeTypeString13(c.t);
       if (c.w !== undefined) out.worldSynth = decodeSynthString13(c.w);
       if (c.o) out.worldVolume = padArray(c.o, N, 20).map(n => n / 100);
-      if (c.u) {
-        const ids = padArray(c.u.split(',').map(x => (x === '_' ? '' : x)), N, '');
-        if (!out.worldSources) out.worldSources = { mp3: Array(N).fill(''), youtube: Array(N).fill('') };
-        out.worldSources.youtube = ids;
-      }
       if (Array.isArray(c.g)) {
         const raw = {};
         TRIGGER_DEFS.forEach((def, i) => { if (i < c.g.length) raw[def.key] = c.g[i]; });
@@ -197,7 +186,7 @@ export function decodeState(str) {
 
     // ---- Seeds legadas (v2.x, 6 mundos): decodifica e migra para 13 ----
     if (c.t) out.worldSourceType = remapLegacyArray(
-      c.t.split('').map(n => n === '0' ? 'synth' : (n === '1' ? 'youtube' : 'mp3')),
+      c.t.split('').map(n => n === '0' ? 'synth' : 'mp3'),
       () => 'synth'
     );
     if (c.w) {
@@ -209,8 +198,7 @@ export function decodeState(str) {
     if (c.o) out.worldVolume = remapLegacyArray(c.o, () => 20).map(n => n / 100);
     if (c.u) {
       const ids = c.u.split(',').map(x => (x === '_' ? '' : x));
-      if (!out.worldSources) out.worldSources = { mp3: Array(N).fill(''), youtube: Array(N).fill('') };
-      out.worldSources.youtube = remapLegacyArray(ids, () => '');
+      if (!out.worldSources) out.worldSources = { mp3: Array(N).fill('') };
     }
     // Nível atual legado aponta para o mundo novo equivalente.
     if (Number.isInteger(out.currentLevel) && out.currentLevel >= 0 && out.currentLevel < OLD6_TO_NEW13.length) {
@@ -262,21 +250,6 @@ function buildSeed() {
   if (state.currentLevel >= 0 && state.currentLevel < N) {
     volumes[state.currentLevel] = vs;
   }
-  const ytCount = (state.worldSources && state.worldSources.youtube && state.worldSources.youtube.length) || N;
-  const worldYt = [];
-  for (let i = 0; i < ytCount; i++) {
-    // Se o campo do mundo está aberto, ele é a fonte mais recente.
-    const input = document.getElementById(`ytUrl${i}`);
-    if (input) {
-      const m = input.value.trim().match(/(?:v=|youtu\.be\/|embed\/|shorts\/)([A-Za-z0-9_-]{11})/);
-      worldYt.push(m ? m[1] : '');
-    } else {
-      // Caso contrário, preserva o link salvo (o campo não existe para mundos recolhidos).
-      worldYt.push((state.worldSources && state.worldSources.youtube && state.worldSources.youtube[i]) || '');
-    }
-  }
-  if (!state.worldSources.youtube) state.worldSources.youtube = Array(N).fill('');
-  state.worldSources.youtube = worldYt;
   const seed = encodeState({
     sourceMode: state.sourceMode,
     currentSynthType: state.currentSynthType,
@@ -295,11 +268,10 @@ function buildSeed() {
       depr: state.isDeprivationWatchOn
     },
     lucidModeIdx: state.lucidModeIdx,
-    ytLinks: worldYt.slice(0, 3),
     worldSourceType: state.worldSourceType,
     worldSynth: state.worldSynth,
     worldVolume: state.worldVolume,
-    worldSources: { mp3: state.worldSources.mp3, youtube: worldYt },
+    worldSources: { mp3: state.worldSources.mp3 },
     autoMode: state.autoMode,
     worldTriggers: state.worldTriggers,
     triggerMotion: state.triggerMotion,
@@ -344,9 +316,6 @@ export async function applySeed() {
     }
     if (parsed.worldSynth) state.worldSynth = parsed.worldSynth;
     if (parsed.worldVolume) state.worldVolume = parsed.worldVolume;
-    if (parsed.worldSources && parsed.worldSources.youtube) {
-      state.worldSources.youtube = parsed.worldSources.youtube;
-    }
     if (parsed.worldTriggers) {
       state.worldTriggers = normalizeWorldTriggers(parsed.worldTriggers);
     } else {
@@ -372,11 +341,6 @@ export async function applySeed() {
 
     // Reflete o estado na UI imediatamente (o áudio aplica após o crossfade).
     if (typeof window.syncSourceRow === 'function') window.syncSourceRow(levelIdx);
-
-    // Recria os players de YouTube que tenham link salvo.
-    state.worldSources.youtube.forEach((id, i) => {
-      if (id && window.loadYouTube) window.loadYouTube(i, `https://youtu.be/${id}`);
-    });
 
     if (parsed.mechanics) {
       const m = parsed.mechanics;

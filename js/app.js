@@ -1,12 +1,11 @@
 import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS, LUCID_MODES, YOUTUBE_ENABLED, normalizeSourceType, WORLD_SYNTH, POMODORO_LEVELS, POMODORO_WORLD_NAMES, SLEEP_LEVELS, SLEEP_WORLD_NAMES, MODES, MODE_ORDER } from './config.js';
+import { LEVELS, SYNTH_PRESETS, LUCID_MODES, normalizeSourceType, WORLD_SYNTH, POMODORO_LEVELS, POMODORO_WORLD_NAMES, SLEEP_LEVELS, SLEEP_WORLD_NAMES, MODES, MODE_ORDER } from './config.js';
 import * as audio from './audio.js';
 import * as sensors from './sensors.js';
 import * as mechanics from './mechanics.js';
 import * as seed from './seed.js';
 import * as ui from './ui.js';
 import './power.js';
-import * as yt from './youtube.js';
 import * as cap from './capture.js';
 
 import './screensaver.js';
@@ -86,15 +85,7 @@ Object.assign(window, {
   togglePanel: ui.togglePanel,
   toggleHelp: ui.toggleHelp,
   autoResizeSeed: ui.autoResizeSeed,
-  startYouTube: yt.startYouTube,
-  stopYouTube: yt.stopYouTube,
-  startYouTubeWorld: yt.startYouTubeWorld,
-  stopYouTubeWorld: yt.stopYouTubeWorld,
-  stopAllYouTubeWorld: yt.stopAllYouTubeWorld,
-  setYouTubeRate: yt.setYouTubeRate,
-  loadYouTube: yt.loadYouTube,
   loadWorldMp3: audio.loadWorldMp3,
-  setYouTubeVolume: yt.setYouTubeVolume,
   setWorldMp3Volume: audio.setWorldMp3Volume,
   startCapture: cap.startCapture,
   stopCapture: cap.stopCapture,
@@ -194,10 +185,7 @@ try {
   }
 } catch (e) {}
 
-// Init YouTube API (somente se o recurso estiver habilitado)
-if (YOUTUBE_ENABLED) yt.initYouTube();
-
-// YouTube desativado: mundos salvos como YouTube voltam para Synth.
+// YouTube removido: mundos salvos como YouTube voltam para Synth.
 if (state.worldSourceType) {
   state.worldSourceType = state.worldSourceType.map(normalizeSourceType);
 }

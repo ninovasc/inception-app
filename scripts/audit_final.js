@@ -14,7 +14,6 @@ const files = [
   'js/i18n.js',
   'js/ui.js',
   'js/power.js',
-  'js/youtube.js',
   'js/capture.js',
   'js/screensaver-svg.js',
   'js/synth/generativeEngine.js',

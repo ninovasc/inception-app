@@ -102,7 +102,6 @@ async function runTests() {
     const files = [
       'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
-      'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
       'js/synth/generativeEngine.js', 'js/ui/commonUI.js', 'js/ui/freeUI.js',
       'js/ui/generativeUI.js', 'js/ui/modeSelector.js', 'js/ui/narrativeUI.js',
       'js/ui/pomodoroUI.js', 'js/ui/sleepUI.js',
@@ -130,7 +129,6 @@ async function runTests() {
     const files = [
       'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
-      'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
       'js/synth/generativeEngine.js', 'js/ui/commonUI.js', 'js/ui/freeUI.js',
       'js/ui/generativeUI.js', 'js/ui/modeSelector.js', 'js/ui/narrativeUI.js',
       'js/ui/pomodoroUI.js', 'js/ui/sleepUI.js',
@@ -186,7 +184,6 @@ async function runTests() {
     const files = [
       'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
-      'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
       'js/screensaver-svg.js', 'js/synth/generativeEngine.js',
       'js/ui/commonUI.js', 'js/ui/freeUI.js', 'js/ui/generativeUI.js',
       'js/ui/modeSelector.js', 'js/ui/narrativeUI.js', 'js/ui/pomodoroUI.js',
@@ -219,7 +216,6 @@ async function runTests() {
     const files = [
       'js/app.js', 'js/state.js', 'js/config.js', 'js/audio.js',
       'js/sensors.js', 'js/mechanics.js', 'js/seed.js', 'js/i18n.js',
-      'js/ui.js', 'js/power.js', 'js/youtube.js', 'js/capture.js',
       'js/screensaver-svg.js', 'js/synth/generativeEngine.js',
       'js/ui/commonUI.js', 'js/ui/freeUI.js', 'js/ui/generativeUI.js',
       'js/ui/modeSelector.js', 'js/ui/narrativeUI.js', 'js/ui/pomodoroUI.js',

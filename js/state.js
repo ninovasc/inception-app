@@ -6,7 +6,7 @@ export const state = {
   audioCtx: null,
   isPlaying: false,
   wakeLock: null,
-  sourceMode: 'synth', // 'synth' | 'mp3' | 'youtube'
+  sourceMode: 'synth', // 'synth' | 'mp3'
   currentSynthType: WORLD_SYNTH[0],
   autoMode: true,
   // Modo atual: 'narrative' | 'pomodoro' | 'sleep' | 'free'
@@ -20,7 +20,7 @@ export const state = {
   worldSourceType: Array(N).fill('synth'),
   worldSynth: [...WORLD_SYNTH],
   worldVolume: Array(N).fill(0.2),
-  worldSources: { mp3: Array(N).fill(''), youtube: Array(N).fill('') },
+  worldSources: { mp3: Array(N).fill('') },
   gpsRain: false,
   gpsNight: false,
   gpsSpeedMps: 0,

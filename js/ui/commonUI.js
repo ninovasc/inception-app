@@ -51,7 +51,7 @@ export function renderSourceList() {
     const synthName = SYNTH_PRESETS[synthIdx]?.name || `Synth ${synthIdx}`;
     const volume = state.worldVolume?.[i] || 0.2;
     const mp3Name = state.worldSources?.mp3?.[i];
-    const ytLink = state.worldSources?.youtube?.[i];
+    const ytLink = state.worldSources?.mp3?.[i];
     
     const isActive = i === state.currentLevel;
     
@@ -65,7 +65,6 @@ export function renderSourceList() {
           <select onchange="setSourceMode(${i}, this.value)" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px;">
             <option value="synth" ${sourceType === 'synth' ? 'selected' : ''}>${t('source.synth') || 'Synth'}</option>
             <option value="mp3" ${sourceType === 'mp3' ? 'selected' : ''}>${t('source.mp3') || 'MP3'}</option>
-            <option value="youtube" ${sourceType === 'youtube' ? 'selected' : ''} disabled>${t('source.youtube') || 'YouTube'}</option>
           </select>
           
           ${sourceType === 'synth' ? `
