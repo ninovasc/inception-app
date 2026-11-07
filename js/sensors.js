@@ -91,6 +91,7 @@ export async function toggleMotion() {
 
 export function motionHandler(e) {
   if (!state.isMotionOn) return;
+  if (!state.isPlaying) return;
   const nowMs = Date.now();
   // throttle to ~10Hz
   if (nowMs - lastMotionTs < 100) return;
@@ -126,6 +127,7 @@ export function motionHandler(e) {
 }
 
 export function orientationHandler(e) {
+  if (!state.isPlaying) return;
   if (e.beta !== null) {
     const b = Math.abs(e.beta);
     state.isPhoneFaceDown = (b > 145 && b <= 180);

@@ -114,6 +114,11 @@ export function stopCurrentMode() {
     narrativeMode.stopAutoMode();
   }
 
+  // Para os sensores em uso
+  if (state.isMicOn && typeof window.toggleMic === 'function') window.toggleMic();
+  if (state.isMotionOn && typeof window.toggleMotion === 'function') window.toggleMotion();
+  if (state.isGpsOn && typeof window.toggleGPS === 'function') window.toggleGPS();
+
   state.isPlaying = false;
 
   // Libera wake lock e retoma screensaver
