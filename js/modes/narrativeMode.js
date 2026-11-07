@@ -86,6 +86,7 @@ export function decideWorld(now = Date.now()) {
 }
 
 export function evaluateAutoMode() {
+  if (state.currentMode !== 'narrative') return null;
   if (!state.autoMode) return null;
   if (state.isPlaying && sessionStartTs === 0) sessionStartTs = Date.now();
   const w = decideWorld();

@@ -55,11 +55,16 @@ export function startTimer() {
 
 function updateTimerDisplay() {
   const timerEl = document.getElementById('pomodoroTimer');
-  if (!timerEl) return;
-  
-  const mins = Math.floor(state.pomodoro.timeRemaining / 60);
-  const secs = state.pomodoro.timeRemaining % 60;
-  timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  if (timerEl) {
+    const mins = Math.floor(state.pomodoro.timeRemaining / 60);
+    const secs = state.pomodoro.timeRemaining % 60;
+    timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  }
+
+  // Sincroniza timer do screensaver (modo Pomodoro)
+  if (typeof window.syncScreensaverPomodoroTimer === 'function') {
+    window.syncScreensaverPomodoroTimer();
+  }
   
   // Atualiza progress ring se existir
   const progressRing = document.getElementById('pomodoroProgressRing');

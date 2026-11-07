@@ -67,6 +67,11 @@ export function startCurrentMode() {
   // Marca como tocando
   state.isPlaying = true;
 
+  // Inicia a reprodução de áudio do mundo atual (exceto no modo Sono, que fica em silêncio até o alarme)
+  if (state.currentMode !== 'sleep' && typeof audio.restartWorldAudio === 'function') {
+    audio.restartWorldAudio();
+  }
+
   // Mantém a tela acesa e pausa o screensaver durante a reprodução
   requestWakeLock();
   if (window.__screensaver && typeof window.__screensaver.pause === 'function') {

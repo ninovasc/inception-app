@@ -8,6 +8,7 @@ let alarmCheckInterval = null;
 export function activate() {
   state.sleep.enabled = true;
   state.sleep.isWaking = false;
+  state.autoMode = false; // Sono não usa autoMode narrativo
   
   // Para qualquer áudio atual
   if (state.isPlaying) {
