@@ -8,6 +8,7 @@ import {
 } from './config.js';
 
 let lastMotionTs = 0;
+let lastGyroTs = 0;
 
 export async function toggleMic() {
   // initAudio provided by audio module; lazy import to avoid cycles
@@ -150,6 +151,31 @@ export function orientationHandler(e) {
     } else {
       state.flatSince = null;
       state.isFlatHold = false;
+    }
+
+    // Giroscópio → Sliders (modo opcional): combinações não-lineares dos eixos
+    if (state.isGyroSlidersOn && state.isPlaying) {
+      const nowMs = Date.now();
+      if (nowMs - lastGyroTs > 200) {
+        lastGyroTs = nowMs;
+        const beta = e.beta || 0;
+        const gamma = e.gamma || 0;
+        const bn = Math.abs(beta) / 180;
+        const gn = Math.abs(gamma) / 90;
+        const speed = 0.4 + 0.6 * Math.sin(bn * Math.PI) + 0.2 * (gn * gn);
+        const filter = 200 + ((1 - Math.cos(gn * Math.PI)) / 2) * (18000 - 200);
+        const delay = 0.05 + Math.abs(Math.sin(bn * gn * Math.PI)) * 0.8;
+        const reverb = 0.05 + bn * gn * 0.9;
+        const speedEl = document.getElementById('sliderSpeed');
+        const filterEl = document.getElementById('sliderFilter');
+        const delayEl = document.getElementById('sliderDelay');
+        const reverbEl = document.getElementById('sliderReverb');
+        if (speedEl) speedEl.value = Math.max(0.25, Math.min(1.4, speed)).toFixed(2);
+        if (filterEl) filterEl.value = Math.round(Math.max(160, Math.min(18000, filter)));
+        if (delayEl) delayEl.value = Math.max(0, Math.min(0.85, delay)).toFixed(2);
+        if (reverbEl) reverbEl.value = Math.max(0, Math.min(1, reverb)).toFixed(2);
+        if (typeof window.updateFromSliders === 'function') window.updateFromSliders(false);
+      }
     }
   }
 

@@ -78,6 +78,7 @@ export const state = {
   freefallTimestamp: 0,
   lastKickTime: 0,
   isSpatial3DOn: true,
+  isGyroSlidersOn: false,
   baseCompassAlpha: null,
   lucidModeIdx: 0,
   lucidRemainingSec: 0,

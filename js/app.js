@@ -72,6 +72,7 @@ Object.assign(window, {
   toggleMemoryCatcher: mechanics.toggleMemoryCatcher,
   toggleAutoKick: mechanics.toggleAutoKick,
   toggleSpatial3D: mechanics.toggleSpatial3D,
+  toggleGyroSliders: mechanics.toggleGyroSliders,
   cycleLucidTimer: mechanics.cycleLucidTimer,
   setLucidTimerMinutes: mechanics.setLucidTimerMinutes,
   toggleDeprivationWatch: mechanics.toggleDeprivationWatch,
@@ -151,6 +152,7 @@ registerAction('setWorldTrigger', function () { setWorldTrigger(this.dataset.key
 registerAction('toggleMemoryCatcher', function () { mechanics.toggleMemoryCatcher(); });
 registerAction('toggleAutoKick', function () { mechanics.toggleAutoKick(); });
 registerAction('toggleSpatial3D', function () { mechanics.toggleSpatial3D(); });
+registerAction('toggleGyroSliders', function () { mechanics.toggleGyroSliders(); });
 registerAction('cycleLucidTimer', function () { mechanics.cycleLucidTimer(); });
 registerAction('toggleDeprivationWatch', function () { mechanics.toggleDeprivationWatch(); });
 registerAction('autoResizeSeed', function () { ui.autoResizeSeed.call(this); });

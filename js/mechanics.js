@@ -27,6 +27,7 @@ export function syncMechanicsUI() {
   setMechanicUI('btnSpatial3D', 'subSpatial3D', state.isSpatial3DOn, 'ON (3D Ativo)', 'OFF (Centro)');
   const deprOn = state.isDeprivationWatchOn;
   setMechanicUI('btnDeprivation', 'subDeprivation', deprOn, 'VIGIANDO (0/15s)', t('btn.off'));
+  setMechanicUI('btnGyroSliders', 'subGyroSliders', state.isGyroSlidersOn, 'ON', t('btn.off'));
   // Timer de Sonho Lúcido permanece OFF por padrão.
   const timer = document.getElementById('btnLucidTimer');
   if (timer && !state.lucidInterval) {
@@ -184,6 +185,11 @@ export function stopSpatial3D() {
 export async function toggleSpatial3D() {
   if (state.isSpatial3DOn) stopSpatial3D();
   else await startSpatial3D();
+  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
+}
+
+export function toggleGyroSliders() {
+  state.isGyroSlidersOn = !state.isGyroSlidersOn;
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
