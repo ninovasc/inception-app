@@ -27,7 +27,7 @@ export async function loadStem(index, file) {
 export async function loadWorldMp3(worldIdx, file) {
   if (!file) return;
   initAudio();
-  const label = document.getElementById(`mp3Label${worldIdx}`);
+  const label = document.getElementById(`mp3Label_${worldIdx}`);
   if (label) label.textContent = t('source.loading');
   try {
     const buf = await file.arrayBuffer();
