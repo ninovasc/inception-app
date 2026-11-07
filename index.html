@@ -258,13 +258,13 @@
   <div id="helpModal" class="help-modal" data-action="toggleHelpBackdrop">
     <div class="help-card">
       <button class="help-close" data-action="toggleHelp" aria-label="Fechar">&times;</button>
-      <h2>PASIV Engine</h2>
-      <p>Motor de áudio psicoacústico inspirado nos níveis de sonho de <em>Inception</em>. Crie paisagens sonoras, use sensores do celular e compartilhe configurações via Seed.</p>
+      <h2 data-i18n="help.title">PASIV Engine</h2>
+      <p data-i18n="help.intro">Motor de áudio psicoacústico inspirado nos níveis de sonho de <em>Inception</em>. Crie paisagens sonoras, use sensores do celular e compartilhe configurações via Seed.</p>
 
-      <h3>Mundos</h3>
+      <h3 data-i18n="help.worlds">Mundos</h3>
       <p>13 mundos nomeados pelas faixas da OST: Half Remembered Dream, We Built Our Own World, Dream Is Collapsing, Radical Notion, Old Souls, 528491, Mombasa, One Simple Idea, Dream Within a Dream, Waiting for a Train, Paradox, Time e Bonus Track. Cada um ajusta velocidade, filtro, eco e reverb de uma vez.</p>
 
-      <h3>Fonte Sonora</h3>
+      <h3 data-i18n="help.soundSource">Fonte Sonora</h3>
       <ul>
         <li><strong>Um tipo por mundo</strong>: abra a linha do mundo (▶) e escolha Synth ou MP3. Toque no nome para ir ao mundo.</li>
         <li><strong>Synth</strong>: 18 sintetizadores — cada mundo tem um preset próprio, com camadas de pluck, pulse (BPM), ruído, drift e binaural.</li>
@@ -274,10 +274,10 @@
         <li><strong>Modo Narrativo</strong>: usa sensores para escolher o melhor mundo e voz.</li>
       </ul>
 
-      <h3>Modo Narrativo</h3>
+      <h3 data-i18n="help.narrative">Modo Narrativo</h3>
       <p>Vem ligado por padrão. Usa sensores (GPS, giro, mic, sessão) para escolher o mundo e a voz homônima automaticamente, avaliando a cada 10s.</p>
 
-      <h3>Gatilhos de Mundo</h3>
+      <h3 data-i18n="help.triggers">Gatilhos de Mundo</h3>
       <ul>
         <li><strong>Prioridade exclusiva</strong>: as 13 regras são avaliadas em ordem curada (raro/específico primeiro) e só a primeira verdadeira escolhe o mundo. Não há sobreposição.</li>
         <li><strong>Ordem curada</strong>: Chuva intensa → Palmas → Invertido → Queda livre → Movimento → Veículo → Início da sessão → Silêncio → Chuva → Aparelho apoiado → Noite → Sessão longa → Sem gatilho.</li>
@@ -287,23 +287,29 @@
         <li><strong>Seed</strong>: destinos escolhidos e limiares são salvos no Código do Sonho.</li>
       </ul>
 
-      <h3>O Chute (Kick)</h3>
-      <p>Dispara uma fanfarra de metais + BRAAAM grave e desce ao Waiting for a Train (a estação do limbo).</p>
+      <h3 data-i18n="help.pomodoro">Modo Pomodoro</h3>
+      <p>Timer de atividade/pausa com ciclos configuráveis e MP3 por fase (via Fonte Sonora). O timer só inicia ao clicar em Iniciar.</p>
 
-      <h3>Sensores</h3>
+      <h3 data-i18n="help.sleep">Modo Sono</h3>
+      <p>Alarme com janela de despertar gradual, 8 mundos de sono e transição suave para o despertar.</p>
+
+      <h3 data-i18n="help.generative">IA Generativa</h3>
+      <p>Gera variações infinitas do sintetizador atual. Ajuste a intensidade, gere novas variações, salve ou resete. Reproduza por seed.</p>
+
+      <h3 data-i18n="help.sensors">Sensores</h3>
       <ul>
         <li><strong>Mic</strong>: entrada de áudio e detecção de silêncio.</li>
         <li><strong>Giro</strong>: modula a velocidade e detecta queda livre (Auto-Kick).</li>
         <li><strong>GPS</strong>: sincroniza o nível com o clima (chuva/noite/dia) e detecta veículo pela velocidade.</li>
       </ul>
 
-      <h3>Sintetizadores</h3>
+      <h3 data-i18n="help.synths">Sintetizadores</h3>
       <ul>
         <li><strong>Camadas</strong>: pluck (dedilhado), pulse (batida no BPM), noise (vento/estação), drift (instabilidade) e binaural.</li>
         <li><strong>BPM</strong>: mundos com pulso (Mombasa 120, Radical Notion 96, Waiting for a Train 100...) trocam de acorde a cada compasso.</li>
       </ul>
 
-      <h3>Mecânicas do Sonho</h3>
+      <h3 data-i18n="help.mechanics">Mecânicas do Sonho</h3>
       <ul>
         <li><strong>Ecos do Ambiente</strong>: grava ecos do ambiente e os projeta (às vezes invertidos).</li>
         <li><strong>Chute Automático</strong>: dispara O Chute ao detectar queda livre.</li>

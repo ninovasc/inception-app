@@ -13,28 +13,28 @@ export function createGenerativeUI() {
     <div style="margin-bottom: 12px;">
       <!-- Toggle principal -->
       <label style="display:flex; align-items:center; gap:8px; cursor:pointer; margin-bottom:12px;">
-        <input type="checkbox" id="generativeEnabled" onchange="toggleGenerative(this.checked)" style="width:18px; height:18px; accent-color:#fff;">
+        <input type="checkbox" id="generativeEnabled" data-action="toggleGenerative" style="width:18px; height:18px; accent-color:#fff;">
         <span style="font-size:0.7rem; color:#fff; font-family:monospace; text-transform:uppercase; letter-spacing:1px;">${t('generative.enable') || 'IA Generativa'}</span>
         <span id="generativeBadge" style="margin-left:auto; font-size:0.55rem; color:var(--muted); font-family:monospace; background:#1a1a1a; padding:2px 6px; border-radius:4px;">${t('generative.off') || 'OFF'}</span>
       </label>
       
-      <div style="font-size:0.6rem; color:var(--muted); font-family:monospace; margin-bottom:12px;">${t('generative.desc') || 'Gera variações infinitas e musicais do sintetizador atual'}</div>
+      <div style="font-size:0.6rem; color:var(--muted); font-family:monospace; margin-bottom:12px; line-height:1.4;">${t('generative.desc') || 'Gera variações infinitas e musicais do sintetizador atual. Ajuste a intensidade e clique em "Nova Variação" para criar; use "Salvar" para manter e "Reset" para voltar ao original.'}</div>
       
       <!-- Slider de intensidade -->
       <div class="slider-group" style="margin-bottom:10px;">
         <div class="slider-header"><span>${t('generative.variation') || 'Variação'}</span><span id="generativeVariationVal">50%</span></div>
-        <input type="range" id="generativeVariation" min="0" max="100" step="1" value="50" oninput="updateGenerativeVariation(this.value)">
+        <input type="range" id="generativeVariation" min="0" max="100" step="1" value="50" data-action="updateGenerativeVariation">
       </div>
       
       <!-- Botões de ação -->
       <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px;">
-        <button id="generativeNew" class="menu-item" style="flex:1; max-width:120px; justify-content:center;" onclick="generateNewVariation()">
+        <button id="generativeNew" class="menu-item" style="flex:1; max-width:120px; justify-content:center;" data-action="generateNewVariation">
           <span>${t('generative.new') || 'Nova Variação'}</span>
         </button>
-        <button id="generativeSave" class="menu-item" style="flex:1; max-width:120px; justify-content:center;" onclick="saveGenerativeVariation()">
+        <button id="generativeSave" class="menu-item" style="flex:1; max-width:120px; justify-content:center;" data-action="saveGenerativeVariation">
           <span>${t('generative.save') || 'Salvar'}</span>
         </button>
-        <button id="generativeReset" class="menu-item" style="flex:1; max-width:120px; justify-content:center;" onclick="resetGenerative()">
+        <button id="generativeReset" class="menu-item" style="flex:1; max-width:120px; justify-content:center;" data-action="resetGenerative">
           <span>${t('generative.reset') || 'Reset'}</span>
         </button>
       </div>
@@ -44,10 +44,13 @@ export function createGenerativeUI() {
         ${t('generative.ready') || 'Pronto para gerar'}
       </div>
       
-      <!-- Seed input para reprodução -->
-      <div style="margin-top:12px; display:flex; gap:6px;">
-        <input type="text" id="generativeSeedInput" placeholder="${t('generative.seedPlaceholder') || 'Seed (opcional)'}" style="flex:1; background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.7rem;border-radius:4px;font-family:monospace;width:100%;">
-        <button class="menu-item" style="padding:0 10px; font-size:0.7rem;" onclick="applyGenerativeSeed()">${t('generative.applySeed') || 'Aplicar'}</button>
+      <!-- Reproduzir variação por seed (opcional) -->
+      <div style="margin-top:12px;">
+        <div style="font-size:0.55rem; color:var(--muted); font-family:monospace; margin-bottom:4px;">${t('generative.seedLabel') || 'Reproduzir variação por seed (opcional):'}</div>
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="generativeSeedInput" placeholder="${t('generative.seedPlaceholder') || 'Seed (opcional)'}" style="flex:1; background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.7rem;border-radius:4px;font-family:monospace;width:100%;">
+          <button class="menu-item" style="padding:0 10px; font-size:0.7rem;" data-action="applyGenerativeSeed">${t('generative.applySeed') || 'Aplicar'}</button>
+        </div>
       </div>
     </div>
   `;
@@ -265,7 +268,7 @@ export async function resetGenerative() {
 }
 
 // Aplica seed manual
-window.applyGenerativeSeed = function() {
+export function applyGenerativeSeed() {
   const seedInput = document.getElementById('generativeSeedInput');
   const seed = parseInt(seedInput?.value) || Date.now();
   
@@ -332,7 +335,4 @@ window.resetGenerative = function() {
   resetGenerative();
 };
 
-window.applyGenerativeSeed = function() {
-  const { applyGenerativeSeed } = require('./ui/generativeUI.js');
-  applyGenerativeSeed();
-};
+window.applyGenerativeSeed = applyGenerativeSeed;

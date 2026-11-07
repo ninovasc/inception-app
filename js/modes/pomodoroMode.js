@@ -14,6 +14,15 @@ export async function activate() {
     audio.selectLevel(0);
   }
   
+  // Presets de voz para Pomodoro
+  try {
+    const sensors = await import('../sensors.js');
+    if (sensors && sensors.MIC_PRESETS) {
+      sensors.MIC_PRESETS['Pomodoro Atividade'] = { gate: -35, delay: 0.22, feedback: 0.18, reverb: 0.40, dry: 0.70, wet: 0.30, pitch: 0 };
+      sensors.MIC_PRESETS['Pomodoro Pausa'] = { gate: -25, delay: 0.06, feedback: 0.03, reverb: 0.08, dry: 0.92, wet: 0.08, pitch: 0 };
+    }
+  } catch (e) {}
+
   renderPomodoroUI();
 }
 
@@ -173,7 +182,19 @@ async function transitionToPhase(newPhase) {
   
   updateTimerDisplay();
   renderPomodoroUI();
-  
+
+  // Aplica preset de microfone conforme a fase (atividade = mais baixo + eco; pausa = mais presente)
+  try {
+    const sensors = await import('../sensors.js');
+    if (sensors && sensors.MIC_PRESETS) {
+      sensors.MIC_PRESETS['Pomodoro Atividade'] = { gate: -35, delay: 0.22, feedback: 0.18, reverb: 0.40, dry: 0.70, wet: 0.30, pitch: 0 };
+      sensors.MIC_PRESETS['Pomodoro Pausa'] = { gate: -25, delay: 0.06, feedback: 0.03, reverb: 0.08, dry: 0.92, wet: 0.08, pitch: 0 };
+    }
+    if (sensors && typeof sensors.applyMicPreset === 'function') {
+      sensors.applyMicPreset(newPhase === 'activity' ? 'Pomodoro Atividade' : 'Pomodoro Pausa');
+    }
+  } catch (e) {}
+
   // Toca som de transição se estiver tocando
   if (state.isPlaying) {
     // O audio.selectLevel já cuida da transição

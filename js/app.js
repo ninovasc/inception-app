@@ -28,7 +28,7 @@ import { createPomodoroUI, updatePomodoroUI } from './ui/pomodoroUI.js';
 import { createSleepUI } from './ui/sleepUI.js';
 import { createNarrativeUI, updateNarrativeUI } from './ui/narrativeUI.js';
 import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
-import { initGenerativeUI, updateGenerativeUIVisibility } from './ui/generativeUI.js';
+import { initGenerativeUI, updateGenerativeUIVisibility, toggleGenerative, updateGenerativeVariation, generateNewVariation, saveGenerativeVariation, resetGenerative, applyGenerativeSeed } from './ui/generativeUI.js';
 import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
 import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
 
@@ -155,6 +155,12 @@ registerAction('toggleDeprivationWatch', function () { mechanics.toggleDeprivati
 registerAction('autoResizeSeed', function () { ui.autoResizeSeed.call(this); });
 registerAction('copySeed', function () { seed.copySeed(); });
 registerAction('applySeed', function () { seed.applySeed(); });
+registerAction('toggleGenerative', function () { toggleGenerative(this.checked); });
+registerAction('updateGenerativeVariation', function () { updateGenerativeVariation(this.value); });
+registerAction('generateNewVariation', function () { generateNewVariation(); });
+registerAction('saveGenerativeVariation', function () { saveGenerativeVariation(); });
+registerAction('resetGenerative', function () { resetGenerative(); });
+registerAction('applyGenerativeSeed', function () { applyGenerativeSeed(); });
 registerAction('toggleHelpBackdrop', function (e) { if (e.target === this) ui.toggleHelp(); });
 
 // Service worker:
