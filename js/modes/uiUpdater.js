@@ -180,7 +180,19 @@ export function updateTriggerIndicator() {
   const el = document.getElementById('triggerActive');
   if (!el) return;
 
-  const { worldTriggers } = state;
+  const t = window.t || ((k) => k);
+
+
+  // Usa o gatilho efetivamente ativo (última decisão), quando disponível
+  let activeKey = 'none';
+  let activeWorld = -1;
+  try {
+    const getter = window.getActiveTrigger;
+    if (typeof getter === 'function') {
+      const ad = getter();
+      if (ad && ad.key) { activeKey = ad.key; activeWorld = ad.world; }
+    }
+  } catch (e) {}
 
   const TRIGGER_DEFS = [
     { key: 'bonusRain', label: 'Chuva Intensa', icon: '🌧️' },
@@ -198,25 +210,16 @@ export function updateTriggerIndicator() {
     { key: 'fallback', label: 'Sem Gatilho', icon: '🏠' }
   ];
 
-  const t = window.t || ((k) => k);
-
-  for (const def of TRIGGER_DEFS) {
-    const targetWorld = worldTriggers[def.key];
-    if (targetWorld === -1 || targetWorld === undefined) continue;
-
-    const worldName = WORLD_NAMES?.[targetWorld] || `Mundo ${targetWorld}`;
-    const triggerActive = document.getElementById('triggerActive');
-    if (triggerActive) {
-      triggerActive.textContent = `${t('trigger.active') || 'gatilho ativo'}: ${def.icon} ${t('trigger.label.' + def.key) || def.label} → ${worldName}`;
-      triggerActive.dataset.activeTrigger = def.key;
-    }
+  if (activeKey && activeKey !== 'none') {
+    const def = TRIGGER_DEFS.find(d => d.key === activeKey);
+    const worldName = (activeWorld >= 0 && WORLD_NAMES[activeWorld]) ? WORLD_NAMES[activeWorld] : `Mundo ${activeWorld}`;
+    const label = def ? (t('trigger.label.' + def.key) || def.label) : activeKey;
+    const icon = def ? def.icon : '';
+    el.textContent = `${t('trigger.active') || 'gatilho ativo'}: ${icon} ${label} → ${worldName}`;
+    el.dataset.activeTrigger = activeKey;
     return;
   }
 
-  const triggerActive = document.getElementById('triggerActive');
-  if (triggerActive) {
-    const t2 = window.t || ((k) => k);
-    triggerActive.textContent = t2('trigger.none') || 'gatilho ativo: nenhum';
-    triggerActive.dataset.activeTrigger = 'none';
-  }
+  el.textContent = t('trigger.none') || 'gatilho ativo: nenhum';
+  el.dataset.activeTrigger = 'none';
 }
