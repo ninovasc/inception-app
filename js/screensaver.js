@@ -56,14 +56,22 @@ function renderScreensaverContent(el) {
     return;
   }
   if (mode === 'pomodoro') {
-    // Timer do Pomodoro (replica a seção Pomodoro)
+    // Timer do Pomodoro (replica a seção Pomodoro) com anel de progresso
     el.style.background = '#000000';
     const t = (typeof window !== 'undefined' && typeof window.t === 'function') ? window.t : (k => k);
+    const r = 90;
+    const c = 2 * Math.PI * r;
     el.innerHTML = `
-      <div style="text-align:center; color:#fff; font-family:monospace;">
-        <div style="font-size:0.7rem; color:#888; margin-bottom:8px;">${t('pomodoro.title') || 'Pomodoro'}</div>
-        <div id="screensaverPomodoroTimer" style="font-size:4rem; font-weight:700; letter-spacing:2px;">25:00</div>
-        <div style="font-size:0.7rem; color:#888; margin-top:8px;" id="screensaverPomodoroPhase">Atividade</div>
+      <div style="text-align:center; color:#fff; font-family:monospace; position:relative; width:220px; height:220px; margin:0 auto;">
+        <svg width="220" height="220" style="transform:rotate(-90deg);">
+          <circle cx="110" cy="110" r="${r}" fill="none" stroke="#222" stroke-width="8"/>
+          <circle id="screensaverPomodoroRing" cx="110" cy="110" r="${r}" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${c}"/>
+        </svg>
+        <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+          <div style="font-size:0.7rem; color:#888; margin-bottom:4px;">${t('pomodoro.title') || 'Pomodoro'}</div>
+          <div id="screensaverPomodoroTimer" style="font-size:2.6rem; font-weight:700; letter-spacing:2px;">25:00</div>
+          <div style="font-size:0.7rem; color:#888; margin-top:4px;" id="screensaverPomodoroPhase">Atividade</div>
+        </div>
       </div>
     `;
     // Sincroniza com o timer atual
@@ -82,6 +90,18 @@ export function syncScreensaverPomodoroTimer() {
   const srcPhase = document.getElementById('pomodoroPhaseLabel');
   const dstPhase = document.getElementById('screensaverPomodoroPhase');
   if (srcPhase && dstPhase) dstPhase.textContent = srcPhase.textContent;
+
+  // Atualiza anel de progresso
+  const ring = document.getElementById('screensaverPomodoroRing');
+  if (ring && window.state && window.state.pomodoro) {
+    const p = window.state.pomodoro;
+    const total = p.totalTime || 1;
+    const remaining = p.timeRemaining || 0;
+    const progress = 1 - (remaining / total);
+    const r = 90;
+    const circ = 2 * Math.PI * r;
+    ring.setAttribute('stroke-dashoffset', String(circ * (1 - progress)));
+  }
 }
 
 // Expor para sincronização externa
