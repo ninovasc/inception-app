@@ -194,6 +194,19 @@ export function updateTriggerIndicator() {
     }
   } catch (e) {}
 
+  // Fallback: mostra o primeiro gatilho configurado (com alvo válido) em worldTriggers.
+  if (activeKey === 'none' && state.worldTriggers) {
+    const defsKeys = Object.keys(state.worldTriggers);
+    for (const key of defsKeys) {
+      const tgt = state.worldTriggers[key];
+      if (tgt !== undefined && tgt !== -1 && tgt >= 0) {
+        activeKey = key;
+        activeWorld = tgt;
+        break;
+      }
+    }
+  }
+
   const TRIGGER_DEFS = [
     { key: 'bonusRain', label: 'Chuva Intensa', icon: '🌧️' },
     { key: 'clap', label: 'Duas Palmas', icon: '👏' },

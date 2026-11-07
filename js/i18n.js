@@ -136,6 +136,7 @@ const translations = {
     'generative.on': 'ON',
     'generative.off': 'OFF',
     'generative.variation': 'Variation',
+    'generative.currentSeed': 'Current seed: {seed}',
     'generative.new': 'New Variation',
     'generative.save': 'Save',
     'generative.reset': 'Reset',
@@ -375,6 +376,7 @@ const translations = {
     'generative.on': 'ON',
     'generative.off': 'OFF',
     'generative.variation': 'Variación',
+    'generative.currentSeed': 'Semilla actual: {seed}',
     'generative.new': 'Nueva Variación',
     'generative.save': 'Guardar',
     'generative.reset': 'Reset',
@@ -611,6 +613,8 @@ const translations = {
     'generative.on': 'ON',
     'generative.off': 'OFF',
     'generative.variation': 'Variação',
+    'generative.currentSeed': 'Seed atual: {seed}',
+    'generation.seedApplied': 'Seed aplicada: {seed}',
     'generative.new': 'Nova Variação',
     'generative.save': 'Salvar',
     'generative.reset': 'Reset',
@@ -675,6 +679,10 @@ const translations = {
       '<strong>BPM</strong>: mundos com pulso (Mombasa 120, Radical Notion 96, Waiting for a Train 100...) trocam de acorde a cada compasso.'
     ],
     'help.mechanics': 'Mecânicas do Sonho',
+    'help.seed': 'Código do Sonho',
+    'help.seed.desc': 'Serializa todo o estado em uma string. Use <em>Copiar</em> para compartilhar e <em>Carregar</em> para restaurar.',
+    'help.pwa': 'Instalação (PWA)',
+    'help.pwa.desc': 'No iOS/Android: "Adicionar à Tela de Início" para usar como app, com ícone e splash.',
     'help.mechanics.items': [
       '<strong>Ecos do Ambiente</strong>: grava ecos do ambiente e os projeta (às vezes invertidos).',
       '<strong>Chute Automático</strong>: dispara O Chute ao detectar queda livre.',
@@ -682,10 +690,6 @@ const translations = {
       '<strong>Timer Lúcido</strong>: descida progressiva até a estação do limbo com despertar ao fim.',
       '<strong>Privação Sensorial</strong>: após 15s de silêncio com o celular virado, entra em modo batimento.'
     ],
-    'help.seed': 'Código do Sonho',
-    'help.seed.desc': 'Serializa todo o estado em uma string. Use <em>Copiar</em> para compartilhar e <em>Carregar</em> para restaurar.',
-    'help.pwa': 'Instalação (PWA)',
-    'help.pwa.desc': 'No iOS/Android: "Adicionar à Tela de Início" para usar como app, com ícone e splash do totem (pião).',
 
     // Pomodoro
     'pomodoro.title': 'Pomodoro',

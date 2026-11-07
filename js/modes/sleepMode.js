@@ -30,6 +30,7 @@ export function activate() {
   
   // Inicia áudio do modo sono
   if (!audio.audioCtx) audio.initAudio();
+  state.isPlaying = true;
   audio.restartWorldAudio();
   
   // Renderiza UI

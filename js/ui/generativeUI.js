@@ -45,12 +45,13 @@ export function createGenerativeUI() {
       </div>
       
       <!-- Reproduzir variação por seed (opcional) -->
-      <div style="margin-top:12px;">
-        <div style="font-size:0.55rem; color:var(--muted); font-family:monospace; margin-bottom:4px;">${t('generative.seedLabel') || 'Reproduzir variação por seed (opcional):'}</div>
-        <div style="display:flex; gap:6px;">
-          <input type="text" id="generativeSeedInput" placeholder="${t('generative.seedPlaceholder') || 'Seed (opcional)'}" style="flex:1; background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:6px 8px;font-size:0.7rem;border-radius:4px;font-family:monospace;width:100%;">
-          <button class="menu-item" style="padding:0 10px; font-size:0.7rem;" data-action="applyGenerativeSeed">${t('generative.applySeed') || 'Aplicar'}</button>
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">
+        <div style="font-size:0.6rem; color:var(--muted); font-family:monospace; margin-bottom:6px; width:100%;">${t('generative.seedLabel') || 'Reproduzir variação por seed (opcional):'}</div>
+        <div style="display:flex; gap:6px; align-items:center;">
+          <input type="text" id="generativeSeedInput" placeholder="${t('generative.seedPlaceholder') || 'ex: 12345'}" style="flex:1; background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.85rem;border-radius:6px;font-family:monospace;">
+          <button id="generativeApplySeed" class="menu-item" style="padding:8px 16px; font-size:0.8rem; white-space:nowrap;" data-action="applyGenerativeSeed">${t('generative.applySeed') || 'Aplicar'}</button>
         </div>
+        <div id="generativeCurrentSeed" style="font-size:0.55rem; color:var(--muted); font-family:monospace; margin-top:4px; width:100%;"></div>
       </div>
     </div>
   `;
@@ -90,18 +91,20 @@ export function updateGenerativeVariation(val) {
   applyGenerativeToCurrentSynth();
 }
 
-// Gera nova variação aleatória
-export async function generateNewVariation() {
+// Gera nova variação aleatória (ou com seed específico)
+export async function generateNewVariation(seed = null) {
   const statusEl = document.getElementById('generativeStatus');
   if (statusEl) statusEl.textContent = t('generative.generating');
   
   try {
-    const variation = await getNewVariation();
+    const variation = await getNewVariation(seed);
     _currentVariation = variation.variation;
     _currentSeed = variation.seed;
     
     // Atualiza UI
     if (statusEl) statusEl.textContent = t('generative.generated').replace('{seed}', variation.seed);
+    const currentSeedEl = document.getElementById('generativeCurrentSeed');
+    if (currentSeedEl) currentSeedEl.textContent = t('generative.currentSeed').replace('{seed}', variation.seed);
     
     // Aplica ao synth atual
     applyGenerativeToCurrentSynth();
@@ -113,8 +116,8 @@ export async function generateNewVariation() {
   }
 }
 
-// Obtém nova variação do motor
-async function getNewVariation() {
+// Obtém nova variação do motor (opcionalmente com seed específico)
+async function getNewVariation(seed = null) {
   const engine = await import('../synth/generativeEngine.js').then(m => m.getGenerativeEngine());
   await engine.loadModel();
   
@@ -126,6 +129,9 @@ async function getNewVariation() {
   const baseSynth = SYNTH_PRESETS[synthIdx];
   
   if (!baseSynth) throw new Error('Synth base não encontrado');
+  
+  // Usa seed fornecido ou gera um novo
+  const finalSeed = seed || Date.now();
   
   // Prepara input para o motor
   const input = {
@@ -143,7 +149,7 @@ async function getNewVariation() {
     worldBgColor: document.body.style.backgroundColor || '#000000',
     targetMood: getCurrentMood(),
     variationIntensity: parseInt(document.getElementById('generativeVariation')?.value || 50) / 100,
-    seed: Date.now()
+    seed: finalSeed
   };
   
   const variation = await import('../synth/generativeEngine.js').then(m => m.generateSynthVariation(input, input.variationIntensity, input.seed));
@@ -272,9 +278,12 @@ export function applyGenerativeSeed() {
   const seedInput = document.getElementById('generativeSeedInput');
   const seed = parseInt(seedInput?.value) || Date.now();
   
-  generateNewVariation().then(() => {
+  // Gera variação usando o seed fornecido pelo usuário
+  generateNewVariation(seed).then(() => {
     const statusEl = document.getElementById('generativeStatus');
     if (statusEl) statusEl.textContent = t('generative.applied').replace('{seed}', _currentSeed);
+    const currentSeedEl = document.getElementById('generativeCurrentSeed');
+    if (currentSeedEl) currentSeedEl.textContent = t('generative.currentSeed').replace('{seed}', _currentSeed);
   });
 };
 

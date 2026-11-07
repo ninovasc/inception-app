@@ -20,8 +20,9 @@ export function cancelSleepAlarm() {
 }
 
 export async function testSleepAlarm() {
+  const { state } = await import('../state.js');
   const audio = await import('../audio.js');
-  if (!audio.audioCtx) audio.initAudio();
+  if (!state.audioCtx) audio.initAudio();
   const { playAlarmSound } = await import('../modes/sleepMode.js');
   playAlarmSound();
 }
