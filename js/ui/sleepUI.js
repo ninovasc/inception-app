@@ -42,7 +42,7 @@ export function createSleepUI() {
       
       <!-- Controles -->
       <div style="margin-top: 16px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
-        <button id="sleepTestAlarm" class="menu-item" style="flex:1; max-width:140px; justify-content:center;" onclick="window.testSleepAlarm()">
+        <button id="sleepTestAlarm" class="menu-item" style="flex:1; max-width:140px; justify-content:center;" data-action="testSleepAlarm">
           <span>${t('sleep.testAlarm') || 'Testar Alarme'}</span>
         </button>
       </div>

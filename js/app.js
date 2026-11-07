@@ -14,6 +14,7 @@ import './features/modeController.js';
 import './features/triggerController.js';
 import './features/pomodoroController.js';
 import './features/sleepController.js';
+import { testSleepAlarm } from './features/sleepController.js';
 import './features/accordionController.js';
 import { setMode, startCurrentMode, stopCurrentMode } from './features/modeController.js';
 import { togglePomodoro } from './features/pomodoroController.js';
@@ -155,6 +156,7 @@ registerAction('toggleDeprivationWatch', function () { mechanics.toggleDeprivati
 registerAction('autoResizeSeed', function () { ui.autoResizeSeed.call(this); });
 registerAction('copySeed', function () { seed.copySeed(); });
 registerAction('applySeed', function () { seed.applySeed(); });
+registerAction('testSleepAlarm', function () { testSleepAlarm(); });
 registerAction('toggleGenerative', function () { toggleGenerative(this.checked); });
 registerAction('updateGenerativeVariation', function () { updateGenerativeVariation(this.value); });
 registerAction('generateNewVariation', function () { generateNewVariation(); });

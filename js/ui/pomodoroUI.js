@@ -139,7 +139,7 @@ export function togglePomodoroConfig() {
   } else {
     config.style.maxHeight = config.scrollHeight + 'px';
     config.style.opacity = '1';
-    document.getElementById('pomodoroConfigArrow').style.transform = 'rotate(180deg)';
+    document.getElementById('pomodoroConfigArrow').style.transform = 'rotate(90deg)';
   }
 }
 
@@ -212,6 +212,6 @@ window.togglePomodoroConfig = function() {
   } else {
     config.style.maxHeight = config.scrollHeight + 'px';
     config.style.opacity = '1';
-    document.getElementById('pomodoroConfigArrow').style.transform = 'rotate(180deg)';
+    document.getElementById('pomodoroConfigArrow').style.transform = 'rotate(90deg)';
   }
 };

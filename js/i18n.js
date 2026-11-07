@@ -235,6 +235,7 @@ const translations = {
 
     // Sleep
     'sleep.title': 'Sleep',
+    'sleep.testAlarm': 'Test Alarm',
     'sleep.alarmTime': 'Alarm Time',
     'sleep.wakeWindow': 'Wake Window (min)',
     'sleep.alarmSet': 'Alarm set for {time}',
@@ -471,6 +472,7 @@ const translations = {
 
     // Sleep
     'sleep.title': 'Sueño',
+    'sleep.testAlarm': 'Probar Alarma',
     'sleep.alarmTime': 'Hora Alarma',
     'sleep.wakeWindow': 'Ventana Despertar (min)',
     'sleep.alarmSet': 'Alarma configurada para {time}',
@@ -706,6 +708,7 @@ const translations = {
 
     // Sleep
     'sleep.title': 'Sono',
+    'sleep.testAlarm': 'Testar Alarme',
     'sleep.alarmTime': 'Hora do Alarme',
     'sleep.wakeWindow': 'Janela de Despertar (min)',
     'sleep.alarmSet': 'Alarme configurado para {time}',
