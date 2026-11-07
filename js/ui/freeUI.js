@@ -1,4 +1,5 @@
 import { state } from '../state.js';
+import { t } from '../i18n.js';
 import { initCommonUI } from './commonUI.js';
 import { syncMechanicsUI } from '../mechanics.js';
 
@@ -24,7 +25,7 @@ export function updateFreeUI() {
   // Limpa gatilho ativo no modo livre
   const triggerActive = document.getElementById('triggerActive');
   if (triggerActive) {
-    triggerActive.textContent = 'Gatilhos desativados no modo Livre';
+    triggerActive.textContent = t('free.triggersDisabled');
     triggerActive.dataset.activeTrigger = 'disabled';
   }
 }

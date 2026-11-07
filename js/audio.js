@@ -1,6 +1,7 @@
 // @ts-nocheck
 import { state } from './state.js';
 import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from './config.js';
+import { t } from './i18n.js';
 import * as core from './audio/core.js';
 import * as synth from './audio/synth.js';
 import * as mp3 from './audio/mp3.js';
@@ -124,8 +125,8 @@ export function toggleMasterPlay() {
 
     if (btn) btn.classList.add('active');
     if (btn) btn.setAttribute('aria-pressed', 'true');
-    if (sub) sub.textContent = 'ATIVO';
-    if (topSt) topSt.textContent = 'SONHANDO';
+    if (sub) sub.textContent = t('status.dreaming');
+    if (topSt) topSt.textContent = t('status.dreaming');
     const logo = document.querySelector('.logo');
     if (logo) logo.classList.add('breathing');
 
@@ -145,8 +146,8 @@ export function toggleMasterPlay() {
     stopDeprivationHeartbeat();
     if (btn) btn.classList.remove('active');
     if (btn) btn.setAttribute('aria-pressed', 'false');
-    if (sub) sub.textContent = 'OFF';
-    if (topSt) topSt.textContent = 'PARADO';
+    if (sub) sub.textContent = t('status.stopped');
+    if (topSt) topSt.textContent = t('status.stopped');
     const logo = document.querySelector('.logo');
     if (logo) logo.classList.remove('breathing');
 

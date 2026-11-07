@@ -3,12 +3,13 @@ import { state } from '../state.js';
 import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from '../config.js';
 import { initAudio } from './core.js';
 import { startStems, stopStems } from './stems.js';
+import { t } from '../i18n.js';
 
 export async function loadStem(index, file) {
   if (!file) return;
   initAudio();
   const label = document.getElementById(`label${index}`);
-  if (label) label.textContent = `Camada ${index + 1}: Lendo...`;
+  if (label) label.textContent = `Camada ${index + 1}: ${t('source.loading')}`;
   try {
     const buf = await file.arrayBuffer();
     state.audioCtx.decodeAudioData(buf, (decoded) => {
@@ -16,10 +17,10 @@ export async function loadStem(index, file) {
       if (label) label.textContent = `Camada ${index + 1}: ${file.name.slice(0, 14)}`;
       if (state.isPlaying && state.sourceMode === 'upload') startStems();
     }, () => {
-      if (label) label.textContent = 'Erro ao carregar';
+      if (label) label.textContent = t('source.errorLoad');
     });
   } catch (e) {
-    if (label) label.textContent = 'Erro ao carregar';
+    if (label) label.textContent = t('source.errorLoad');
   }
 }
 
@@ -27,7 +28,7 @@ export async function loadWorldMp3(worldIdx, file) {
   if (!file) return;
   initAudio();
   const label = document.getElementById(`mp3Label${worldIdx}`);
-  if (label) label.textContent = 'Lendo...';
+  if (label) label.textContent = t('source.loading');
   try {
     const buf = await file.arrayBuffer();
     state.audioCtx.decodeAudioData(buf, (decoded) => {
@@ -39,10 +40,10 @@ export async function loadWorldMp3(worldIdx, file) {
         startMp3World();
       }
     }, () => {
-      if (label) label.textContent = 'Erro';
+      if (label) label.textContent = t('source.error');
     });
   } catch (e) {
-    if (label) label.textContent = 'Erro';
+    if (label) label.textContent = t('source.error');
   }
 }
 

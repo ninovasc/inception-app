@@ -67,13 +67,13 @@ export function toggleGenerative(enabled) {
   const statusEl = document.getElementById('generativeStatus');
   
   if (badge) {
-    badge.textContent = enabled ? 'ON' : 'OFF';
+    badge.textContent = enabled ? t('generative.on') : t('generative.off');
     badge.style.color = enabled ? '#0f0' : 'var(--muted)';
     badge.style.background = enabled ? '#030' : '#1a1a1a';
   }
   
   if (statusEl) {
-    statusEl.textContent = enabled ? 'Generativo ATIVO' : 'Generativo desativado';
+    statusEl.textContent = enabled ? t('generative.active') : t('generative.disabled');
   }
   
   // Aplica/remove variação do synth atual
@@ -90,7 +90,7 @@ export function updateGenerativeVariation(val) {
 // Gera nova variação aleatória
 export async function generateNewVariation() {
   const statusEl = document.getElementById('generativeStatus');
-  if (statusEl) statusEl.textContent = 'Gerando...';
+  if (statusEl) statusEl.textContent = t('generative.generating');
   
   try {
     const variation = await getNewVariation();
@@ -98,7 +98,7 @@ export async function generateNewVariation() {
     _currentSeed = variation.seed;
     
     // Atualiza UI
-    if (statusEl) statusEl.textContent = `Variação gerada (seed: ${variation.seed})`;
+    if (statusEl) statusEl.textContent = t('generative.generated').replace('{seed}', variation.seed);
     
     // Aplica ao synth atual
     applyGenerativeToCurrentSynth();
@@ -106,7 +106,7 @@ export async function generateNewVariation() {
     } catch (err) {
     console.error('[Generative] Erro ao gerar variação:', err);
     const statusEl = document.getElementById('generativeStatus');
-    if (statusEl) statusEl.textContent = 'Erro ao gerar';
+    if (statusEl) statusEl.textContent = t('generative.error');
   }
 }
 
@@ -245,7 +245,7 @@ export async function resetGenerative() {
   _currentSeed = null;
   
   const statusEl = document.getElementById('generativeStatus');
-  if (statusEl) statusEl.textContent = 'Resetado para original';
+  if (statusEl) statusEl.textContent = t('generative.reset');
   
   // Recarrega synth original
   const { state } = await import('../state.js');
@@ -271,7 +271,7 @@ window.applyGenerativeSeed = function() {
   
   generateNewVariation().then(() => {
     const statusEl = document.getElementById('generativeStatus');
-    if (statusEl) statusEl.textContent = `Variação com seed ${_currentSeed} aplicada`;
+    if (statusEl) statusEl.textContent = t('generative.applied').replace('{seed}', _currentSeed);
   });
 };
 

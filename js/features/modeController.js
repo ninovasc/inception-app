@@ -4,6 +4,7 @@ import * as mechanics from '../mechanics.js';
 import * as audio from '../audio.js';
 import * as narrativeMode from '../modes/narrativeMode.js';
 import { updateGenerativeUIVisibility } from '../ui/generativeUI.js';
+import { t } from '../i18n.js';
 
 // Wake Lock: mantém a tela acesa durante a reprodução (iOS/Android)
 async function requestWakeLock() {
@@ -92,7 +93,7 @@ export function startCurrentMode() {
 
   // Atualiza status
   const statusEl = document.getElementById('topStatus');
-  if (statusEl) statusEl.textContent = 'SONHANDO';
+  if (statusEl) statusEl.textContent = t('status.dreaming');
 }
 
 // Para o modo atual em execução
@@ -128,7 +129,7 @@ export function stopCurrentMode() {
   if (stopBtn) stopBtn.style.display = 'none';
 
   const statusEl = document.getElementById('topStatus');
-  if (statusEl) statusEl.textContent = 'PRONTO';
+  if (statusEl) statusEl.textContent = t('status.ready');
 }
 
 export function getCurrentMode() {

@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { state } from '../state.js';
+import { t } from '../i18n.js';
 
 export function playHeartbeatPulse(offsetGain) {
   if (!state.audioCtx) return;
@@ -54,8 +55,8 @@ export function captureAndPlaySubconsciousMemory() {
           src.start();
           const status = document.getElementById('sensorStatus');
           if (status) status.textContent = reverse
-            ? 'Memory Catcher: Eco reverso projetado no sonho.'
-            : 'Memory Catcher: Fragmento desacelerado projetado.';
+            ? t('memoryCatcher.reverse')
+            : t('memoryCatcher.slowed');
         }, () => {});
       } catch (e) {}
     };

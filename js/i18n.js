@@ -7,8 +7,13 @@ const translations = {
     // Header / Status
     'app.title': 'PASIV Engine',
     'status.stopped': 'STOPPED',
+    'status.ready': 'READY',
     'status.dreaming': 'DREAMING',
     'status.sensoryDeprivation': 'SENSORY DEPRIVATION',
+    'source.loading': 'Loading...',
+    'source.error': 'Error',
+    'source.errorLoad': 'Error loading',
+    'free.triggersDisabled': 'Triggers disabled in Free mode',
 
     // Main actions
     'btn.startDream': 'Start Dream',
@@ -24,6 +29,8 @@ const translations = {
     'btn.mic': 'Mic',
     'btn.motion': 'Motion',
     'btn.gps': 'GPS',
+    'btn.on': 'ON',
+    'btn.off': 'OFF',
     'sensorStatus.default': 'Tap a sensor to turn on or off.',
     'sensorStatus.micOn': 'Microphone on.',
     'sensorStatus.micOff': 'Microphone off.',
@@ -90,6 +97,11 @@ const translations = {
     // Mechanics
     'mechanics.title': 'Dream Mechanics',
     'mechanic.memCatcher': 'Environment Echoes',
+    'mechanic.deprivation': 'Sensory Deprivation',
+    'mechanic.deprivation.triggered': 'AWAKEN!',
+    'mechanic.deprivation.watching': 'WATCHING (0/15s)',
+    'mechanic.deprivation.active': 'ACTIVE (Heartbeat)',
+    'mechanic.silence': 'SILENCE',
     'mechanic.memCatcher.on': 'ON (Recording Echoes)',
     'mechanic.memCatcher.off': 'OFF',
     'mechanic.autoKick': 'Auto Kick (Freefall)',
@@ -118,6 +130,14 @@ const translations = {
     'generative.seedPlaceholder': 'Seed (optional)',
     'generative.applySeed': 'Apply',
     'generative.ready': 'Ready to generate',
+    'memoryCatcher.reverse': 'Memory Catcher: Reverse echo projected into dream.',
+    'memoryCatcher.slowed': 'Memory Catcher: Slowed fragment projected.',
+    'generative.active': 'Generative ACTIVE',
+    'generative.disabled': 'Generative disabled',
+    'generative.generating': 'Generating...',
+    'generative.generated': 'Variation generated (seed: {seed})',
+    'generative.error': 'Error generating',
+    'generative.applied': 'Variation applied (seed: {seed})',
     'generative.off': 'OFF',
 
     // Seed
@@ -219,8 +239,13 @@ const translations = {
   'es-ES': {
     'app.title': 'PASIV Engine',
     'status.stopped': 'DETENIDO',
+    'status.ready': 'LISTO',
     'status.dreaming': 'SOÑANDO',
     'status.sensoryDeprivation': 'PRIVACIÓN SENSORIAL',
+    'source.loading': 'Cargando...',
+    'source.error': 'Error',
+    'source.errorLoad': 'Error al cargar',
+    'free.triggersDisabled': 'Disparadores desactivados en modo Libre',
 
     'btn.startDream': 'Iniciar Sueño',
     'btn.kick': 'La Patada (Piaf + BRAAAM)',
@@ -234,6 +259,8 @@ const translations = {
     'btn.mic': 'Mic',
     'btn.motion': 'Giro',
     'btn.gps': 'GPS',
+    'btn.on': 'ON',
+    'btn.off': 'OFF',
     'sensorStatus.default': 'Toca un sensor para encender o apagar.',
     'sensorStatus.micOn': 'Micrófono encendido.',
     'sensorStatus.micOff': 'Micrófono apagado.',
@@ -295,6 +322,11 @@ const translations = {
 
     'mechanics.title': 'Mecánicas del Sueño',
     'mechanic.memCatcher': 'Ecos del Ambiente',
+    'mechanic.deprivation': 'Privación Sensorial',
+    'mechanic.deprivation.triggered': '¡DESPERTAR!',
+    'mechanic.deprivation.watching': 'VIGILANDO (0/15s)',
+    'mechanic.deprivation.active': 'ACTIVO (Latido)',
+    'mechanic.silence': 'SILENCIO',
     'mechanic.memCatcher.on': 'ON (Grabando Ecos)',
     'mechanic.memCatcher.off': 'OFF',
     'mechanic.autoKick': 'Patada Automática (Caída Libre)',
@@ -323,6 +355,14 @@ const translations = {
     'generative.seedPlaceholder': 'Seed (opcional)',
     'generative.applySeed': 'Aplicar',
     'generative.ready': 'Listo para gerar',
+    'memoryCatcher.reverse': 'Memory Catcher: Eco reverso proyectado en el sueño.',
+    'memoryCatcher.slowed': 'Memory Catcher: Fragmento desacelerado proyectado.',
+    'generative.active': 'Generativo ACTIVO',
+    'generative.disabled': 'Generativo desactivado',
+    'generative.generating': 'Generando...',
+    'generative.generated': 'Variación generada (seed: {seed})',
+    'generative.error': 'Error al generar',
+    'generative.applied': 'Variación aplicada (seed: {seed})',
     'generative.off': 'OFF',
 
     'seed.title': 'Código del Sueño',
@@ -421,8 +461,13 @@ const translations = {
   'pt-BR': {
     'app.title': 'PASIV Engine',
     'status.stopped': 'PARADO',
+    'status.ready': 'PRONTO',
     'status.dreaming': 'SONHANDO',
     'status.sensoryDeprivation': 'PRIVAÇÃO SENSORIAL',
+    'source.loading': 'Carregando...',
+    'source.error': 'Erro',
+    'source.errorLoad': 'Erro ao carregar',
+    'free.triggersDisabled': 'Gatilhos desativados no modo Livre',
 
     'btn.startDream': 'Iniciar Sonho',
     'btn.kick': 'O Chute (Piaf + BRAAAM)',
@@ -436,6 +481,8 @@ const translations = {
     'btn.mic': 'Mic',
     'btn.motion': 'Giro',
     'btn.gps': 'GPS',
+    'btn.on': 'ON',
+    'btn.off': 'OFF',
     'sensorStatus.default': 'Toque em um sensor para ligar ou desligar.',
     'sensorStatus.micOn': 'Microfone ligado.',
     'sensorStatus.micOff': 'Microfone desligado.',
@@ -497,6 +544,11 @@ const translations = {
 
     'mechanics.title': 'Mecânicas do Sonho',
     'mechanic.memCatcher': 'Ecos do Ambiente',
+    'mechanic.deprivation': 'Privação Sensorial',
+    'mechanic.deprivation.triggered': 'DESPERTAR!',
+    'mechanic.deprivation.watching': 'VIGIANDO (0/15s)',
+    'mechanic.deprivation.active': 'ATIVO (Batimento)',
+    'mechanic.silence': 'SILÊNCIO',
     'mechanic.memCatcher.on': 'ON (Gravando Ecos)',
     'mechanic.memCatcher.off': 'OFF',
     'mechanic.autoKick': 'Chute Automático (Queda Livre)',
@@ -525,6 +577,14 @@ const translations = {
     'generative.seedPlaceholder': 'Seed (opcional)',
     'generative.applySeed': 'Aplicar',
     'generative.ready': 'Pronto para gerar',
+    'memoryCatcher.reverse': 'Memory Catcher: Eco reverso projetado no sonho.',
+    'memoryCatcher.slowed': 'Memory Catcher: Fragmento desacelerado projetado.',
+    'generative.active': 'Generativo ATIVO',
+    'generative.disabled': 'Generativo desativado',
+    'generative.generating': 'Gerando...',
+    'generative.generated': 'Variação gerada (seed: {seed})',
+    'generative.error': 'Erro ao gerar',
+    'generative.applied': 'Variação aplicada (seed: {seed})',
     'generative.off': 'OFF',
 
     'seed.title': 'Código do Sonho',
@@ -671,6 +731,7 @@ function applyTranslations() {
   if (typeof window.syncMechanicsUI === 'function') window.syncMechanicsUI();
   if (typeof window.syncSensorsUI === 'function') window.syncSensorsUI();
   if (typeof window.updateFromSliders === 'function') window.updateFromSliders(true);
+  if (typeof window.updateModeSpecificUI === 'function') window.updateModeSpecificUI(window.state ? window.state.currentMode : '');
 }
 
 function updateDynamicSelects() {

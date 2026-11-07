@@ -2,6 +2,7 @@
 import { state } from './state.js';
 import { WORLD_NAMES } from './config.js';
 import { setSensorStatus } from './sensors.js';
+import { t } from './i18n.js';
 
 const WAITING_FOR_TRAIN_IDX = WORLD_NAMES.indexOf('Waiting for a Train'); // 9
 const BINAURAL_PULSE_IDX = 4; // Binaural Pulse preset index
@@ -21,18 +22,18 @@ function setMechanicUI(btnId, subId, on, onText, offText) {
 }
 
 export function syncMechanicsUI() {
-  setMechanicUI('btnMemCatcher', 'subMemCatcher', state.isMemCatcherOn, 'ON (Gravando Ecos)', 'OFF');
-  setMechanicUI('btnAutoKick', 'subAutoKick', state.isAutoKickOn, 'ON (Sensor G)', 'OFF');
+  setMechanicUI('btnMemCatcher', 'subMemCatcher', state.isMemCatcherOn, 'ON (Gravando Ecos)', t('btn.off'));
+  setMechanicUI('btnAutoKick', 'subAutoKick', state.isAutoKickOn, 'ON (Sensor G)', t('btn.off'));
   setMechanicUI('btnSpatial3D', 'subSpatial3D', state.isSpatial3DOn, 'ON (3D Ativo)', 'OFF (Centro)');
   const deprOn = state.isDeprivationWatchOn;
-  setMechanicUI('btnDeprivation', 'subDeprivation', deprOn, 'VIGIANDO (0/15s)', 'OFF');
+  setMechanicUI('btnDeprivation', 'subDeprivation', deprOn, 'VIGIANDO (0/15s)', t('btn.off'));
   // Timer de Sonho Lúcido permanece OFF por padrão.
   const timer = document.getElementById('btnLucidTimer');
   if (timer && !state.lucidInterval) {
     timer.classList.remove('active');
     timer.setAttribute('aria-pressed', 'false');
     const sub = document.getElementById('subLucidTimer');
-    if (sub) sub.textContent = 'OFF';
+    if (sub) sub.textContent = t('btn.off');
   }
 }
 
@@ -40,13 +41,13 @@ export function syncMechanicsUI() {
 export async function startMemoryCatcher() {
   if (memCatcherRuntime) {
     state.isMemCatcherOn = true;
-    setMechanicUI('btnMemCatcher', 'subMemCatcher', true, 'ON (Gravando Ecos)', 'OFF');
+    setMechanicUI('btnMemCatcher', 'subMemCatcher', true, 'ON (Gravando Ecos)', t('btn.off'));
     return true;
   }
 
   if (typeof MediaRecorder === 'undefined') {
     state.isMemCatcherOn = false;
-    setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', 'OFF');
+    setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', t('btn.off'));
     setSensorStatus('Memory Catcher não suportado neste navegador.');
     return false;
   }
@@ -58,14 +59,14 @@ export async function startMemoryCatcher() {
   if (!state.isMicOn) await sensors.toggleMic();
   if (!state.isMicOn) {
     state.isMemCatcherOn = false;
-    setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', 'OFF');
+    setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', t('btn.off'));
     if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
     return false;
   }
 
   memCatcherRuntime = true;
   state.isMemCatcherOn = true;
-  setMechanicUI('btnMemCatcher', 'subMemCatcher', true, 'ON (Gravando Ecos)', 'OFF');
+  setMechanicUI('btnMemCatcher', 'subMemCatcher', true, 'ON (Gravando Ecos)', t('btn.off'));
   setSensorStatus('Memory Catcher ativo: capturando fragmentos do subconsciente.');
 
   const scheduleNext = () => {
@@ -84,7 +85,7 @@ export function stopMemoryCatcher() {
   memCatcherRuntime = false;
   state.isMemCatcherOn = false;
   if (state.memCatcherTimer) { clearTimeout(state.memCatcherTimer); state.memCatcherTimer = null; }
-  setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', 'OFF');
+  setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', t('btn.off'));
   setSensorStatus('Memory Catcher desligado.');
 }
 
@@ -103,21 +104,21 @@ export async function startAutoKick() {
   if (!state.isMotionOn) await sensors.toggleMotion();
   if (!state.isMotionOn) {
     state.isAutoKickOn = false;
-    setMechanicUI('btnAutoKick', 'subAutoKick', false, 'ON (Sensor G)', 'OFF');
+    setMechanicUI('btnAutoKick', 'subAutoKick', false, 'ON (Sensor G)', t('btn.off'));
     setSensorStatus('Auto-Kick requer o giroscópio. Ative o sensor Giro primeiro.');
     if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
     return false;
   }
 
   state.isAutoKickOn = true;
-  setMechanicUI('btnAutoKick', 'subAutoKick', true, 'ON (Sensor G)', 'OFF');
+  setMechanicUI('btnAutoKick', 'subAutoKick', true, 'ON (Sensor G)', t('btn.off'));
   setSensorStatus('Auto-Kick ativo: solte ou sacuda o celular para disparar O Chute.');
   return true;
 }
 
 export function stopAutoKick() {
   state.isAutoKickOn = false;
-  setMechanicUI('btnAutoKick', 'subAutoKick', false, 'ON (Sensor G)', 'OFF');
+  setMechanicUI('btnAutoKick', 'subAutoKick', false, 'ON (Sensor G)', t('btn.off'));
   setSensorStatus('Auto-Kick desligado.');
 }
 
@@ -204,7 +205,7 @@ export function setLucidTimerMinutes(mins) {
   if (mins === 0) {
     btn.classList.remove('active');
     btn.setAttribute('aria-pressed', 'false');
-    sub.textContent = 'OFF';
+    sub.textContent = t('btn.off');
     return;
   }
 
@@ -234,7 +235,7 @@ export function setLucidTimerMinutes(mins) {
       state.lucidInterval = null;
       state.lucidModeIdx = 0;
       btn.classList.remove('active');
-      sub.textContent = 'DESPERTAR!';
+      sub.textContent = t('mechanic.deprivation.triggered');
       audio.triggerKick(true);
     }
   }, 1000);
@@ -250,7 +251,7 @@ function updateLucidSub() {
 export async function startDeprivationWatch() {
   if (deprivationRuntime) {
     state.isDeprivationWatchOn = true;
-    setMechanicUI('btnDeprivation', 'subDeprivation', true, 'VIGIANDO (0/15s)', 'OFF');
+    setMechanicUI('btnDeprivation', 'subDeprivation', true, 'VIGIANDO (0/15s)', t('btn.off'));
     return true;
   }
   const audio = await import('./audio.js');
@@ -260,7 +261,7 @@ export async function startDeprivationWatch() {
   if (!state.isMicOn) await sensors.toggleMic();
   if (!state.isMicOn) {
     state.isDeprivationWatchOn = false;
-    setMechanicUI('btnDeprivation', 'subDeprivation', false, 'VIGIANDO (0/15s)', 'OFF');
+    setMechanicUI('btnDeprivation', 'subDeprivation', false, 'VIGIANDO (0/15s)', t('btn.off'));
     setSensorStatus('Privação Sensorial requer o microfone.');
     if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
     return false;
@@ -277,7 +278,7 @@ export async function startDeprivationWatch() {
   deprivationRuntime = true;
   state.isDeprivationWatchOn = true;
   state.silenceSeconds = 0;
-  setMechanicUI('btnDeprivation', 'subDeprivation', true, 'VIGIANDO (0/15s)', 'OFF');
+  setMechanicUI('btnDeprivation', 'subDeprivation', true, 'VIGIANDO (0/15s)', t('btn.off'));
   setSensorStatus('Privação Sensorial: vire o celular para baixo em silêncio por 15s.');
 
   if (state.deprivationCheckInterval) clearInterval(state.deprivationCheckInterval);
@@ -290,7 +291,7 @@ export function stopDeprivationWatch() {
   state.isDeprivationWatchOn = false;
   if (state.deprivationCheckInterval) { clearInterval(state.deprivationCheckInterval); state.deprivationCheckInterval = null; }
   stopDeprivationHeartbeat();
-  setMechanicUI('btnDeprivation', 'subDeprivation', false, 'VIGIANDO (0/15s)', 'OFF');
+  setMechanicUI('btnDeprivation', 'subDeprivation', false, 'VIGIANDO (0/15s)', t('btn.off'));
   setSensorStatus('Privação Sensorial desligada.');
 }
 
@@ -315,7 +316,7 @@ export function checkSensoryDeprivation() {
     state.silenceSeconds++;
     const sub = document.getElementById('subDeprivation');
     if (state.silenceSeconds < 15) {
-      sub.textContent = `SILÊNCIO (${state.silenceSeconds}/15s)`;
+      sub.textContent = `${t('mechanic.silence')} (${state.silenceSeconds}/15s)`;
     } else if (!state.isDeprivationActive) {
       enterSensoryDeprivation();
     }
@@ -323,15 +324,15 @@ export function checkSensoryDeprivation() {
     state.silenceSeconds = 0;
     if (state.isDeprivationActive) {
       stopDeprivationHeartbeat();
-      document.getElementById('subDeprivation').textContent = 'VIGIANDO (0/15s)';
+      document.getElementById('subDeprivation').textContent = t('mechanic.deprivation.watching');
     }
   }
 }
 
 export async function enterSensoryDeprivation() {
   state.isDeprivationActive = true;
-  document.getElementById('subDeprivation').textContent = 'ATIVO (Batimento)';
-  document.getElementById('topStatus').textContent = 'PRIVAÇÃO SENSORIAL';
+  document.getElementById('subDeprivation').textContent = t('mechanic.deprivation.active');
+  document.getElementById('topStatus').textContent = t('mechanic.deprivation');
   setSensorStatus('Estado oculto de Privação Sensorial ativado.');
 
   const audio = await import('./audio.js');
