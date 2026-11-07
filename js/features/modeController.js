@@ -57,6 +57,10 @@ export function startCurrentMode() {
   // Inicia áudio se necessário
   if (!audio.audioCtx) audio.initAudio();
 
+  // Marca como tocando ANTES de ativar o modo, para que o áudio do mundo
+  // (synth/MP3) comece imediatamente ao trocar de modo via gatilho
+  state.isPlaying = true;
+
   // Ativa modo atual (inicia timer, alarme, etc)
   const module = modeModules?.[state.currentMode];
   if (module && typeof module.start === 'function') {
@@ -64,9 +68,6 @@ export function startCurrentMode() {
   } else if (module && module.activate) {
     module.activate();
   }
-
-  // Marca como tocando
-  state.isPlaying = true;
 
   // Inicia a reprodução de áudio do mundo atual (exceto no modo Sono, que fica em silêncio até o alarme)
   if (state.currentMode !== 'sleep' && typeof audio.restartWorldAudio === 'function') {
