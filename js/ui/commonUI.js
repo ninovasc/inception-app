@@ -77,10 +77,10 @@ export function renderSourceList() {
           ` : ''}
           
           ${sourceType === 'mp3' ? `
-            <label class="file-btn" for="sourceMp3_${i}" style="margin:0; padding:4px 8px; font-size:0.65rem;">
+            <label class="file-btn" for="sourceMp3_${i}" style="margin:0; padding:4px 8px; font-size:0.65rem; position:relative; cursor:pointer;">
               <span id="mp3Label_${i}">${mp3Name ? mp3Name.slice(0,20) : (t('source.selectMp3') || '[Selecionar MP3]')}</span><span>📁</span>
+              <input type="file" id="sourceMp3_${i}" onchange="const f=this.files[0]; if(f) loadWorldMp3(${i}, f)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
             </label>
-            <input type="file" id="sourceMp3_${i}" accept="audio/*" onchange="loadWorldMp3(${i}, this.files[0])" style="position:absolute;opacity:0;width:1px;height:1px;overflow:hidden;">
           ` : ''}
           
           <input type="range" min="0" max="1" step="0.01" value="${volume}" 

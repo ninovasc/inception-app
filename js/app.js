@@ -36,7 +36,7 @@ import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
 window.__lucidModes = LUCID_MODES;
 
 // App version for cache busting verification
-window.APP_VERSION = 19;
+window.APP_VERSION = 10001;
 
 // App version for cache busting verification
 console.log('[PASIV] App version:', window.APP_VERSION);
