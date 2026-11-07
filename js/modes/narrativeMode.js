@@ -17,6 +17,19 @@ let timeRewardFired = false;
 let timeRewardUntil = 0;
 let lastDecision = { key: null, world: null };
 
+export function activate() {
+  state.autoMode = true;
+  if (typeof window.syncAutoUI === 'function') window.syncAutoUI();
+}
+
+export function start() {
+  startAutoMode();
+}
+
+export function deactivate() {
+  stopAutoMode();
+}
+
 export function getActiveTrigger() {
   return lastDecision;
 }
@@ -111,7 +124,7 @@ export function startAutoMode() {
       evaluateAutoMode();
     }, AUTO_INTERVAL_MS);
   }
-  syncAutoUI();
+  if (typeof window.syncAutoUI === 'function') window.syncAutoUI();
   if (state.isPlaying) evaluateAutoMode();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
@@ -119,7 +132,7 @@ export function startAutoMode() {
 export function stopAutoMode() {
   state.autoMode = false;
   if (autoInterval) { clearInterval(autoInterval); autoInterval = null; }
-  syncAutoUI();
+  if (typeof window.syncAutoUI === 'function') window.syncAutoUI();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 

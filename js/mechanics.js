@@ -367,6 +367,7 @@ export async function activateDreamDefaults() {
   // precisam acontecer perto do gesto do usuário.
   if (state.isAutoKickOn) await startAutoKick();
   if (state.isSpatial3DOn) await startSpatial3D();
+  if (!state.isGpsOn) { const s = await import('./sensors.js'); await s.toggleGPS(); }
   if (state.isMemCatcherOn) await startMemoryCatcher();
   if (state.isDeprivationWatchOn) await startDeprivationWatch();
   if (typeof window.generateFullSeed === 'function') window.generateFullSeed(true);
