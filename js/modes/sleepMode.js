@@ -28,6 +28,10 @@ export function activate() {
   // Inicia alarme
   scheduleAlarm();
   
+  // Inicia áudio do modo sono
+  if (!audio.audioCtx) audio.initAudio();
+  audio.restartWorldAudio();
+  
   // Renderiza UI
   renderSleepUI();
   
