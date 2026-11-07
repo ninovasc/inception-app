@@ -47,7 +47,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "typescript": "^7.0.2"
+    "typescript": "^5.5.3"
   },
   "scripts": {
     "test": "npx tsc --noEmit -p tsconfig.pure.json && node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs && node scripts/test-seed.mjs",
