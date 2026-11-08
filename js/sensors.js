@@ -6,7 +6,7 @@ import {
   MIC_RAIN_INTENSE_DB, MIC_RAIN_INTENSE_HOLD_SEC, TRIGGER_CLAP_WINDOW_SEC,
   TRIGGER_INVERTED_DEG, TRIGGER_INVERTED_HOLD_SEC, TRIGGER_FLAT_DEG, TRIGGER_FLAT_HOLD_SEC
 } from './config.js';
-import { updateFromSliders, setMicParam } from './audio.js';
+import { updateFromSliders } from './audio.js';
 
 let lastMotionTs = 0;
 let lastGyroTs = 0;
@@ -467,6 +467,3 @@ export function syncSensorsUI() {
   const ledLabel = document.getElementById('micLedLabel');
   if (ledLabel) ledLabel.textContent = state.micLedOn ? t('voice.led.capturing') : t('voice.led.silence');
 }
-
-// Exportado para uso direto por outros módulos via import
-export { syncSensorsUI };

@@ -36,7 +36,7 @@ export function createPomodoroUI() {
       
       <!-- Configurações colapsáveis -->
       <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" onclick="togglePomodoroConfig()">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; cursor:pointer;" data-action="togglePomodoroConfig">
           <span style="font-size:0.65rem; color:var(--muted); font-family:monospace; text-transform:uppercase; letter-spacing:1px;">${t('pomodoro.config') || 'Configurações'}</span>
           <span id="pomodoroConfigArrow" style="color:#fff; transition:transform 0.2s;">▶</span>
         </div>
@@ -121,7 +121,7 @@ export function togglePomodoroConfig() {
 }
 
 // Handlers de configuração
-updatePomodoroActivityDuration = function(val) {
+export function updatePomodoroActivityDuration(val) {
   document.getElementById('pomodoroActivityVal').textContent = `${val} min`;
   state.pomodoro.activityDuration = parseInt(val) * 60;
   if (state.pomodoro.phase === 'activity') {
@@ -133,23 +133,23 @@ updatePomodoroActivityDuration = function(val) {
   }
 };
 
-updatePomodoroShortBreakDuration = function(val) {
+export function updatePomodoroShortBreakDuration(val) {
   document.getElementById('pomodoroShortBreakVal').textContent = `${val} min`;
   state.pomodoro.shortBreakDuration = parseInt(val) * 60;
 };
 
-updatePomodoroLongBreakDuration = function(val) {
+export function updatePomodoroLongBreakDuration(val) {
   document.getElementById('pomodoroLongBreakVal').textContent = `${val} min`;
   state.pomodoro.longBreakDuration = parseInt(val) * 60;
 };
 
-updatePomodoroCyclesUntilLongBreak = function(val) {
+export function updatePomodoroCyclesUntilLongBreak(val) {
   document.getElementById('pomodoroCyclesVal').textContent = val;
   state.pomodoro.cyclesUntilLongBreak = parseInt(val);
 };
 
 // Carregar MP3 para Atividade
-loadPomodoroActivityMp3 = function(file) {
+export function loadPomodoroActivityMp3(file) {
   if (!file) return;
   import('../audio.js').then(({ audio }) => {
     const idx = 0; // Atividade = índice 0
@@ -162,7 +162,7 @@ loadPomodoroActivityMp3 = function(file) {
 };
 
 // Carregar MP3 para Pausa
-loadPomodoroBreakMp3 = function(file) {
+export function loadPomodoroBreakMp3(file) {
   if (!file) return;
   import('../audio.js').then(({ audio }) => {
     const idx = 1; // Descanso = índice 1
@@ -174,21 +174,4 @@ loadPomodoroBreakMp3 = function(file) {
   });
 };
 
-// Expor funções globalmente
-togglePomodoroConfig = function() {
-  const config = document.getElementById('pomodoroConfig');
-  const arrow = document.getElementById('pomodoroConfigArrow');
-  if (!config) return;
-  
-  const isOpen = config.style.maxHeight !== '0px' && config.style.maxHeight !== '';
-  
-  if (isOpen) {
-    config.style.maxHeight = '0px';
-    config.style.opacity = '0';
-    document.getElementById('pomodoroConfigArrow').style.transform = 'rotate(0deg)';
-  } else {
-    config.style.maxHeight = config.scrollHeight + 'px';
-    config.style.opacity = '1';
-    document.getElementById('pomodoroConfigArrow').style.transform = 'rotate(90deg)';
-  }
-};
+// Funções já exportadas acima - não duplicar

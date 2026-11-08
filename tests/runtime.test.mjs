@@ -259,7 +259,7 @@ describe('Runtime: Sound Source', () => {
 
   test('source select has onchange handler', () => {
     const content = readFile('js/ui/commonUI.js');
-    assert.ok(content.includes('onchange="setSourceMode'), 'Should have onchange handler');
+    assert.ok(content.includes('data-action="setSourceMode'), 'Should have data-action handler');
   });
 });
 

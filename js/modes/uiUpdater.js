@@ -181,7 +181,7 @@ export function updateTriggerIndicator() {
   const el = document.getElementById('triggerActive');
   if (!el) return;
 
-  const t = t;
+  // t já importado de i18n.js
 
   // Modo Livre: gatilhos desativados
   if (state.currentMode === 'free') {

@@ -1,6 +1,7 @@
 import { state } from './state.js';
 import { LEVELS, SYNTH_PRESETS, LUCID_MODES, normalizeSourceType, WORLD_SYNTH, POMODORO_LEVELS, POMODORO_WORLD_NAMES, SLEEP_LEVELS, SLEEP_WORLD_NAMES, MODES, MODE_ORDER } from './config.js';
 import * as audio from './audio.js';
+import { setSourceMode } from './audio.js';
 import * as sensors from './sensors.js';
 import * as mechanics from './mechanics.js';
 import * as ui from './ui.js';
@@ -21,9 +22,9 @@ import { toggleAccordion } from './features/accordionController.js';
 import './eventDelegate.js';
 import { registerAction } from './eventDelegate.js';
 import { initI18n, t, setLang } from './i18n.js';
-import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode, updateModeSpecificUI, modeModules, updateTriggerIndicator, syncAutoUI } from './modes/modeManager.js';
+import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode, updateModeSpecificUI, modeModules, updateTriggerIndicator, syncAutoUI, updatePanelVisibility } from './modes/modeManager.js';
 import { initModeSelector } from './ui/modeSelector.js';
-import { createPomodoroUI, updatePomodoroUI } from './ui/pomodoroUI.js';
+import { createPomodoroUI, updatePomodoroUI, togglePomodoroConfig } from './ui/pomodoroUI.js';
 import { createSleepUI } from './ui/sleepUI.js';
 import { createNarrativeUI, updateNarrativeUI } from './ui/narrativeUI.js';
 import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
@@ -71,8 +72,10 @@ registerAction('setMode', function () { setMode(this.value); });
 registerAction('startCurrentMode', function () { startCurrentMode(); });
 registerAction('stopCurrentMode', function () { stopCurrentMode(); });
 registerAction('togglePomodoro', function () { togglePomodoro(); });
+registerAction('togglePomodoroConfig', function () { togglePomodoroConfig(); });
 registerAction('toggleAccordion', function () { toggleAccordion(this.dataset.arg); });
 registerAction('selectLevel', function () { audio.selectLevel(parseInt(this.value)); });
+registerAction('setSourceMode', function () { audio.setSourceMode(parseInt(this.dataset.arg), this.value); });
 registerAction('updateFromSliders', function () { audio.updateFromSliders(this.dataset.arg === 'true'); });
 registerAction('applyMicPreset', function () { sensors.applyMicPreset(this.value); });
 registerAction('setMicParam', function () { sensors.setMicParam(this.dataset.param, this.value); });
@@ -183,5 +186,8 @@ if (freeContainer) {
 
 // Trigger initial UI update for current mode
 updateModeSpecificUI(state.currentMode);
+
+// Garante que todos os painéis estejam escondidos quando nenhum modo está selecionado
+updatePanelVisibility();
 
 

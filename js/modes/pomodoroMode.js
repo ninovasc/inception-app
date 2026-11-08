@@ -4,7 +4,8 @@
 import { state } from '../state.js';
 import { POMODORO_LEVELS, POMODORO_WORLD_NAMES, POMODORO_WORLD_SYNTH, POMODORO_DEFAULTS, POMODORO_CHORD_PROGRESSIONS } from '../config.js';
 import * as audio from '../audio.js';
-import { updatePomodoroUI, updateTimerDisplay } from '../modes/uiUpdater.js';
+import { updatePomodoroUI } from '../ui/pomodoroUI.js';
+import { updateTimerDisplay } from '../modes/uiUpdater.js';
 
 let timerInterval = null;
 
