@@ -199,10 +199,9 @@ describe('Runtime: Pomodoro', () => {
     assert.ok(content.includes('export function resumeTimer'), 'Should export resumeTimer');
   });
 
-  test('pomodoroController defines togglePomodoro', () => {
+  test('pomodoroController exports togglePomodoro', () => {
     const content = readFile('js/features/pomodoroController.js');
-    assert.ok(content.includes('export function togglePomodoro'), 'Should define togglePomodoro');
-    assert.ok(content.includes('window.togglePomodoro = togglePomodoro'), 'Should expose on window');
+    assert.ok(content.includes('export function togglePomodoro'), 'Should export togglePomodoro');
   });
 
   test('pomodoroUI uses data-action for play/pause', () => {

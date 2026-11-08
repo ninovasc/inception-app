@@ -308,11 +308,7 @@ export function handlePasivFileInput(event) {
 }
 
 // ============================================================
-// Expor globalmente para eventDelegate
+// Funções exportadas para uso por outros módulos via import direto
 // ============================================================
-
-window.exportPasivFile = exportPasivFile;
-window.importPasivFile = importPasivFile;
-window.handlePasivFileInput = handlePasivFileInput;
 
 export { _isDirty as isDirtyState };

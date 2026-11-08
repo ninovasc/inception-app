@@ -75,26 +75,28 @@ export function updateSleepUI() {
   }
 }
 
-// Handlers globais
-window.setSleepAlarmTime = function(timeStr) {
+// Handlers - acessíveis via import direto ou event delegation
+export function setSleepAlarmTime(timeStr) {
   if (!/^\d{2}:\d{2}$/.test(timeStr)) return;
   state.sleep.alarmTime = timeStr;
   if (state.sleep.enabled) {
     cancelAlarm();
     scheduleAlarm();
   }
-  updateAlarmTimerDisplay();
+  if (typeof window.updateAlarmTimerDisplay === 'function') {
+    window.updateAlarmTimerDisplay();
+  }
 };
 
-window.setSleepWakeWindow = function(val) {
+export function setSleepWakeWindow(val) {
   state.sleep.wakeWindowMinutes = Math.max(5, Math.min(60, parseInt(val) || 15));
   document.getElementById('sleepWakeWindowVal').textContent = `${state.sleep.wakeWindowMinutes} min`;
 };
 
-window.setSleepWorld = function(val) {
+export function setSleepWakeWorld(val) {
   state.sleep.currentWorld = parseInt(val);
 };
 
-window.testSleepAlarm = function() {
+export function testSleepAlarm() {
   playAlarmSound();
-};
+}

@@ -85,10 +85,5 @@ export function setWorldTriggerSilence(value) {
   if (state.autoMode && state.isPlaying) evaluateAutoMode();
 }
 
-// Expose to global scope for inline handlers
-window.renderTriggerList = renderTriggerList;
-window.setWorldTrigger = setWorldTrigger;
-window.setWorldTriggerMotion = setWorldTriggerMotion;
-window.setWorldTriggerSilence = setWorldTriggerSilence;
-// keep escapeHtml global just in case
-window.escapeHtml = escapeHtml;
+// Funções acessíveis via import direto ou event delegation (data-action)
+// Não expostas mais em window.* para evitar poluição global

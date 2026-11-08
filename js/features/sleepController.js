@@ -27,8 +27,5 @@ export async function testSleepAlarm() {
   playAlarmSound();
 }
 
-window.setSleepAlarmTime = setSleepAlarmTime;
-window.setSleepWakeWindow = setSleepWakeWindow;
-window.setSleepWakeWorld = setSleepWakeWorld;
-window.cancelSleepAlarm = cancelSleepAlarm;
-window.testSleepAlarm = testSleepAlarm;
+// Funções acessíveis via import direto ou event delegation (data-action)
+// Não expostas mais em window.* para evitar poluição global

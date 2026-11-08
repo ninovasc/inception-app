@@ -34,12 +34,5 @@ export function togglePomodoro() {
   }
 }
 
-window.startPomodoro = startPomodoro;
-window.togglePomodoro = togglePomodoro;
-window.pausePomodoro = pausePomodoro;
-window.resumePomodoro = resumePomodoro;
-window.skipPomodoroPhase = skipPomodoroPhase;
-window.resetPomodoro = resetPomodoro;
-window.setPomodoroDurations = setPomodoroDurations;
-window.setPomodoroActivityMp3 = setPomodoroActivityMp3;
-window.setPomodoroBreakMp3 = setPomodoroBreakMp3;
+// Funções acessíveis via import direto ou event delegation (data-action)
+// Não expostas mais em window.* para evitar poluição global

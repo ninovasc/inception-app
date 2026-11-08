@@ -326,30 +326,5 @@ export function updateGenerativeUIVisibility() {
   container.style.display = show ? 'block' : 'none';
 }
 
-// Expor globalmente
-window.toggleGenerative = function(enabled) {
-  const { toggleGenerative } = require('./ui/generativeUI.js');
-  toggleGenerative(enabled);
-};
-
-window.updateGenerativeVariation = function(val) {
-  const { updateGenerativeVariation } = require('./ui/generativeUI.js');
-  updateGenerativeVariation(val);
-};
-
-window.generateNewVariation = function() {
-  const { generateNewVariation } = require('./ui/generativeUI.js');
-  generateNewVariation();
-};
-
-window.saveGenerativeVariation = function() {
-  const { saveGenerativeVariation } = require('./ui/generativeUI.js');
-  saveGenerativeVariation();
-};
-
-window.resetGenerative = function() {
-  const { resetGenerative } = require('./ui/generativeUI.js');
-  resetGenerative();
-};
-
-window.applyGenerativeSeed = applyGenerativeSeed;
+// Expor funções para uso por outros módulos via import direto
+// Não expostas mais em window.* para evitar poluição global
