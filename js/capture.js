@@ -62,7 +62,6 @@ export function setCaptureVolume(val) {
   const el = document.getElementById('capVolVal');
   if (el) el.textContent = Math.round(v * 100) + '%';
   if (captureGain) captureGain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function isCapturing() {

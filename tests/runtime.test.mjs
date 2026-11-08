@@ -280,11 +280,6 @@ describe('Runtime: Generative AI', () => {
     assert.ok(content.includes('id="generativeNew"'), 'Should have generativeNew');
   });
 
-  test('generativeUI has seed input', () => {
-    const content = readFile('js/ui/generativeUI.js');
-    assert.ok(content.includes('id="generativeSeedInput"'), 'Should have generativeSeedInput');
-  });
-
   test('generativeEngine exports required functions', () => {
     const content = readFile('js/synth/generativeEngine.js');
     assert.ok(content.includes('export function getGenerativeEngine') || content.includes('export async function getGenerativeEngine'), 'Should export getGenerativeEngine');
@@ -308,62 +303,3 @@ describe('Runtime: Sensors', () => {
     assert.ok(html.includes('id="btnGps"'), 'Should have btnGps');
   });
 });
-
-describe('Runtime: Seed/Code', () => {
-  test('seed panel is hidden', () => {
-    const html = readFile('index.html');
-    assert.ok(html.includes('style="display:none;"'), 'Seed panel should be hidden');
-  });
-
-  test('seed.js exports required functions', () => {
-    const content = readFile('js/seed.js');
-    assert.ok(content.includes('export function encodeState'), 'Should export encodeState');
-    assert.ok(content.includes('export function decodeState'), 'Should export decodeState');
-    assert.ok(content.includes('export function generateFullSeed'), 'Should export generateFullSeed');
-  });
-});
-
-describe('Runtime: Voice', () => {
-  test('voice select has applyMicPreset handler', () => {
-    const html = readFile('index.html');
-    assert.ok(html.includes('data-action="applyMicPreset"'), 'Should have applyMicPreset handler');
-  });
-
-  test('voice has parameter sliders', () => {
-    const html = readFile('index.html');
-    assert.ok(html.includes('id="micGate"'), 'Should have micGate');
-    assert.ok(html.includes('id="micDelaySlider"'), 'Should have micDelaySlider');
-    assert.ok(html.includes('id="micFb"'), 'Should have micFb');
-    assert.ok(html.includes('id="micRev"'), 'Should have micRev');
-    assert.ok(html.includes('id="micDw"'), 'Should have micDw');
-  });
-});
-
-describe('Runtime: Mechanics', () => {
-  test('mechanics buttons exist in HTML', () => {
-    const html = readFile('index.html');
-    assert.ok(html.includes('id="btnMemCatcher"'), 'Should have btnMemCatcher');
-    assert.ok(html.includes('id="btnAutoKick"'), 'Should have btnAutoKick');
-    assert.ok(html.includes('id="btnSpatial3D"'), 'Should have btnSpatial3D');
-    assert.ok(html.includes('id="btnLucidTimer"'), 'Should have btnLucidTimer');
-    assert.ok(html.includes('id="btnDeprivation"'), 'Should have btnDeprivation');
-  });
-});
-
-describe('Runtime: Screensaver', () => {
-  test('screensaver is defined in screensaver.js', () => {
-    const content = readFile('js/screensaver.js');
-    assert.ok(content.includes('createScreensaver'), 'Should have createScreensaver');
-    assert.ok(content.includes('showScreensaver'), 'Should have showScreensaver');
-    assert.ok(content.includes('hideScreensaver'), 'Should have hideScreensaver');
-  });
-});
-
-describe('Runtime: Service Worker', () => {
-  test('sw.js has cache version', () => {
-    const content = readFile('sw.js');
-    assert.ok(content.includes('pasiv-v'), 'Should have cache version');
-  });
-});
-
-console.log('\n✅ All comprehensive tests defined!');

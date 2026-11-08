@@ -9,7 +9,6 @@ const ASSETS = [
   './js/audio.js',
   './js/sensors.js',
   './js/mechanics.js',
-  './js/seed.js',
   './js/ui.js',
   './js/power.js',
   './js/capture.js',

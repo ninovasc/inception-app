@@ -32,7 +32,7 @@ class GenerativeEngine {
     }
   }
 
-  // Fallback procedural: gera variações usando algoritmos determinísticos baseados em seed
+  // Fallback procedural: gera variações usando algoritmos determinísticos baseados em valFinal
   // Isso funciona sem modelo ML real, mantendo a API compatível
   async _loadFallbackModel() {
     // Simula carregamento assíncrono
@@ -49,8 +49,8 @@ class GenerativeEngine {
   // Gera variação para um synth base
   // input: objeto com parâmetros base + contexto
   // intensity: 0..1 (quanto aplicar da variação)
-  // seed: número para reprodutibilidade
-  async generateVariation(input, intensity = 0.5, seed = Date.now()) {
+  // valFinal: número para reprodutibilidade
+  async generateVariation(input, intensity = 0.5, valFinal = Date.now()) {
     if (!this.isLoaded) {
       await this.loadModel();
     }
@@ -63,7 +63,7 @@ class GenerativeEngine {
     this._prepareInput(input, this.inputTensor);
     
     // Inferência (fallback procedural determinístico)
-    const output = this._inferFallback(this.inputTensor, seed);
+    const output = this._inferFallback(this.inputTensor, valFinal);
     
     // Converte saída para deltas aplicáveis
     return this._parseOutput(output, intensity);
@@ -86,7 +86,7 @@ class GenerativeEngine {
       worldBgColor = '#000000',
       targetMood = 'neutral',
       variationIntensity = 0.5,
-      seed = Date.now()
+      valFinal = Date.now()
     } = input;
 
     // Normaliza e empacota no tensor (64 features)
@@ -144,8 +144,8 @@ class GenerativeEngine {
     // Variation intensity
     tensor[idx++] = Math.min(Math.max(variationIntensity, 0), 1);
     
-    // Seed normalized
-    tensor[idx++] = (seed % 10000) / 10000;
+    // valFinal normalized
+    tensor[idx++] = (valFinal % 10000) / 10000;
     
     // Pad remaining with zeros
     while (idx < this.inputShape[1]) tensor[idx++] = 0;
@@ -159,12 +159,12 @@ class GenerativeEngine {
     return (0.299*r + 0.587*g + 0.114*b) / 255;
   }
 
-  // Inferência fallback determinística baseada em seed
-  _inferFallback(inputTensor, seed) {
+  // Inferência fallback determinística baseada em valFinal
+  _inferFallback(inputTensor, valFinal) {
     const output = new Float32Array(this.outputShape[1]);
     
-    // PRNG determinístico baseado em seed + input
-    let rngState = seed >>> 0;
+    // PRNG determinístico baseado em valFinal + input
+    let rngState = valFinal >>> 0;
     const rand = () => {
       rngState = (rngState * 1664525 + 1013904223) >>> 0;
       return (rngState >>> 0) / 0x100000000;
@@ -269,9 +269,9 @@ class GenerativeEngine {
     };
   }
 
-  // Gera variação com seed específica (para reprodutibilidade)
-  async generateWithSeed(input, intensity, seed) {
-    return this.generateVariation(input, intensity, seed);
+  // Gera variação com valFinal específica (para reprodutibilidade)
+  async generateWithvalFinal(input, intensity, valFinal) {
+    return this.generateVariation(input, intensity, valFinal);
   }
 
   // Verifica se modelo está pronto
@@ -295,9 +295,9 @@ export async function initGenerativeEngine(modelUrl) {
   return engine.loadModel(modelUrl);
 }
 
-export async function generateSynthVariation(synthConfig, intensity, seed) {
+export async function generateSynthVariation(synthConfig, intensity, valFinal) {
   const engine = getGenerativeEngine();
-  return engine.generateVariation(synthConfig, intensity, seed);
+  return engine.generateVariation(synthConfig, intensity, valFinal);
 }
 
 export function applyGenerativeVariation(baseSynth, variation, intensity) {

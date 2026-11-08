@@ -32,5 +32,4 @@ export function setVolume(index, val) {
   if (state.stemGains[index] && state.audioCtx) {
     state.stemGains[index].gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
   }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }

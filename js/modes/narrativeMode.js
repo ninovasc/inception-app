@@ -126,14 +126,12 @@ export function startAutoMode() {
   }
   if (typeof window.syncAutoUI === 'function') window.syncAutoUI();
   if (state.isPlaying) evaluateAutoMode();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function stopAutoMode() {
   state.autoMode = false;
   if (autoInterval) { clearInterval(autoInterval); autoInterval = null; }
   if (typeof window.syncAutoUI === 'function') window.syncAutoUI();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setAutoModeEnabled(enabled) {

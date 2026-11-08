@@ -375,7 +375,6 @@ export function applyMicPreset(name) {
     if (has) sel.value = name; else sel.value = 'custom';
   }
   document.querySelectorAll('.mic-preset').forEach(b => b.classList.toggle('active', b.dataset.preset === name));
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setMicParam(param, val) {
@@ -406,7 +405,6 @@ export function setMicParam(param, val) {
       document.getElementById('micDwVal').textContent = Math.round((1 - v) * 100) + '/' + Math.round(v * 100);
       break;
   }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function startMicPitchShift(semitones) {

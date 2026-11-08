@@ -1,14 +1,7 @@
 import { state } from './state.js';
 
-export function autoResizeSeed() {
-  const el = document.getElementById('seedInput');
-  if (!el) return;
-  el.style.height = 'auto';
-  el.style.height = (el.scrollHeight) + 'px';
-}
-
 export function toggleHelp() {
-  const m = document.getElementById('helpModal');
+  const el = document.getElementById('helpModal');
   if (m) m.classList.toggle('open');
 }
 
@@ -22,5 +15,3 @@ export function togglePanel(id) {
     if (arrow) arrow.textContent = isOpen ? '▼' : '▶';
   }
 }
-
-

@@ -16,7 +16,6 @@ export function setWorldSynth(worldIdx, val) {
       restartSynth(0, 300);
     }
   }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setWorldVolume(worldIdx, val) {
@@ -37,7 +36,6 @@ export function setWorldVolume(worldIdx, val) {
       state.synthMasterGain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
     }
   }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 // Crossfade suave entre dois mundos MP3 (overlap de 2s)

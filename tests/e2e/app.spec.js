@@ -490,27 +490,6 @@ test.describe('PASIV Engine E2E Tests', () => {
     await expect(slider).toBeVisible();
   });
 
-  // ==================== SEED ====================
-  test('Seed panel is hidden', async ({ page }) => {
-    const seedPanel = page.locator('.menu-section:has(#dspPanel)');
-    await expect(seedPanel).toBeHidden();
-  });
-
-  test('Seed textarea exists', async ({ page }) => {
-    const textarea = page.locator('#seedInput');
-    await expect(textarea).toBeAttached();
-  });
-
-  test('Seed copy button exists', async ({ page }) => {
-    const btn = page.locator('button:has-text("Copiar")');
-    await expect(btn).toBeAttached();
-  });
-
-  test('Seed load button exists', async ({ page }) => {
-    const btn = page.locator('button:has-text("Carregar")');
-    await expect(btn).toBeAttached();
-  });
-
   // ==================== GENERATIVE AI ====================
   test('Generative UI exists in DOM', async ({ page}) => {
     const genUI = page.locator('#generativeUI');
@@ -530,11 +509,6 @@ test.describe('PASIV Engine E2E Tests', () => {
   test('Generative new variation button exists', async ({ page }) => {
     const btn = page.locator('#generativeNew');
     await expect(btn).toBeAttached();
-  });
-
-  test('Generative seed input exists', async ({ page}) => {
-    const input = page.locator('#generativeSeedInput');
-    await expect(input).toBeAttached();
   });
 
   // ==================== SCREENSAVER ====================

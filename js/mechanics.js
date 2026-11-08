@@ -61,7 +61,6 @@ export async function startMemoryCatcher() {
   if (!state.isMicOn) {
     state.isMemCatcherOn = false;
     setMechanicUI('btnMemCatcher', 'subMemCatcher', false, 'ON (Gravando Ecos)', t('btn.off'));
-    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
     return false;
   }
 
@@ -93,7 +92,6 @@ export function stopMemoryCatcher() {
 export async function toggleMemoryCatcher() {
   if (state.isMemCatcherOn) stopMemoryCatcher();
   else await startMemoryCatcher();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 // --- Chute Automático (Auto-Kick) ---
@@ -107,7 +105,6 @@ export async function startAutoKick() {
     state.isAutoKickOn = false;
     setMechanicUI('btnAutoKick', 'subAutoKick', false, 'ON (Sensor G)', t('btn.off'));
     setSensorStatus('Auto-Kick requer o giroscópio. Ative o sensor Giro primeiro.');
-    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
     return false;
   }
 
@@ -126,7 +123,6 @@ export function stopAutoKick() {
 export async function toggleAutoKick() {
   if (state.isAutoKickOn) stopAutoKick();
   else await startAutoKick();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 // --- Som 3D (Bússola) ---
@@ -147,14 +143,12 @@ export async function startSpatial3D() {
         state.isSpatial3DOn = false;
         setMechanicUI('btnSpatial3D', 'subSpatial3D', false, 'ON (3D Ativo)', 'OFF (Centro)');
         setSensorStatus('Permissão de orientação negada. Áudio 3D indisponível neste dispositivo.');
-        if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
         return false;
       }
     } else if (typeof DeviceOrientationEvent === 'undefined') {
       state.isSpatial3DOn = false;
       setMechanicUI('btnSpatial3D', 'subSpatial3D', false, 'ON (3D Ativo)', 'OFF (Centro)');
       setSensorStatus('Orientação não suportada neste dispositivo.');
-      if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
       return false;
     }
     state.baseCompassAlpha = null;
@@ -185,12 +179,10 @@ export function stopSpatial3D() {
 export async function toggleSpatial3D() {
   if (state.isSpatial3DOn) stopSpatial3D();
   else await startSpatial3D();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function toggleGyroSliders() {
   state.isGyroSlidersOn = !state.isGyroSlidersOn;
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 // --- Timer de Sonho Lúcido (não liga por padrão) ---
@@ -200,7 +192,6 @@ export async function cycleLucidTimer() {
   state.lucidModeIdx = (state.lucidModeIdx + 1) % (await import('./config.js')).LUCID_MODES.length;
   const modes = (await import('./config.js')).LUCID_MODES;
   setLucidTimerMinutes(modes[state.lucidModeIdx]);
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setLucidTimerMinutes(mins) {
@@ -269,7 +260,6 @@ export async function startDeprivationWatch() {
     state.isDeprivationWatchOn = false;
     setMechanicUI('btnDeprivation', 'subDeprivation', false, 'VIGIANDO (0/15s)', t('btn.off'));
     setSensorStatus('Privação Sensorial requer o microfone.');
-    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
     return false;
   }
 
@@ -304,7 +294,6 @@ export function stopDeprivationWatch() {
 export async function toggleDeprivationWatch() {
   if (state.isDeprivationWatchOn) stopDeprivationWatch();
   else await startDeprivationWatch();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function checkSensoryDeprivation() {
@@ -370,5 +359,4 @@ export async function activateDreamDefaults() {
   if (!state.isGpsOn) { const s = await import('./sensors.js'); await s.toggleGPS(); }
   if (state.isMemCatcherOn) await startMemoryCatcher();
   if (state.isDeprivationWatchOn) await startDeprivationWatch();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed(true);
 }

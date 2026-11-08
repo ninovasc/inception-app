@@ -13,7 +13,6 @@ export function selectSynthType(idx) {
   if (state.isPlaying && state.sourceMode === 'synth') {
     startChordProgression();
   }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setSynthVolume(val) {
@@ -23,7 +22,6 @@ export function setSynthVolume(val) {
   if (state.synthMasterGain && state.audioCtx) {
     state.synthMasterGain.gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
   }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function startSynth(transposeSemitones = 0, fadeMs = 80) {
@@ -317,5 +315,4 @@ export function applyParameters() {
   }
 
   if (typeof window.setYouTubeRate === 'function') window.setYouTubeRate(speed);
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }

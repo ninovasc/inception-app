@@ -3,7 +3,6 @@ import { LEVELS, SYNTH_PRESETS, LUCID_MODES, normalizeSourceType, WORLD_SYNTH, P
 import * as audio from './audio.js';
 import * as sensors from './sensors.js';
 import * as mechanics from './mechanics.js';
-import * as seed from './seed.js';
 import * as ui from './ui.js';
 import './power.js';
 import * as cap from './capture.js';
@@ -28,14 +27,14 @@ import { createPomodoroUI, updatePomodoroUI } from './ui/pomodoroUI.js';
 import { createSleepUI } from './ui/sleepUI.js';
 import { createNarrativeUI, updateNarrativeUI } from './ui/narrativeUI.js';
 import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
-import { initGenerativeUI, updateGenerativeUIVisibility, toggleGenerative, updateGenerativeVariation, generateNewVariation, saveGenerativeVariation, resetGenerative, applyGenerativeSeed } from './ui/generativeUI.js';
+import { initGenerativeUI, updateGenerativeUIVisibility, toggleGenerative, updateGenerativeVariation, generateNewVariation, saveGenerativeVariation, resetGenerative } from './ui/generativeUI.js';
 import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
 import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
 
 window.__lucidModes = LUCID_MODES;
 
 // App version for cache busting verification
-window.APP_VERSION = 40507;
+window.APP_VERSION = 40509;
 
 // App version for cache busting verification
 console.log('[PASIV] App version:', window.APP_VERSION);
@@ -79,12 +78,8 @@ Object.assign(window, {
   enterSensoryDeprivation: mechanics.enterSensoryDeprivation,
   stopDeprivationHeartbeat: mechanics.stopDeprivationHeartbeat,
   syncMechanicsUI: mechanics.syncMechanicsUI,
-  generateFullSeed: seed.generateFullSeed,
-  copySeed: seed.copySeed,
-  applySeed: seed.applySeed,
   togglePanel: ui.togglePanel,
   toggleHelp: ui.toggleHelp,
-  autoResizeSeed: ui.autoResizeSeed,
   loadWorldMp3: audio.loadWorldMp3,
   setWorldMp3Volume: audio.setWorldMp3Volume,
   startCapture: cap.startCapture,
@@ -146,16 +141,12 @@ registerAction('toggleSpatial3D', function () { mechanics.toggleSpatial3D(); });
 registerAction('toggleGyroSliders', function () { mechanics.toggleGyroSliders(); });
 registerAction('cycleLucidTimer', function () { mechanics.cycleLucidTimer(); });
 registerAction('toggleDeprivationWatch', function () { mechanics.toggleDeprivationWatch(); });
-registerAction('autoResizeSeed', function () { ui.autoResizeSeed.call(this); });
-registerAction('copySeed', function () { seed.copySeed(); });
-registerAction('applySeed', function () { seed.applySeed(); });
 registerAction('testSleepAlarm', function () { testSleepAlarm(); });
 registerAction('toggleGenerative', function () { toggleGenerative(this.checked); });
 registerAction('updateGenerativeVariation', function () { updateGenerativeVariation(this.value); });
 registerAction('generateNewVariation', function () { generateNewVariation(); });
 registerAction('saveGenerativeVariation', function () { saveGenerativeVariation(); });
 registerAction('resetGenerative', function () { resetGenerative(); });
-registerAction('applyGenerativeSeed', function () { applyGenerativeSeed(); });
 registerAction('toggleHelpBackdrop', function (e) { if (e.target === this) ui.toggleHelp(); });
 
 // Service worker:
@@ -206,9 +197,6 @@ initModeSelector();
 
 // Inicializa i18n
 initI18n();
-
-// Initial seed
-seed.generateFullSeed(true);
 
 // Modo não inicia automaticamente - usuário deve selecionar e clicar Iniciar
 

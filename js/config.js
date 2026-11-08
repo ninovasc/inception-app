@@ -27,7 +27,6 @@ export const WORLD_COUNT = WORLD_NAMES.length; // 13
 // SYNTH PRESETS — Organizados em duas categorias
 // ============================================================
 
-// Presets legados (v2.x) — índices 0–4. Mantidos para compatibilidade de seeds antigas.
 // NÃO são atribuídos a mundos por padrão (WORLD_SYNTH usa 5–17).
 const LEGACY_SYNTH_PRESETS = [
   { name: 'Zimmer Ambient', freqs: [36.71, 73.42, 110.0, 146.83], types: ['sine', 'sine', 'sine', 'sine'], gains: [0.22, 0.14, 0.08, 0.06], lfo: 0 },
@@ -118,7 +117,6 @@ export const DEFAULT_TRIGGER_MOTION = 0.6;
 export const DEFAULT_TRIGGER_SILENCE_SEC = 30;
 
 // Constantes dos sensores novos (valores internos; motion e silêncio
-// continuam configuráveis pela UI e vão para a seed).
 export const TRIGGER_CLAP_WINDOW_SEC = 2.5;   // janela entre duas palmas
 export const TRIGGER_INVERTED_HOLD_SEC = 2;   // |beta| > 135° sustentado
 export const TRIGGER_FLAT_HOLD_SEC = 30;      // aparelho apoiado (|beta|,|gamma| <= 15°)
@@ -140,10 +138,8 @@ const CURATED_PRIORITY = [12, 5, 10, 2, 6, 3, 7, 8, 4, 1, 9, 11, 0];
 // Limbo→WFaT, Lúcido→WBOW
 export const OLD6_TO_NEW13 = [0, 4, 8, 2, 9, 1];
 
-// Chaves dos 6 gatilhos legados (para migração de seeds).
 export const LEGACY_TRIGGER_KEYS = ['freefall', 'rain', 'night', 'silence', 'motion', 'fallback'];
 
-// Garante um mapeamento válido vindo de seeds antigas/edições manuais.
 export function normalizeWorldTriggers(raw) {
   const out = { ...DEFAULT_WORLD_TRIGGERS };
   if (!raw || typeof raw !== 'object') return out;
@@ -155,7 +151,6 @@ export function normalizeWorldTriggers(raw) {
   return out;
 }
 
-// Normaliza o tipo de fonte salvo em seeds antigas/estados legados.
 // 'upload' era o nome antigo de MP3.
 export function normalizeSourceType(type) {
   const t = (type === 'upload') ? 'mp3' : type;

@@ -29,7 +29,6 @@ export function setSourceMode(worldIdx, mode) {
   state.sourceMode = normalized;
   restartWorldAudio();
   if (typeof window.renderSourceList === 'function') window.renderSourceList();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function triggerKick(withPiafCue) {
@@ -156,7 +155,6 @@ export function toggleMasterPlay() {
       p.setMediaPlaybackState(false);
     });
   }
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function selectLevel(idx, preserveParams = false) {
@@ -231,7 +229,6 @@ export function selectLevel(idx, preserveParams = false) {
     }
 
     if (typeof window.syncSourceRow === 'function') window.syncSourceRow(idx);
-    if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
   };
 
   // Crossfade: fade out, apply, fade in

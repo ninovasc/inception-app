@@ -52,7 +52,6 @@ export async function loadWorldMp3(worldIdx, file) {
 // âncora por energia (RMS por janelas de 1s) com aleatoriedade ponderada
 // por menos-recentemente-usada. Ao chegar ao fim, a faixa não termina:
 // com ~3s de antecedência salta para uma nova âncora com fade curto.
-// Histórico fica em memória (não vai para a seed); faixas curtas (<20s)
 // ou sem envelope usam o comportamento antigo (loop do início).
 const mp3Meta = new Map(); // worldIdx -> { buffer, anchors, used, jumpTimer, src, gain, curOffset }
 

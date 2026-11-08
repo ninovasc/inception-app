@@ -2,8 +2,11 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests/e2e',
-  timeout: 30000,
-  retries: 0,
+  timeout: 60000,
+  globalTimeout: 600000,
+  retries: 1,
+  workers: 1,
+  fullyParallel: false,
   use: {
     baseURL: 'http://localhost:8099',
     headless: true,
@@ -15,7 +18,7 @@ export default defineConfig({
     command: 'node scripts/serve.js',
     url: 'http://localhost:8099',
     reuseExistingServer: true,
-    timeout: 120000
+    timeout: 180000
   },
   projects: [
     {

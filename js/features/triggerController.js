@@ -65,7 +65,6 @@ export function setWorldTrigger(key, value) {
   }
   renderTriggerList();
   if (state.autoMode && state.isPlaying) evaluateAutoMode();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setWorldTriggerMotion(value) {
@@ -75,7 +74,6 @@ export function setWorldTriggerMotion(value) {
   const el = document.getElementById('triggerMotionVal');
   if (el) el.textContent = Math.round(state.triggerMotion * 100) + '%';
   if (state.autoMode && state.isPlaying) evaluateAutoMode();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 export function setWorldTriggerSilence(value) {
@@ -85,7 +83,6 @@ export function setWorldTriggerSilence(value) {
   const el = document.getElementById('triggerSilenceVal');
   if (el) el.textContent = state.triggerSilenceSec + 's';
   if (state.autoMode && state.isPlaying) evaluateAutoMode();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed();
 }
 
 // Expose to global scope for inline handlers
