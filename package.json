@@ -53,7 +53,9 @@
   "scripts": {
     "test": "npx tsc --noEmit -p tsconfig.pure.json && node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs",
     "test:coverage": "npx tsc --noEmit -p tsconfig.pure.json && c8 --reporter=text --reporter=html --reporter=lcov --lines=95 --branches=95 --functions=95 --statements=95 node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs tests/functional.test.mjs",
+    "test:coverage:core": "npx tsc --noEmit -p tsconfig.pure.json && c8 --reporter=text --reporter=html --reporter=lcov node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs tests/functional.test.mjs",
     "test:e2e": "npx playwright test",
+    "test:e2e:coverage": "npx playwright test --project=chromium --reporter=line",
     "test:all": "npm test && npm run test:e2e",
     "lint": "npx eslint js/ tests/ scripts/ --ext .js,.mjs"
   },
