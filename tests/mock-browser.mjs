@@ -14,6 +14,32 @@ class MockAudioContext {
   createStereoPanner() { return { connect: () => {}, pan: { value: 0, setTargetAtTime: () => {} } }; }
   createDelay() { return { connect: () => {}, delayTime: { value: 0, setTargetAtTime: () => {} } }; }
   createConvolver() { return { connect: () => {}, buffer: null }; }
+
+  createBuffer(numChannels, length, sampleRate) {
+    const buffer = {
+      numberOfChannels: numChannels,
+      length: length,
+      sampleRate: sampleRate,
+      duration: length / sampleRate,
+      getChannelData: (channel) => new Float32Array(length),
+      copyFromChannel: () => {},
+      copyToChannel: () => {},
+    };
+    return buffer;
+  }
+
+  createDynamicsCompressor() {
+    return {
+      connect: () => {},
+      disconnect: () => {},
+      threshold: { value: -24, setTargetAtTime: () => {} },
+      knee: { value: 30, setTargetAtTime: () => {} },
+      ratio: { value: 12, setTargetAtTime: () => {} },
+      attack: { value: 0.003, setTargetAtTime: () => {} },
+      release: { value: 0.25, setTargetAtTime: () => {} },
+    };
+  }
+
   createAnalyser() { return { connect: () => {}, fftSize: 128, frequencyBinCount: 64, getByteFrequencyData: () => {} }; }
   createMediaStreamSource() { return { connect: () => {}, disconnect: () => {} }; }
   createScriptProcessor() { return { connect: () => {}, onaudioprocess: null }; }

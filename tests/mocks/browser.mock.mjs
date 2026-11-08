@@ -78,6 +78,31 @@ class MockAudioContext {
     };
   }
 
+  createBuffer(numChannels, length, sampleRate) {
+    const buffer = {
+      numberOfChannels: numChannels,
+      length: length,
+      sampleRate: sampleRate,
+      duration: length / sampleRate,
+      getChannelData: (channel) => new Float32Array(length),
+      copyFromChannel: () => {},
+      copyToChannel: () => {},
+    };
+    return buffer;
+  }
+
+  createDynamicsCompressor() {
+    return {
+      connect: () => {},
+      disconnect: () => {},
+      threshold: { value: -24, setTargetAtTime: () => {} },
+      knee: { value: 30, setTargetAtTime: () => {} },
+      ratio: { value: 12, setTargetAtTime: () => {} },
+      attack: { value: 0.003, setTargetAtTime: () => {} },
+      release: { value: 0.25, setTargetAtTime: () => {} },
+    };
+  }
+
   createAnalyser() {
     return {
       connect: () => {},
