@@ -1,5 +1,6 @@
 import { SCREENSAVER_SVG } from './screensaver-svg.js';
 import { state } from './state.js';
+import { t } from './i18n.js';
 
 // Screensaver de inatividade (1 min) — overlay com SVG animado
 const SCREENSAVER_DELAY_MS = 60000; // 1 minuto
@@ -58,7 +59,6 @@ function renderScreensaverContent(el) {
   if (mode === 'pomodoro') {
     // Timer do Pomodoro (replica a seção Pomodoro) com anel de progresso
     el.style.background = '#000000';
-    const t = (typeof window !== 'undefined' && typeof window.t === 'function') ? window.t : (k => k);
     const r = 90;
     const c = 2 * Math.PI * r;
     el.innerHTML = `
@@ -93,8 +93,8 @@ export function syncScreensaverPomodoroTimer() {
 
   // Atualiza anel de progresso
   const ring = document.getElementById('screensaverPomodoroRing');
-  if (ring && window.state && window.state.pomodoro) {
-    const p = window.state.pomodoro;
+  if (ring && state.pomodoro) {
+    const p = state.pomodoro;
     const total = p.totalTime || 1;
     const remaining = p.timeRemaining || 0;
     const progress = 1 - (remaining / total);
@@ -103,9 +103,6 @@ export function syncScreensaverPomodoroTimer() {
     ring.setAttribute('stroke-dashoffset', String(circ * (1 - progress)));
   }
 }
-
-// Expor para sincronização externa
-window.syncScreensaverPomodoroTimer = syncScreensaverPomodoroTimer;
 
 async function requestScreensaverWakeLock() {
   try {
@@ -174,6 +171,3 @@ export function pauseScreensaver() {
 export function resumeScreensaver() {
   resetScreensaverTimer();
 }
-
-// Expor para debug/teste
-window.__screensaver = { show: showScreensaver, hide: hideScreensaver, reset: resetScreensaverTimer, pause: pauseScreensaver, resume: resumeScreensaver };

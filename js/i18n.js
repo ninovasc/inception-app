@@ -2,6 +2,16 @@
 // i18n - Internacionalização do PASIV Engine
 // Suporta: en-US, es-ES, pt-BR
 
+import { state } from './state.js';
+import { WORLD_NAMES } from './config.js';
+import { renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
+import { renderTriggerList } from './features/triggerController.js';
+import { syncMechanicsUI } from './mechanics.js';
+import { syncSensorsUI } from './sensors.js';
+import * as sensors from './sensors.js';
+import { updateFromSliders } from './audio.js';
+import { updateModeSpecificUI } from './modes/uiUpdater.js';
+
 const translations = {
   'en-US': {
     // Header / Status
@@ -986,21 +996,21 @@ function applyTranslations() {
   updateDynamicSelects();
 
   // Re-renderiza seções dinâmicas para refletir o novo idioma
-  if (typeof window.renderWorldSelect === 'function') window.renderWorldSelect();
-  if (typeof window.renderSourceList === 'function') window.renderSourceList();
-  if (typeof window.renderTriggerList === 'function') window.renderTriggerList();
-  if (typeof window.syncMechanicsUI === 'function') window.syncMechanicsUI();
-  if (typeof window.syncSensorsUI === 'function') window.syncSensorsUI();
-  if (typeof window.updateFromSliders === 'function') window.updateFromSliders(true);
-  if (typeof window.updateModeSpecificUI === 'function') window.updateModeSpecificUI(window.state ? window.state.currentMode : '');
+  renderWorldSelect();
+  renderSourceList();
+  renderTriggerList();
+  syncMechanicsUI();
+  syncSensorsUI();
+  updateFromSliders(true);
+  updateModeSpecificUI(state.currentMode);
 }
 
 function updateDynamicSelects() {
   // worldSelect
   const worldSel = document.getElementById('worldSelect');
-  if (worldSel && window.WORLD_NAMES) {
+  if (worldSel && WORLD_NAMES) {
     const current = worldSel.value;
-    worldSel.innerHTML = window.WORLD_NAMES.map((w, i) =>
+    worldSel.innerHTML = WORLD_NAMES.map((w, i) =>
       `<option value="${i}" ${i == current ? 'selected' : ''}>${w}</option>`
     ).join('');
     worldSel.value = current;
@@ -1008,16 +1018,16 @@ function updateDynamicSelects() {
 
   // voicePresetSelect
   const voiceSel = document.getElementById('voicePresetSelect');
-  if (voiceSel && window.sensors?.MIC_PRESETS) {
+  if (voiceSel && sensors?.MIC_PRESETS) {
     const current = voiceSel.value;
-    const names = Object.keys(window.sensors.MIC_PRESETS);
+    const names = Object.keys(sensors.MIC_PRESETS);
     voiceSel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('')
       + `<option value="custom">${t('voice.custom')}</option>`;
     voiceSel.value = current;
   }
 
   // trigger selects
-  if (window.renderTriggerList) window.renderTriggerList();
+  renderTriggerList();
 }
 
 function updateLangSelector() {
@@ -1054,10 +1064,5 @@ function createLangSelector() {
   }
 }
 
-// Expor globalmente para uso inline
-if (typeof window !== 'undefined') {
-  window.t = t;
-  window.setLang = setLang;
-  window.getLang = getLang;
-  window.initI18n = initI18n;
-}
+// i18n functions are accessed via direct import from other modules.
+// No window.* exposure for business logic.

@@ -467,7 +467,5 @@ export function syncSensorsUI() {
   if (ledLabel) ledLabel.textContent = state.micLedOn ? t('voice.led.capturing') : t('voice.led.silence');
 }
 
-// Expor globalmente
-if (typeof window !== 'undefined') {
-  window.syncSensorsUI = syncSensorsUI;
-}
+// Exportado para uso direto por outros módulos via import
+export { syncSensorsUI };

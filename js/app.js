@@ -40,67 +40,14 @@ window.APP_VERSION = 50000;
 // App version for cache busting verification
 console.log('[PASIV] App version:', window.APP_VERSION);
 
-// Expose to global scope for inline handlers
-Object.assign(window, {
-  initAudio: audio.initAudio,
-  setSourceMode: audio.setSourceMode,
-  selectSynthType: audio.selectSynthType,
-  setSynthVolume: audio.setSynthVolume,
-  startSynth: audio.startSynth,
-  stopSynth: audio.stopSynth,
-  loadStem: audio.loadStem,
-  startStems: audio.startStems,
-  stopStems: audio.stopStems,
-  setVolume: audio.setVolume,
-  toggleMasterPlay: audio.toggleMasterPlay,
-  selectLevel: audio.selectLevel,
-  syncXYPadFromSliders: audio.syncXYPadFromSliders,
-  updateFromSliders: audio.updateFromSliders,
-  applyParameters: audio.applyParameters,
-  setWorldSynth: audio.setWorldSynth,
-  setWorldVolume: audio.setWorldVolume,
-  restartWorldAudio: audio.restartWorldAudio,
-  triggerKick: audio.triggerKick,
-  toggleMic: sensors.toggleMic,
-  applyMicPreset: sensors.applyMicPreset,
-  setMicParam: sensors.setMicParam,
-  toggleMotion: sensors.toggleMotion,
-  motionHandler: sensors.motionHandler,
-  orientationHandler: sensors.orientationHandler,
-  toggleGPS: sensors.toggleGPS,
-  toggleMemoryCatcher: mechanics.toggleMemoryCatcher,
-  toggleAutoKick: mechanics.toggleAutoKick,
-  toggleSpatial3D: mechanics.toggleSpatial3D,
-  toggleGyroSliders: mechanics.toggleGyroSliders,
-  cycleLucidTimer: mechanics.cycleLucidTimer,
-  setLucidTimerMinutes: mechanics.setLucidTimerMinutes,
-  toggleDeprivationWatch: mechanics.toggleDeprivationWatch,
-  checkSensoryDeprivation: mechanics.checkSensoryDeprivation,
-  enterSensoryDeprivation: mechanics.enterSensoryDeprivation,
-  stopDeprivationHeartbeat: mechanics.stopDeprivationHeartbeat,
-  syncMechanicsUI: mechanics.syncMechanicsUI,
-  togglePanel: ui.togglePanel,
-  toggleHelp: ui.toggleHelp,
-  loadWorldMp3: audio.loadWorldMp3,
-  setWorldMp3Volume: audio.setWorldMp3Volume,
-  startCapture: cap.startCapture,
-  stopCapture: cap.stopCapture,
-  setCaptureVolume: cap.setCaptureVolume,
-  toggleAutoMode,
-  getActiveTrigger,
-  setWorldTrigger: (key, value) => setWorldTrigger(key, value),
-  setWorldTriggerMotion: (value) => setWorldTriggerMotion(value),
-  setWorldTriggerSilence: (value) => setWorldTriggerSilence(value),
-  state: state,
-  setLang,
-  // Common UI functions
-  renderWorldSelect,
-  renderVoicePresets,
-  renderSourceList,
-  updateTriggerIndicator,
-  initCommonUI,
-  syncAutoUI
-});
+// window.* não expõe mais lógica de negócio. Todas as funções são acessíveis
+// via import direto nos módulos JS e via event delegation (data-action) no HTML.
+// Apenas APIs do navegador e constantes de configuração permanecem em window.
+window.__getAppState = () => state;
+window.__getAppStateModule = async () => {
+  const m = await import('./state.js');
+  return m.state;
+};
 // Debug: expose function to check module's state variable
 window.__getAppState = () => state;
 window.__getAppStateModule = async () => {
@@ -109,11 +56,7 @@ window.__getAppStateModule = async () => {
 };
 
 // Ao iniciar o sonho, ativa as mecânicas padrão (permissões exigem gesto).
-const baseToggleMasterPlay = audio.toggleMasterPlay;
-window.toggleMasterPlay = function() {
-  if (!state.isPlaying) mechanics.activateDreamDefaults();
-  return baseToggleMasterPlay();
-};
+// A lógica de activateDreamDefaults já está incorporada em audio.toggleMasterPlay
 
 // ============================================================
 // Event delegation: registra ações para data-action
@@ -211,7 +154,6 @@ initCommonUI();
 
 // Initialize generative UI
 initGenerativeUI();
-window.updateGenerativeUIVisibility = updateGenerativeUIVisibility;
 updateGenerativeUIVisibility();
 
 // Initialize mode-specific UIs

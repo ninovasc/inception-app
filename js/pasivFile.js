@@ -6,6 +6,15 @@
 import { state } from './state.js';
 import { DEFAULTS } from './config.js';
 import { t } from './i18n.js';
+import { updateGenerativeUIVisibility } from './ui/generativeUI.js';
+import { updatePomodoroUI } from './ui/pomodoroUI.js';
+import { updateSleepUI } from './ui/sleepUI.js';
+import { syncMechanicsUI } from './mechanics.js';
+import { syncSensorsUI } from './sensors.js';
+import { updateModeUI } from './modes/uiUpdater.js';
+import { updateGenerativeVariation } from './ui/generativeUI.js';
+import { renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
+import { renderTriggerList } from './features/triggerController.js';
 
 // ============================================================
 // Estado interno
@@ -266,17 +275,17 @@ function applyPasivState(savedState) {
   if (savedState.xyState) state.xyState = { ...savedState.xyState };
   
   // Sincroniza UI
-  if (typeof window.renderWorldSelect === 'function') window.renderWorldSelect();
-  if (typeof window.renderVoicePresets === 'function') window.renderVoicePresets();
-  if (typeof window.renderSourceList === 'function') window.renderSourceList();
-  if (typeof window.renderTriggerList === 'function') window.renderTriggerList();
-  if (typeof window.updatePomodoroUI === 'function') window.updatePomodoroUI();
-  if (typeof window.updateSleepUI === 'function') window.updateSleepUI();
-  if (typeof window.syncMechanicsUI === 'function') window.syncMechanicsUI();
-  if (typeof window.syncSensorsUI === 'function') window.syncSensorsUI();
-  if (typeof window.updateGenerativeUIVisibility === 'function') window.updateGenerativeUIVisibility();
-  if (typeof window.updateModeUI === 'function') window.updateModeUI();
-  if (typeof window.updateGenerativeVariation === 'function') window.updateGenerativeVariation();
+  renderWorldSelect();
+  renderVoicePresets();
+  renderSourceList();
+  renderTriggerList();
+  updatePomodoroUI();
+  updateSleepUI();
+  syncMechanicsUI();
+  syncSensorsUI();
+  updateGenerativeUIVisibility();
+  updateModeUI();
+  updateGenerativeVariation();
 }
 
 // ============================================================

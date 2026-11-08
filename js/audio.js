@@ -8,6 +8,7 @@ import * as mp3 from './audio/mp3.js';
 import * as stems from './audio/stems.js';
 import * as world from './audio/world.js';
 import * as effects from './audio/effects.js';
+import * as mechanics from './mechanics.js';
 
 // Re-exports from split modules
 export { initAudio } from './audio/core.js';
@@ -120,6 +121,7 @@ export function toggleMasterPlay() {
 
   if (!state.isPlaying) {
     state.isPlaying = true;
+    mechanics.activateDreamDefaults();
     restartWorldAudio();
 
     if (btn) btn.classList.add('active');
@@ -140,7 +142,6 @@ export function toggleMasterPlay() {
     synth.stopSynth();
     synth.stopChordProgression();
     mp3.stopAllMp3World();
-    if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
     if (window.stopCapture) window.stopCapture();
     stopDeprivationHeartbeat();
     if (btn) btn.classList.remove('active');

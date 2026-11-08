@@ -4,6 +4,7 @@ import * as mechanics from '../mechanics.js';
 import * as audio from '../audio.js';
 import * as narrativeMode from '../modes/narrativeMode.js';
 import { updateGenerativeUIVisibility } from '../ui/generativeUI.js';
+import { pauseScreensaver, resumeScreensaver } from '../screensaver.js';
 import { t } from '../i18n.js';
 
 // Wake Lock: mantém a tela acesa durante a reprodução (iOS/Android)
@@ -76,9 +77,7 @@ export function startCurrentMode() {
 
   // Mantém a tela acesa e pausa o screensaver durante a reprodução
   requestWakeLock();
-  if (window.__screensaver && typeof window.__screensaver.pause === 'function') {
-    window.__screensaver.pause();
-  }
+  pauseScreensaver();
 
   // Ativa mecânicas padrão
   mechanics.activateDreamDefaults();
@@ -102,8 +101,8 @@ export function stopCurrentMode() {
   if (!state.currentMode || !state.isPlaying) return;
 
   // Para áudio
-  if (typeof window.toggleMasterPlay === 'function' && state.isPlaying) {
-    window.toggleMasterPlay();
+  if (state.isPlaying) {
+    audio.toggleMasterPlay();
   }
 
   // Desativa módulo do modo
@@ -124,9 +123,7 @@ export function stopCurrentMode() {
 
   // Libera wake lock e retoma screensaver
   releaseWakeLock();
-  if (window.__screensaver && typeof window.__screensaver.resume === 'function') {
-    window.__screensaver.resume();
-  }
+  resumeScreensaver();
 
   // UI: mostra Iniciar, esconde Parar
   const startBtn = document.getElementById('startModeBtn');

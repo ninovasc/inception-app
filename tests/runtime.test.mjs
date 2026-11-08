@@ -289,11 +289,11 @@ describe('Runtime: Generative AI', () => {
 });
 
 describe('Runtime: Sensors', () => {
-  test('sensors exposed on window', () => {
-    const content = readFile('js/app.js');
-    assert.ok(content.includes('toggleMic: sensors.toggleMic'), 'Should expose toggleMic');
-    assert.ok(content.includes('toggleMotion: sensors.toggleMotion'), 'Should expose toggleMotion');
-    assert.ok(content.includes('toggleGPS: sensors.toggleGPS'), 'Should expose toggleGPS');
+  test('sensors exported from module', () => {
+    const content = readFile('js/sensors.js');
+    assert.ok(content.includes('export function toggleMic') || content.includes('export async function toggleMic'), 'Should export toggleMic');
+    assert.ok(content.includes('export function toggleMotion') || content.includes('export async function toggleMotion'), 'Should export toggleMotion');
+    assert.ok(content.includes('export function toggleGPS') || content.includes('export async function toggleGPS'), 'Should export toggleGPS');
   });
 
   test('sensor buttons exist in HTML', () => {

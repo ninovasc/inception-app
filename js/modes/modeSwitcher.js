@@ -1,5 +1,6 @@
 import { state } from '../state.js';
 import { MODES } from '../config.js';
+import * as audio from '../audio.js';
 import * as narrativeMode from './narrativeMode.js';
 import * as pomodoroMode from './pomodoroMode.js';
 import * as sleepMode from './sleepMode.js';
@@ -33,8 +34,8 @@ export function switchMode(modeId) {
       localStorage.removeItem('pasiv-mode');
 
       // Para áudio
-      if (typeof window.toggleMasterPlay === 'function' && window.state?.isPlaying) {
-        window.toggleMasterPlay();
+      if (state.isPlaying) {
+        audio.toggleMasterPlay();
       }
 
       // Atualiza UI
