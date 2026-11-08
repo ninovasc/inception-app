@@ -1,7 +1,6 @@
-// Week 5 TDD: Comprehensive mock browser environment
-// This file sets up all browser APIs needed for testing
+// Week 5 TDD: Enhanced mock browser environment with full DOM simulation
+// This file provides comprehensive browser API mocks for testing
 
-// Mock AudioContext
 class MockAudioContext {
   constructor() {
     this.currentTime = 0;
@@ -21,47 +20,50 @@ class MockAudioContext {
   close() { this.state = 'closed'; }
 }
 
-// Mock document
-const mockDocument = {
-  createElement: (tag) => ({
+// Enhanced mock element factory
+function createMockElement(id, tag = 'div') {
+  const el = {
     tagName: tag.toUpperCase(),
+    id: id || '',
     style: {},
     classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => {} },
     appendChild: () => {},
     querySelector: () => null,
     querySelectorAll: () => [],
-    getElementById: (id) => null,
     setAttribute: () => {},
     getAttribute: () => null,
     addEventListener: () => {},
     removeEventListener: () => {},
     textContent: '',
     innerHTML: '',
-    value: '',
-    dataset: {},
-    id: '',
-    disabled: false
-  }),
-  querySelector: () => null,
-  querySelectorAll: () => [],
-  getElementById: (id) => ({
     value: '0.5',
-    textContent: '',
-    style: {},
     dataset: {},
-    classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => {} },
-    setAttribute: () => {},
-    getAttribute: () => null,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    appendChild: () => {},
     disabled: false,
-    id: id
-  }),
+    checked: false,
+    options: [],
+    scrollHeight: 100,
+    offsetHeight: 100
+  };
+  return el;
+}
+
+// Mock document with element registry
+const elementRegistry = new Map();
+const mockDocument = {
+  createElement: (tag) => createMockElement('', tag),
+  querySelector: (sel) => null,
+  querySelectorAll: (sel) => [],
+  getElementById: (id) => {
+    if (!elementRegistry.has(id)) {
+      elementRegistry.set(id, createMockElement(id));
+    }
+    return elementRegistry.get(id);
+  },
   addEventListener: () => {},
   removeEventListener: () => {},
   body: { appendChild: () => {} },
-  head: { appendChild: () => {} }
+  head: { appendChild: () => {} },
+  getComputedStyle: () => ({ display: 'none' })
 };
 
 // Mock window
@@ -83,11 +85,15 @@ const mockWindow = {
   document: mockDocument,
   navigator: {
     mediaDevices: {
-      getUserMedia: async () => ({}),
+      getUserMedia: async () => ({ getTracks: () => [] }),
       getDisplayMedia: async () => ({ getAudioTracks: () => [], getVideoTracks: () => [], getTracks: () => [] })
     },
     geolocation: {
-      watchPosition: () => 1,
+      watchPosition: (success, error, opts) => { 
+        // Don't call success synchronously to avoid network calls
+        setTimeout(() => { if (success) success({ coords: { latitude: 0, longitude: 0, speed: 0 } }); }, 0);
+        return 1; 
+      },
       clearWatch: () => {}
     }
   },
@@ -100,20 +106,27 @@ const mockWindow = {
   screen: { orientation: { lock: () => Promise.resolve() } },
   addEventListener: () => {},
   removeEventListener: () => {},
-  APP_VERSION: 50000
+  APP_VERSION: 50000,
+  AudioContext: MockAudioContext,
+  webkitAudioContext: MockAudioContext
 };
 
 // Set globals
 global.window = mockWindow;
-global.localStorage = mockWindow.localStorage;
-global.sessionStorage = mockWindow.sessionStorage;
+Object.defineProperty(global, 'localStorage', { value: mockWindow.localStorage, writable: true, configurable: true });
+Object.defineProperty(global, 'sessionStorage', { value: mockWindow.sessionStorage, writable: true, configurable: true });
 global.document = mockDocument;
 global.AudioContext = MockAudioContext;
 global.webkitAudioContext = MockAudioContext;
 Object.defineProperty(global, 'navigator', { value: mockWindow.navigator, writable: true, configurable: true });
 global.getComputedStyle = mockWindow.getComputedStyle;
 global.screen = mockWindow.screen;
+// Mock fetch to prevent real network calls
+global.fetch = async () => ({
+  json: async () => ({ current: { rain: 0, is_day: 1 } }),
+  ok: true,
+  status: 200
+});
 
-console.log('Mock browser environment loaded');
-
-export { mockWindow, mockDocument, MockAudioContext };
+// Export for use in tests
+export { mockWindow, mockDocument, MockAudioContext, createMockElement, elementRegistry };
