@@ -69,10 +69,9 @@ describe('Runtime: Panel Visibility', () => {
 });
 
 describe('Runtime: Accordion', () => {
-  test('toggleAccordion is defined and exposed', () => {
+  test('toggleAccordion is exported from module', () => {
     const content = readFile('js/features/accordionController.js');
-    assert.ok(content.includes('function toggleAccordion(panelId)'), 'Should define toggleAccordion');
-    assert.ok(content.includes('window.toggleAccordion = toggleAccordion'), 'Should expose on window');
+    assert.ok(content.includes('export function toggleAccordion(panelId)'), 'Should export toggleAccordion');
   });
 
   test('toggleAccordion toggles open class', () => {
@@ -135,10 +134,9 @@ describe('Runtime: Mode Selector', () => {
     assert.ok(html.includes('data-action="stopCurrentMode"'), 'Should call stopCurrentMode');
   });
 
-  test('stopCurrentMode is defined in modeController', () => {
+  test('stopCurrentMode is exported from modeController', () => {
     const content = readFile('js/features/modeController.js');
-    assert.ok(content.includes('export function stopCurrentMode'), 'Should define stopCurrentMode');
-    assert.ok(content.includes('window.stopCurrentMode = stopCurrentMode'), 'Should expose on window');
+    assert.ok(content.includes('export function stopCurrentMode'), 'Should export stopCurrentMode');
   });
 });
 

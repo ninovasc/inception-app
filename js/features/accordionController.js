@@ -27,5 +27,3 @@ export function toggleAccordion(panelId) {
     if (arrow) arrow.textContent = panel.classList.contains('open') ? '▼' : '▶';
   }
 }
-
-window.toggleAccordion = toggleAccordion;

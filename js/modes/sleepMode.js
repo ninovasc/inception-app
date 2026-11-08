@@ -228,26 +228,5 @@ function renderSleepUI() {
   }
 }
 
-// Handlers globais
-window.setSleepAlarmTime = function(timeStr) {
-  setAlarmTime(timeStr);
-  updateAlarmTimerDisplay();
-};
-
-window.setSleepWakeWindow = function(minutes) {
-  state.sleep.wakeWindowMinutes = Math.max(5, Math.min(60, parseInt(minutes) || 15));
-};
-
-window.setSleepWakeWorld = function(index) {
-  if (index >= 0 && index < 8) {
-    state.sleep.wakeWorldIndex = index;
-  }
-};
-
-window.cancelSleepAlarm = function() {
-  cancelAlarm();
-};
-
-window.testSleepAlarm = function() {
-  playAlarmSound();
-};
+// Funções acessíveis via import direto ou event delegation (data-action)
+// Não expostas mais em window.* para evitar poluição global

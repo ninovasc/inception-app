@@ -118,7 +118,7 @@ export function togglePomodoroConfig() {
 }
 
 // Handlers de configuração
-window.updatePomodoroActivityDuration = function(val) {
+updatePomodoroActivityDuration = function(val) {
   document.getElementById('pomodoroActivityVal').textContent = `${val} min`;
   state.pomodoro.activityDuration = parseInt(val) * 60;
   if (state.pomodoro.phase === 'activity') {
@@ -130,23 +130,23 @@ window.updatePomodoroActivityDuration = function(val) {
   }
 };
 
-window.updatePomodoroShortBreakDuration = function(val) {
+updatePomodoroShortBreakDuration = function(val) {
   document.getElementById('pomodoroShortBreakVal').textContent = `${val} min`;
   state.pomodoro.shortBreakDuration = parseInt(val) * 60;
 };
 
-window.updatePomodoroLongBreakDuration = function(val) {
+updatePomodoroLongBreakDuration = function(val) {
   document.getElementById('pomodoroLongBreakVal').textContent = `${val} min`;
   state.pomodoro.longBreakDuration = parseInt(val) * 60;
 };
 
-window.updatePomodoroCyclesUntilLongBreak = function(val) {
+updatePomodoroCyclesUntilLongBreak = function(val) {
   document.getElementById('pomodoroCyclesVal').textContent = val;
   state.pomodoro.cyclesUntilLongBreak = parseInt(val);
 };
 
 // Carregar MP3 para Atividade
-window.loadPomodoroActivityMp3 = function(file) {
+loadPomodoroActivityMp3 = function(file) {
   if (!file) return;
   import('../audio.js').then(({ audio }) => {
     const idx = 0; // Atividade = índice 0
@@ -159,7 +159,7 @@ window.loadPomodoroActivityMp3 = function(file) {
 };
 
 // Carregar MP3 para Pausa
-window.loadPomodoroBreakMp3 = function(file) {
+loadPomodoroBreakMp3 = function(file) {
   if (!file) return;
   import('../audio.js').then(({ audio }) => {
     const idx = 1; // Descanso = índice 1
@@ -172,7 +172,7 @@ window.loadPomodoroBreakMp3 = function(file) {
 };
 
 // Expor funções globalmente
-window.togglePomodoroConfig = function() {
+togglePomodoroConfig = function() {
   const config = document.getElementById('pomodoroConfig');
   const arrow = document.getElementById('pomodoroConfigArrow');
   if (!config) return;

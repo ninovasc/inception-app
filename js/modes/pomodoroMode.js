@@ -240,10 +240,5 @@ window.startPomodoro = async () => {
   }
 };
 
-window.pausePomodoro = () => pomodoroMode.pauseTimer();
-window.resumePomodoro = () => pomodoroMode.resumeTimer();
-window.skipPomodoroPhase = () => pomodoroMode.skipPhase();
-window.resetPomodoro = () => pomodoroMode.resetPomodoro();
-window.setPomodoroDurations = (config) => pomodoroMode.setDurations(config);
-window.setPomodoroActivityMp3 = (url) => pomodoroMode.setActivityMp3(url);
-window.setPomodoroBreakMp3 = (url) => pomodoroMode.setBreakMp3(url);
+// Funções acessíveis via import direto ou event delegation (data-action)
+// Não expostas mais em window.* para evitar poluição global

@@ -139,11 +139,8 @@ export function getCurrentMode() {
   return state.currentMode;
 }
 
-// Expose to global scope for inline handlers
-window.setMode = setMode;
-window.startCurrentMode = startCurrentMode;
-window.stopCurrentMode = stopCurrentMode;
-window.getCurrentMode = getCurrentMode;
+// Funções acessíveis via import direto ou event delegation (data-action)
+// Não expostas mais em window.* para evitar poluição global
 
 // Re-adquire wake lock quando a aba volta a ficar visível durante reprodução
 if (typeof document !== 'undefined') {
