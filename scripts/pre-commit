@@ -1,0 +1,38 @@
+#!/bin/sh
+# Pre-commit hook: Run all tests + TypeScript check before committing
+# Install: cp scripts/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+
+echo "Running TypeScript check..."
+npx tsc --noEmit -p tsconfig.pure.json > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "❌ TypeScript check failed! Commit aborted."
+  echo "Run 'npx tsc --noEmit -p tsconfig.pure.json' to see details."
+  exit 1
+fi
+
+echo "Running comprehensive tests..."
+node --test tests/comprehensive.test.mjs > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "❌ Comprehensive tests failed! Commit aborted."
+  echo "Run 'node --test tests/comprehensive.test.mjs' to see details."
+  exit 1
+fi
+
+echo "Running runtime tests..."
+node --test tests/runtime.test.mjs > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "❌ Runtime tests failed! Commit aborted."
+  echo "Run 'node --test tests/runtime.test.mjs' to see details."
+  exit 1
+fi
+
+echo "Running functional tests..."
+node --test tests/functional.test.mjs tests/*-functional.test.mjs > /dev/null 2>&1
+if [ $? -ne 0 ]; then
+  echo "❌ Functional tests failed! Commit aborted."
+  echo "Run 'node --test tests/functional.test.mjs tests/*-functional.test.mjs' to see details."
+  exit 1
+fi
+
+echo "✅ All tests passed!"
+exit 0
