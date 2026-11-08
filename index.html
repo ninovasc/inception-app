@@ -61,6 +61,25 @@
         <div style="font-size:0.7rem; color:var(--muted); font-family:monospace;" id="sensorStatus" data-i18n="sensorStatus.default">Toque em um sensor para ligar ou desligar.</div>
       </div>
 
+    <!-- Exportar / Importar Configurações .PASIV (visível em todos os modos) -->
+    <div class="menu-section" data-mode="narrative pomodoro sleep free">
+      <div class="menu-title" data-action="toggleAccordion" data-arg="pasivConfigPanel" style="cursor:pointer; display:flex; justify-content:space-between;">
+        <span data-i18n="pasiv.title">Exportar / Importar Configurações</span>
+        <span style="color:#fff;" class="accordion-arrow">▶</span>
+      </div>
+      <div id="pasivConfigPanel" class="accordion-panel">
+        <div style="margin-top: 8px;">
+          <button id="btnExportPasiv" class="menu-item" data-action="exportPasivFile" disabled style="flex:1; justify-content:center;">
+            <span data-i18n="pasiv.export">Exportar</span>
+          </button>
+          <button id="btnImportPasiv" class="menu-item" data-action="importPasivFile" style="flex:1; justify-content:center;">
+            <span data-i18n="pasiv.import">Importar</span>
+          </button>
+          <input type="file" id="pasivFileInput" accept=".PASIV" style="display:none;" data-action="handlePasivFileInput">
+        </div>
+      </div>
+    </div>
+
       <!-- Seletor de Modo + Botão Iniciar -->
       <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border);">
         <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">Modo</label>

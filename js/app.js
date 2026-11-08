@@ -30,6 +30,7 @@ import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
 import { initGenerativeUI, updateGenerativeUIVisibility, toggleGenerative, updateGenerativeVariation, generateNewVariation, saveGenerativeVariation, resetGenerative } from './ui/generativeUI.js';
 import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList } from './ui/commonUI.js';
 import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
+import './pasivFile.js';
 
 window.__lucidModes = LUCID_MODES;
 
@@ -148,6 +149,11 @@ registerAction('generateNewVariation', function () { generateNewVariation(); });
 registerAction('saveGenerativeVariation', function () { saveGenerativeVariation(); });
 registerAction('resetGenerative', function () { resetGenerative(); });
 registerAction('toggleHelpBackdrop', function (e) { if (e.target === this) ui.toggleHelp(); });
+
+// PASIV file actions
+registerAction('exportPasivFile', function () { exportPasivFile(); });
+registerAction('importPasivFile', function () { document.getElementById('pasivFileInput').click(); });
+registerAction('handlePasivFileInput', function () { handlePasivFileInput(event); });
 
 // Service worker:
 if ('serviceWorker' in navigator) {

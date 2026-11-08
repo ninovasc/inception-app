@@ -145,6 +145,17 @@ const translations = {
     'generative.error': 'Error generating',
     'generative.off': 'OFF',
 
+    // PASIV File
+    'pasiv.title': 'Export / Import Configurations',
+    'pasiv.export': 'Export',
+    'pasiv.import': 'Import',
+    'pasiv.export.noChanges': 'No changes to export.',
+    'pasiv.import.success': 'Configuration imported successfully!',
+    'pasiv.import.error': 'Import error: {error}',
+    'pasiv.import.invalidExtension': 'File must have .PASIV extension.',
+    'pasiv.error.invalidJson': 'Invalid JSON file.',
+    'pasiv.error.missingState': 'Missing state in PASIV file.',
+    'pasiv.error.unknownSchema': 'Unknown schema: {schema}. Expected PASIV-1.',
 
     // Help Modal
     'help.title': 'PASIV Engine',
@@ -445,6 +456,17 @@ const translations = {
     'generative.error': 'Error al generar',
     'generative.off': 'OFF',
 
+    // PASIV File
+    'pasiv.title': 'Exportar / Importar Configuraciones',
+    'pasiv.export': 'Exportar',
+    'pasiv.import': 'Importar',
+    'pasiv.export.noChanges': 'No hay cambios para exportar.',
+    'pasiv.import.success': '¡Configuración importada con éxito!',
+    'pasiv.import.error': 'Error al importar: {error}',
+    'pasiv.import.invalidExtension': 'El archivo debe tener extensión .PASIV.',
+    'pasiv.error.invalidJson': 'Archivo JSON inválido.',
+    'pasiv.error.missingState': 'Falta el estado en el archivo PASIV.',
+    'pasiv.error.unknownSchema': 'Schema desconocido: {schema}. Se esperaba PASIV-1.',
 
     'help.title': 'PASIV Engine',
     'help.worlds': 'Mundos',
@@ -659,6 +681,17 @@ const translations = {
     'generative.error': 'Erro ao gerar',
     'generative.off': 'OFF',
 
+    // PASIV File
+    'pasiv.title': 'Exportar / Importar Configurações',
+    'pasiv.export': 'Exportar',
+    'pasiv.import': 'Importar',
+    'pasiv.export.noChanges': 'Sem alterações para exportar.',
+    'pasiv.import.success': 'Configuração importada com sucesso!',
+    'pasiv.import.error': 'Erro ao importar: {error}',
+    'pasiv.import.invalidExtension': 'O arquivo deve ter extensão .PASIV.',
+    'pasiv.error.invalidJson': 'Arquivo JSON inválido.',
+    'pasiv.error.missingState': 'Falta o estado no arquivo PASIV.',
+    'pasiv.error.unknownSchema': 'Schema desconhecido: {schema}. Esperado PASIV-1.',
 
     'help.title': 'PASIV Engine',
     'help.worlds': 'Mundos',

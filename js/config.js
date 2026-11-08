@@ -267,6 +267,61 @@ export const SLEEP_DEFAULTS = {
   wakeWorldIndex: 7             // Despertar Suave
 };
 
+// ============================================================
+// DEFAULTS — Estado padrão para comparação isDirty (PASIV)
+// ============================================================
+
+export const DEFAULTS = {
+  sourceMode: 'synth',
+  currentSynthType: WORLD_SYNTH[0],
+  autoMode: true,
+  worldTriggers: { ...DEFAULT_WORLD_TRIGGERS },
+  triggerMotion: DEFAULT_TRIGGER_MOTION,
+  triggerSilenceSec: DEFAULT_TRIGGER_SILENCE_SEC,
+  worldSourceType: Array(WORLD_COUNT).fill('synth'),
+  worldSynth: [...WORLD_SYNTH],
+  worldVolume: Array(WORLD_COUNT).fill(0.2),
+  worldSources: { mp3: Array(WORLD_COUNT).fill('') },
+  gpsRain: false,
+  gpsNight: false,
+  gpsSpeedMps: 0,
+  motionIntensity: 0,
+  currentLevel: 0,
+  xyState: { x: 0.65, y: 0.0 },
+  micPreset: 'limpo',
+  micGateThreshold: -30,
+  isMemCatcherOn: true,
+  isAutoKickOn: true,
+  isSpatial3DOn: true,
+  isGyroSlidersOn: false,
+  lucidModeIdx: 0,
+  isDeprivationWatchOn: true,
+  // Pomodoro
+  pomodoro: {
+    enabled: false,
+    phase: 'activity',
+    timeRemaining: POMODORO_DEFAULTS.activityDuration,
+    totalTime: POMODORO_DEFAULTS.activityDuration,
+    cyclesCompleted: 0,
+    cyclesUntilLongBreak: POMODORO_DEFAULTS.cyclesUntilLongBreak,
+    isRunning: false,
+    activityDuration: POMODORO_DEFAULTS.activityDuration,
+    shortBreakDuration: POMODORO_DEFAULTS.shortBreakDuration,
+    longBreakDuration: POMODORO_DEFAULTS.longBreakDuration,
+    activityMp3: '',
+    breakMp3: ''
+  },
+  // Sleep
+  sleep: {
+    enabled: false,
+    currentWorld: 0,
+    alarmTime: SLEEP_DEFAULTS.alarmTime,
+    wakeWindowMinutes: SLEEP_DEFAULTS.wakeWindowMinutes,
+    wakeWorldIndex: SLEEP_DEFAULTS.wakeWorldIndex,
+    isWaking: false
+  }
+};
+
 // Modos disponíveis
 export const MODES = [
   { id: 'narrative', name: 'Narrativo', icon: '📖', description: '13 mundos, gatilhos sensoriais, narrativa automática' },
