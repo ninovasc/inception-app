@@ -355,7 +355,7 @@ describe('Mode Implementations', () => {
     const content = readFile('js/modes/pomodoroMode.js');
     assert.ok(content.includes('export async function activate') || content.includes('export function activate'), 'Should export activate');
     assert.ok(content.includes('export function deactivate'), 'Should export deactivate');
-    assert.ok(content.includes('export function startTimer'), 'Should export startTimer');
+    assert.ok(content.includes('export function start') || content.includes('export async function start'), 'Should export start');
     assert.ok(content.includes('export function stopTimer'), 'Should export stopTimer');
     assert.ok(content.includes('export function pauseTimer'), 'Should export pauseTimer');
     assert.ok(content.includes('export function resumeTimer'), 'Should export resumeTimer');

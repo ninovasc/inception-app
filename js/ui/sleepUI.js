@@ -69,8 +69,10 @@ export function updateSleepUI() {
     alarmTimeInput.value = sleep.alarmTime;
   }
   
-  // Atualiza display do timer
-  updateAlarmTimerDisplay();
+  // Atualiza display do timer (delegated to uiUpdater)
+  if (typeof window.updateAlarmTimerDisplay === 'function') {
+    window.updateAlarmTimerDisplay();
+  }
 }
 
 // Handlers globais

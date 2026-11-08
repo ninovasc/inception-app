@@ -182,6 +182,12 @@ export function updateTriggerIndicator() {
 
   const t = window.t || ((k) => k);
 
+  // Modo Livre: gatilhos desativados
+  if (state.currentMode === 'free') {
+    el.textContent = t('free.triggersDisabled');
+    el.dataset.activeTrigger = 'disabled';
+    return;
+  }
 
   // Usa o gatilho efetivamente ativo (última decisão), quando disponível
   let activeKey = 'none';

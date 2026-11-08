@@ -22,10 +22,8 @@ export function updateFreeUI() {
   // Específico do Livre
   if (typeof syncMechanicsUI === 'function') syncMechanicsUI();
   
-  // Limpa gatilho ativo no modo livre
-  const triggerActive = document.getElementById('triggerActive');
-  if (triggerActive) {
-    triggerActive.textContent = t('free.triggersDisabled');
-    triggerActive.dataset.activeTrigger = 'disabled';
+  // Limpa gatilho ativo no modo livre (usa função centralizada)
+  if (typeof window.updateTriggerIndicator === 'function') {
+    window.updateTriggerIndicator();
   }
 }

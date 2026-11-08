@@ -189,10 +189,10 @@ describe('Runtime: Pomodoro', () => {
   test('pomodoroMode activate does not start timer automatically', () => {
     const content = readFile('js/modes/pomodoroMode.js');
     const idx = content.indexOf('export async function activate');
-    const end = content.indexOf('renderPomodoroUI();', idx) + 'renderPomodoroUI();'.length;
+    const end = content.indexOf('if (typeof window.updatePomodoroUI ===', idx) + 'if (typeof window.updatePomodoroUI ==='.length;
     const body = content.slice(idx, end);
-    assert.ok(!body.includes('startTimer()'), 'activate should not call startTimer');
-    assert.ok(body.includes('isRunning = false'), 'activate should set isRunning false');
+    assert.ok(!body.includes('startTimer()') && !body.includes('start()'), 'activate should not call startTimer/start');
+    assert.ok(body.includes('state.pomodoro.isRunning = false'), 'activate should set isRunning false');
   });
 
   test('pomodoroMode exports start and resumeTimer', () => {

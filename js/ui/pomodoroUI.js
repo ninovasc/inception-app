@@ -1,7 +1,3 @@
-import { state } from '../state.js';
-import { POMODORO_DEFAULTS } from '../config.js';
-import { t } from '../i18n.js';
-
 // Cria a interface visual do Pomodoro (timer, controles, config)
 export function createPomodoroUI() {
   const container = document.createElement('div');
@@ -82,8 +78,10 @@ export function updatePomodoroUI() {
     phaseLabel.textContent = labels[pomodoro.phase] || pomodoro.phase;
   }
   
-  // Atualiza timer
-  updateTimerDisplay();
+  // Atualiza timer (delegated to uiUpdater)
+  if (typeof window.updateTimerDisplay === 'function') {
+    window.updateTimerDisplay();
+  }
   
   // Atualiza ciclos
   const cyclesEl = document.getElementById('pomodoroCycles');
@@ -101,30 +99,6 @@ export function updatePomodoroUI() {
   }
 }
 
-
-
-// Toggle painel de configuraçãofunction updateTimerDisplay() {
-  const timerEl = document.getElementById('pomodoroTimer');
-  if (!timerEl) return;
-  
-  const { pomodoro } = state;
-  const mins = Math.floor(pomodoro.timeRemaining / 60);
-  const secs = pomodoro.timeRemaining % 60;
-  const timeStr = String(mins).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0');
-  
-  if (document.getElementById('pomodoroTimer').textContent !== timeStr) {
-    document.getElementById('pomodoroTimer').textContent = String(Math.floor(pomodoro.timeRemaining / 60)).padStart(2, '0') + ':' + String(pomodoro.timeRemaining % 60).padStart(2, '0');
-  }
-  
-  // Atualiza progress ring
-  const progressRing = document.getElementById('pomodoroProgressRing');
-  if (progressRing) {
-    const progress = 1 - (state.pomodoro.timeRemaining / state.pomodoro.totalTime);
-    const circumference = 2 * Math.PI * 45;
-    const offset = circumference * (1 - progress);
-    progressRing.style.strokeDashoffset = offset;
-  }
-}
 export function togglePomodoroConfig() {
   const config = document.getElementById('pomodoroConfig');
   const arrow = document.getElementById('pomodoroConfigArrow');
@@ -151,7 +125,7 @@ window.updatePomodoroActivityDuration = function(val) {
     state.pomodoro.totalTime = state.pomodoro.activityDuration;
     if (!state.pomodoro.isRunning) {
       state.pomodoro.timeRemaining = state.pomodoro.totalTime;
-      updateTimerDisplay();
+      if (typeof window.updateTimerDisplay === 'function') window.updateTimerDisplay();
     }
   }
 };
@@ -195,7 +169,7 @@ window.loadPomodoroBreakMp3 = function(file) {
       document.getElementById('pomodoroBreakMp3Label').textContent = file.name.slice(0, 30);
     });
   });
-}
+};
 
 // Expor funções globalmente
 window.togglePomodoroConfig = function() {

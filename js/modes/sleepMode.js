@@ -79,46 +79,14 @@ function scheduleAlarm() {
   }, msUntilAlarm);
   
   // Atualiza timer display a cada segundo
-  alarmCheckInterval = setInterval(updateAlarmTimerDisplay, 1000);
-  updateAlarmTimerDisplay();
-}
-
-function updateAlarmTimerDisplay() {
-  const timerEl = document.getElementById('sleepAlarmTimer');
-  const labelEl = document.getElementById('sleepAlarmLabel');
-  if (!timerEl) return;
-  
-  const { alarmTime, wakeWindowMinutes, isWaking } = state.sleep;
-  const [hours, minutes] = alarmTime.split(':').map(Number);
-  
-  const now = new Date();
-  let alarmDate = new Date();
-  alarmDate.setHours(hours, minutes, 0, 0);
-  
-  if (alarmDate <= new Date()) {
-    alarmDate.setDate(alarmDate.getDate() + 1);
+  alarmCheckInterval = setInterval(() => {
+    if (typeof window.updateAlarmTimerDisplay === 'function') {
+      window.updateAlarmTimerDisplay();
+    }
+  }, 1000);
+  if (typeof window.updateAlarmTimerDisplay === 'function') {
+    window.updateAlarmTimerDisplay();
   }
-  
-  const diffMs = alarmDate.getTime() - Date.now();
-  if (diffMs <= 0) {
-    timerEl.textContent = 'Despertando...';
-    if (labelEl) labelEl.textContent = 'Despertando...';
-    return;
-  }
-  
-  const totalMinutes = Math.ceil(diffMs / 60000);
-  const hoursLeft = Math.floor(totalMinutes / 60);
-  const minsLeft = totalMinutes % 60;
-  
-  let label = 'Até alarme';
-  if (state.sleep.isWaking) {
-    label = 'Despertando...';
-  } else if (totalMinutes <= wakeWindowMinutes) {
-    label = 'Janela de despertar';
-  }
-  
-  timerEl.textContent = `${String(hoursLeft).padStart(2, '0')}:${String(minsLeft).padStart(2, '0')}`;
-  if (labelEl) labelEl.textContent = label;
 }
 
 export function cancelAlarm() {
