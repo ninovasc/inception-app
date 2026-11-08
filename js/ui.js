@@ -2,7 +2,7 @@ import { state } from './state.js';
 
 export function toggleHelp() {
   const el = document.getElementById('helpModal');
-  if (m) m.classList.toggle('open');
+  if (el) el.classList.toggle('open');
 }
 
 export function togglePanel(id) {

@@ -3,10 +3,11 @@ import { SLEEP_LEVELS, SLEEP_WORLD_NAMES } from '../config.js';
 import { t } from '../i18n.js';
 import { updateAlarmTimerDisplay } from '../modes/uiUpdater.js';
 import { cancelAlarm, scheduleAlarm, playAlarmSound } from '../modes/sleepMode.js';
+import * as browser from '../browser.js';
 
 // Cria a interface visual do Modo Sono
 export function createSleepUI() {
-  const container = document.createElement('div');
+  const container = browser.createElement('div');
   container.id = 'sleepUI';
   
   container.innerHTML = `
@@ -60,13 +61,13 @@ export function updateSleepUI() {
   if (!sleep.enabled) return;
   
   // Atualiza seletor de mundo
-  const worldSelect = /** @type {HTMLSelectElement} */ (document.getElementById('sleepWorldSelect'));
+  const worldSelect = /** @type {HTMLSelectElement} */ (browser.getElement('sleepWorldSelect'));
   if (worldSelect) {
     worldSelect.value = String(sleep.currentWorld);
   }
   
   // Atualiza time picker
-  const alarmTimeInput = /** @type {HTMLInputElement} */ (document.getElementById('sleepAlarmTime'));
+  const alarmTimeInput = /** @type {HTMLInputElement} */ (browser.getElement('sleepAlarmTime'));
   if (alarmTimeInput) {
     alarmTimeInput.value = sleep.alarmTime;
   }
@@ -88,7 +89,7 @@ export function setSleepAlarmTime(timeStr) {
 
 export function setSleepWakeWindow(val) {
   state.sleep.wakeWindowMinutes = Math.max(5, Math.min(60, parseInt(val) || 15));
-  document.getElementById('sleepWakeWindowVal').textContent = `${state.sleep.wakeWindowMinutes} min`;
+  browser.getElement('sleepWakeWindowVal').textContent = `${state.sleep.wakeWindowMinutes} min`;
 };
 
 export function setSleepWakeWorld(val) {

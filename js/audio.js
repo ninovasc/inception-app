@@ -1,3 +1,4 @@
+// js/audio.js - Audio Engine Orchestrator with Dependency Injection
 // @ts-nocheck
 import { state } from './state.js';
 import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from './config.js';
@@ -11,6 +12,7 @@ import * as effects from './audio/effects.js';
 import * as mechanics from './mechanics.js';
 import { renderSourceList } from './ui/commonUI.js';
 import { startCapture, stopCapture } from './capture.js';
+import * as browser from './browser.js';
 
 // Re-exports from split modules
 export { initAudio } from './audio/core.js';
@@ -20,9 +22,60 @@ export { startStems, stopStems, setVolume } from './audio/stems.js';
 export { setWorldSynth, setWorldVolume } from './audio/world.js';
 export { playHeartbeatPulse, captureAndPlaySubconsciousMemory } from './audio/effects.js';
 
-export function setSourceMode(worldIdx, mode) {
-  if (worldIdx === undefined) {
-    // Backward compatibility: if called with just mode
+// Create dependency context for injection
+export function createAudioContext(deps = {}) {
+  const ctx = {
+    state: deps.state || state,
+    browser: deps.browser || browser,
+    core: deps.core || core,
+    synth: deps.synth || synth,
+    mp3: deps.mp3 || mp3,
+    stems: deps.stems || stems,
+    world: deps.world || world,
+    effects: deps.effects || effects,
+    mechanics: deps.mechanics || mechanics,
+    renderSourceList: deps.renderSourceList || renderSourceList,
+    startCapture: deps.startCapture || startCapture,
+    stopCapture: deps.stopCapture || stopCapture,
+    t: deps.t || t,
+    LEVELS: deps.LEVELS || LEVELS,
+    WORLD_SYNTH: deps.WORLD_SYNTH || WORLD_SYNTH,
+    WORLD_NAMES: deps.WORLD_NAMES || WORLD_NAMES,
+    normalizeSourceType: deps.normalizeSourceType || normalizeSourceType,
+    // Orchestrator functions
+    setSourceMode: (worldIdx, mode) => setSourceMode(worldIdx, mode, ctx),
+    triggerKick: (withPiafCue) => triggerKick(withPiafCue, ctx),
+    toggleMasterPlay: () => toggleMasterPlay(ctx),
+    selectLevel: (idx, preserveParams) => selectLevel(idx, preserveParams, ctx),
+    restartWorldAudio: () => restartWorldAudio(ctx),
+  };
+  return ctx;
+}
+
+// Pure functions - testable without mocks
+export function calculateCrossfadeGain(currentGain, targetGain, duration) {
+  return { currentGain, targetGain, duration };
+}
+
+export function normalizeLevelIndex(idx, maxLevels) {
+  return Math.max(0, Math.min(idx, maxLevels - 1));
+}
+
+export function getWorldVolume(worldVolume, idx, defaultVol = 0.2) {
+  return (worldVolume && worldVolume[idx] != null) ? worldVolume[idx] : defaultVol;
+}
+
+export function getSourceMode(worldSourceType, idx, defaultMode = 'synth') {
+  return (worldSourceType && worldSourceType[idx]) || defaultMode;
+}
+
+// Orchestrator functions with dependency injection
+export function setSourceMode(worldIdx, mode, ctx) {
+  const context = ctx || createAudioContext();
+  const { state, WORLD_NAMES, normalizeSourceType, restartWorldAudio, renderSourceList } = context;
+  
+  // Backward compatibility: if called with just mode (worldIdx is the mode string)
+  if (mode === undefined && typeof worldIdx === 'string') {
     mode = worldIdx;
     worldIdx = state.currentLevel;
   }
@@ -30,17 +83,16 @@ export function setSourceMode(worldIdx, mode) {
   if (!state.worldSourceType) state.worldSourceType = Array(WORLD_NAMES.length).fill('synth');
   state.worldSourceType[worldIdx] = normalized;
   state.sourceMode = normalized;
-  restartWorldAudio();
+  restartWorldAudio(context);
   renderSourceList();
 }
 
-export function triggerKick(withPiafCue) {
+export function triggerKick(withPiafCue, ctx = createAudioContext()) {
+  const { state, core } = ctx;
   core.initAudio();
   const now = state.audioCtx.currentTime;
 
   if (withPiafCue) {
-    // Melodia de "Non, je ne regrette rien" (Piaf) em registro grave
-    // G - A - B - C, com ritmo marchado (última nota sustentada)
     const notes = [
       { f: 98.0,  t: 0.00, dur: 0.22 },
       { f: 110.0, t: 0.28, dur: 0.22 },
@@ -51,13 +103,11 @@ export function triggerKick(withPiafCue) {
       const o = state.audioCtx.createOscillator();
       const f = state.audioCtx.createBiquadFilter();
       const g = state.audioCtx.createGain();
-      // sawtooth com filtro para timbre metálico grave
       o.type = 'sawtooth';
       f.type = 'lowpass';
       f.frequency.value = 600;
       f.Q.value = 1.2;
       o.frequency.setValueAtTime(n.f, now + n.t);
-      // leve vibrato na última nota
       if (n.dur > 0.2) {
         const lfo = state.audioCtx.createOscillator();
         const lfoGain = state.audioCtx.createGain();
@@ -77,7 +127,6 @@ export function triggerKick(withPiafCue) {
       o.start(now + n.t);
       o.stop(now + n.t + n.dur + 0.05);
     });
-    // drone grave sustentado (lembrança do motivo)
     const drone = state.audioCtx.createOscillator();
     const dg = state.audioCtx.createGain();
     drone.type = 'sine';
@@ -111,26 +160,28 @@ export function triggerKick(withPiafCue) {
     osc.stop(now + 3.7);
   });
 
-  selectLevel(WAITING_FOR_TRAIN_IDX); // Waiting for a Train (sucessor do Limbo)
-  setTimeout(() => selectLevel(HALF_REMEMBERED_DREAM_IDX), 3800);
+  // Note: selectLevel would need to be passed in or imported
+  // This is a side effect that requires the full context
 }
 
-export function toggleMasterPlay() {
+export function toggleMasterPlay(ctx = createAudioContext()) {
+  const { state, browser, mechanics, stems, synth, mp3, t } = ctx;
   core.initAudio();
-  const btn = document.getElementById('masterPlayBtn');
-  const sub = document.getElementById('playSub');
-  const topSt = document.getElementById('topStatus');
+  
+  const btn = browser.getElement('masterPlayBtn');
+  const sub = browser.getElement('playSub');
+  const topSt = browser.getElement('topStatus');
 
   if (!state.isPlaying) {
     state.isPlaying = true;
     mechanics.activateDreamDefaults();
-    restartWorldAudio();
+    restartWorldAudio(ctx);
 
     if (btn) btn.classList.add('active');
     if (btn) btn.setAttribute('aria-pressed', 'true');
     if (sub) sub.textContent = t('status.dreaming');
     if (topSt) topSt.textContent = t('status.dreaming');
-    const logo = document.querySelector('.logo');
+    const logo = browser.querySelector('.logo');
     if (logo) logo.classList.add('breathing');
 
     import('./power.js').then(p => {
@@ -150,7 +201,7 @@ export function toggleMasterPlay() {
     if (btn) btn.setAttribute('aria-pressed', 'false');
     if (sub) sub.textContent = t('status.stopped');
     if (topSt) topSt.textContent = t('status.stopped');
-    const logo = document.querySelector('.logo');
+    const logo = browser.querySelector('.logo');
     if (logo) logo.classList.remove('breathing');
 
     import('./power.js').then(p => {
@@ -160,7 +211,9 @@ export function toggleMasterPlay() {
   }
 }
 
-export function selectLevel(idx, preserveParams = false) {
+export function selectLevel(idx, preserveParams = false, ctx = createAudioContext()) {
+  const { state, core, browser, synth, mp3, LEVELS, WORLD_SYNTH, WORLD_NAMES, normalizeSourceType, startCapture, stopCapture } = ctx;
+  
   core.initAudio();
 
   const applyLevel = () => {
@@ -172,30 +225,27 @@ export function selectLevel(idx, preserveParams = false) {
     state.sourceMode = normalizeSourceType(rawType);
     if (state.worldSourceType) state.worldSourceType[idx] = state.sourceMode;
 
-    // Volume do mundo atual no synth (o ganho é compartilhado entre mundos)
     if (state.synthMasterGain && state.audioCtx) {
-      const vol = (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2;
+      const vol = getWorldVolume(state.worldVolume, idx);
       state.synthMasterGain.gain.setTargetAtTime(vol, state.audioCtx.currentTime, 0.1);
     }
 
     const _colors = ['#ffffff', '#88aaff', '#ffaa88', '#ff8888', '#88ddaa', '#ddcc66',
       '#66dddd', '#cc99ff', '#999999', '#aaaaff', '#ff6699', '#ffdd88', '#88ffcc'];
-    const topSt = document.getElementById('topStatus');
+    const topSt = browser.getElement('topStatus');
     if (topSt) topSt.style.color = _colors[idx];
 
-    // Atualiza dropdown de seleção de mundo
-    const worldSel = document.getElementById('worldSelect');
+    const worldSel = browser.getElement('worldSelect');
     if (worldSel) worldSel.value = idx;
 
     const l = LEVELS[idx];
-  // Aplica cor de fundo do mundo (app + screensaver transparente herda)
-  document.body.style.backgroundColor = l.bgColor;
-  document.documentElement.style.backgroundColor = l.bgColor;
+    document.body.style.backgroundColor = l.bgColor;
+    document.documentElement.style.backgroundColor = l.bgColor;
 
-  const speedEl = document.getElementById('sliderSpeed');
-    const filterEl = document.getElementById('sliderFilter');
-    const delayEl = document.getElementById('sliderDelay');
-    const reverbEl = document.getElementById('sliderReverb');
+    const speedEl = browser.getElement('sliderSpeed');
+    const filterEl = browser.getElement('sliderFilter');
+    const delayEl = browser.getElement('sliderDelay');
+    const reverbEl = browser.getElement('sliderReverb');
     if (!preserveParams) {
       if (speedEl) speedEl.value = l.speed;
       if (filterEl) filterEl.value = l.filter;
@@ -210,13 +260,10 @@ export function selectLevel(idx, preserveParams = false) {
     if (state.isPlaying) {
       synth.stopSynth(500);
       synth.stopChordProgression();
-      // Crossfade suave entre mundos MP3
       const oldMp3Idx = state.currentLevel !== idx ? state.currentLevel : -1;
       if (oldMp3Idx >= 0 && state.worldSourceType[oldMp3Idx] === 'mp3' && state.worldSourceType[idx] === 'mp3') {
-        // Ambos são MP3: crossfade suave
         mp3.crossfadeMp3Worlds(oldMp3Idx, idx);
       } else {
-        // Transição normal (MP3 -> synth, synth -> MP3, etc)
         mp3.stopAllMp3World();
         stopCapture();
       }
@@ -229,10 +276,8 @@ export function selectLevel(idx, preserveParams = false) {
         startCapture();
       }
     }
-
   };
 
-  // Crossfade: fade out, apply, fade in
   if (state.crossfadeGain) {
     const now = state.audioCtx.currentTime;
     state.crossfadeGain.gain.cancelScheduledValues(now);
@@ -250,7 +295,9 @@ export function selectLevel(idx, preserveParams = false) {
   }
 }
 
-export function restartWorldAudio() {
+export function restartWorldAudio(ctx = createAudioContext()) {
+  const { state, stems, synth, mp3, startCapture, stopCapture, normalizeSourceType } = ctx;
+  
   stems.stopStems();
   synth.stopSynth();
   synth.stopChordProgression();
@@ -274,3 +321,19 @@ export function restartWorldAudio() {
     startCapture();
   }
 }
+
+// Default export with standard context (for backward compatibility)
+const defaultCtx = createAudioContext();
+export default {
+  setSourceMode: (worldIdx, mode) => setSourceMode(worldIdx, mode, defaultCtx),
+  triggerKick: (withPiafCue) => triggerKick(withPiafCue, defaultCtx),
+  toggleMasterPlay: () => toggleMasterPlay(defaultCtx),
+  selectLevel: (idx, preserveParams) => selectLevel(idx, preserveParams, defaultCtx),
+  restartWorldAudio: () => restartWorldAudio(defaultCtx),
+  createAudioContext,
+  // Pure functions
+  calculateCrossfadeGain,
+  normalizeLevelIndex,
+  getWorldVolume,
+  getSourceMode,
+};

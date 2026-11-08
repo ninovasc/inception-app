@@ -3,6 +3,7 @@ import { t } from '../i18n.js';
 import { SYNTH_PRESETS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES } from '../config.js';
 import { getCurrentModeWorlds } from '../config.js';
 import { updateTriggerIndicator } from '../modes/uiUpdater.js';
+import * as browser from '../browser.js';
 
 // ============================================================
 // UI Base Comum - Funções compartilhadas entre todos os modos
@@ -10,7 +11,7 @@ import { updateTriggerIndicator } from '../modes/uiUpdater.js';
 
 // Renderiza o dropdown de seleção de mundo (filtrado por modo)
 export function renderWorldSelect() {
-  const sel = document.getElementById('worldSelect');
+  const sel = browser.getElement('worldSelect');
   if (!sel) return;
   
   const worlds = getCurrentModeWorlds(state.currentMode);
@@ -23,7 +24,7 @@ export function renderWorldSelect() {
 
 // Renderiza a lista de presets de voz (filtrada por modo)
 export function renderVoicePresets() {
-  const sel = document.getElementById('voicePresetSelect');
+  const sel = browser.getElement('voicePresetSelect');
   if (!sel) return;
   
   const worlds = getCurrentModeWorlds(state.currentMode);
@@ -39,7 +40,7 @@ export function renderVoicePresets() {
 
 // Renderiza a lista de fontes sonoras por mundo
 export function renderSourceList() {
-  const container = document.getElementById('sourceList');
+  const container = browser.getElement('sourceList');
   if (!container) return;
   
   const worlds = getCurrentModeWorlds(state.currentMode);
@@ -84,10 +85,10 @@ export function renderSourceList() {
           ` : ''}
           
           <input type="range" min="0" max="1" step="0.01" value="${volume}" 
-            oninput="setWorldMp3Volume(${i}, this.value)" 
+            oninput="setWorldMp3Volume(${i}, this.value); document.getElementById('worldVolVal${i}').textContent = Math.round(this.value * 100) + '%'" 
             style="flex:1; max-width:120px;"
             ${sourceType === 'synth' ? 'disabled' : ''}>
-          <span style="font-size:0.6rem; color:var(--muted); font-family:monospace; min-width:35px;">${Math.round(volume*100)}%</span>
+          <span id="worldVolVal${i}" style="font-size:0.6rem; color:var(--muted); font-family:monospace; min-width:35px;">${Math.round(volume*100)}%</span>
         </div>
       </div>
     `;
@@ -99,10 +100,10 @@ export function renderSourceList() {
 // Sincroniza sliders com estado atual
 export function syncSlidersFromState() {
   if (state.currentLevel >= 0) {
-    const speed = document.getElementById('sliderSpeed');
-    const filter = document.getElementById('sliderFilter');
-    const delay = document.getElementById('sliderDelay');
-    const reverb = document.getElementById('sliderReverb');
+    const speed = browser.getElement('sliderSpeed');
+    const filter = browser.getElement('sliderFilter');
+    const delay = browser.getElement('sliderDelay');
+    const reverb = browser.getElement('sliderReverb');
     
     if (speed) /** @type {HTMLInputElement} */ (speed).value = String(state.xyState?.x || 1.0);
     if (filter) /** @type {HTMLInputElement} */ (filter).value = String(state.masterFilter?.frequency?.value || 18000);

@@ -33,6 +33,10 @@ import { initCommonUI, renderWorldSelect, renderVoicePresets, renderSourceList }
 import { toggleAutoMode, getActiveTrigger } from './modes/narrativeMode.js';
 import './pasivFile.js';
 
+// Create dependency injection contexts
+const audioCtx = audio.createAudioContext({ state });
+const sensorsCtx = sensors.createSensorsContext({ state });
+
 window.__lucidModes = LUCID_MODES;
 
 // App version for cache busting verification
@@ -64,21 +68,21 @@ window.__getAppStateModule = async () => {
 // ============================================================
 registerAction('setLang', function () { setLang(this.value); });
 registerAction('toggleHelp', function () { ui.toggleHelp(); });
-registerAction('triggerKick', function () { audio.triggerKick(this.dataset.arg === 'true'); });
-registerAction('toggleMic', function () { sensors.toggleMic(); });
-registerAction('toggleMotion', function () { sensors.toggleMotion(); });
-registerAction('toggleGPS', function () { sensors.toggleGPS(); });
+registerAction('triggerKick', function () { audio.triggerKick(this.dataset.arg === 'true', audioCtx); });
+registerAction('toggleMic', function () { sensors.toggleMic(sensorsCtx); });
+registerAction('toggleMotion', function () { sensors.toggleMotion(sensorsCtx); });
+registerAction('toggleGPS', function () { sensors.toggleGPS(sensorsCtx); });
 registerAction('setMode', function () { setMode(this.value); });
 registerAction('startCurrentMode', function () { startCurrentMode(); });
 registerAction('stopCurrentMode', function () { stopCurrentMode(); });
 registerAction('togglePomodoro', function () { togglePomodoro(); });
 registerAction('togglePomodoroConfig', function () { togglePomodoroConfig(); });
 registerAction('toggleAccordion', function () { toggleAccordion(this.dataset.arg); });
-registerAction('selectLevel', function () { audio.selectLevel(parseInt(this.value)); });
+registerAction('selectLevel', function () { audio.selectLevel(parseInt(this.value), false, audioCtx); });
 registerAction('setSourceMode', function () { audio.setSourceMode(parseInt(this.dataset.arg), this.value); });
 registerAction('updateFromSliders', function () { audio.updateFromSliders(this.dataset.arg === 'true'); });
-registerAction('applyMicPreset', function () { sensors.applyMicPreset(this.value); });
-registerAction('setMicParam', function () { sensors.setMicParam(this.dataset.param, this.value); });
+registerAction('applyMicPreset', function () { sensors.applyMicPreset(this.value, sensorsCtx); });
+registerAction('setMicParam', function () { sensors.setMicParam(this.dataset.param, this.value, sensorsCtx); });
 registerAction('setWorldTriggerMotion', function () { setWorldTriggerMotion(this.value); });
 registerAction('setWorldTriggerSilence', function () { setWorldTriggerSilence(this.value); });
 registerAction('setWorldTrigger', function () { setWorldTrigger(this.dataset.key, this.value); });

@@ -249,7 +249,7 @@ describe('Runtime: Sound Source', () => {
 
   test('audio.js setSourceMode accepts worldIdx and mode', () => {
     const content = readFile('js/audio.js');
-    assert.ok(content.includes('export function setSourceMode(worldIdx, mode)'), 'Should accept both params');
+    assert.ok(content.includes('export function setSourceMode(worldIdx, mode'), 'Should accept both params');
   });
 
   test('audio.js setSourceMode re-renders source list', () => {

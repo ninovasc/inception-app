@@ -3,6 +3,7 @@ import { state } from './state.js';
 import { WORLD_NAMES } from './config.js';
 import { setSensorStatus } from './sensors.js';
 import { t } from './i18n.js';
+import * as browser from './browser.js';
 
 const WAITING_FOR_TRAIN_IDX = WORLD_NAMES.indexOf('Waiting for a Train'); // 9
 const BINAURAL_PULSE_IDX = 4; // Binaural Pulse preset index
@@ -11,9 +12,57 @@ let memCatcherRuntime = false;
 let spatialRuntime = false;
 let deprivationRuntime = false;
 
+// Pure functions - testable without mocks
+export function isDeprivationTriggered(silenceSeconds, isPhoneFaceDown, isMotionOn, isMicOn) {
+  const isSilent = silenceSeconds >= 15;
+  const orientationMet = isPhoneFaceDown || !isMotionOn;
+  const micMet = isMicOn;
+  return isSilent && orientationMet && micMet;
+}
+
+export function calculateLucidProgress(remainingSec, totalSec) {
+  if (totalSec <= 0) return 1;
+  return Math.max(0, Math.min(1, 1 - (remainingSec / totalSec)));
+}
+
+export function calculateLucidTargetSpeed(progress) {
+  return 1.00 - (progress * 0.70);
+}
+
+export function calculateLucidTargetFilter(progress) {
+  return 18000 - (progress * 17600);
+}
+
+export function calculateMemCatcherDelay() {
+  return 8000 + Math.random() * 16000;
+}
+
+export function isSilentNoiseLevel(noiseLevel, threshold = 18) {
+  return noiseLevel < threshold;
+}
+
+export function normalizeLucidModeIdx(idx, modesLength) {
+  return ((idx % modesLength) + modesLength) % modesLength;
+}
+
+export function formatTimeRemaining(seconds) {
+  const m = Math.floor(Math.max(0, seconds) / 60);
+  const s = String(Math.max(0, seconds) % 60).padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+export function shouldTriggerAutoKick(force, freefallTimestamp, nowMs, lastKickTime, isAutoKickOn) {
+  if (!isAutoKickOn || nowMs - lastKickTime <= 6000) return false;
+  if (force < 3.2) return 'freefall_start';
+  if (force > 21.0 || (freefallTimestamp > 0 && nowMs - freefallTimestamp < 900 && force > 13.5)) {
+    return 'freefall_impact';
+  }
+  return false;
+}
+
 function setMechanicUI(btnId, subId, on, onText, offText) {
-  const btn = document.getElementById(btnId);
-  const sub = document.getElementById(subId);
+  const btn = browser.getElement(btnId);
+  const sub = browser.getElement(subId);
   if (btn) {
     btn.classList.toggle('active', on);
     btn.setAttribute('aria-pressed', on ? 'true' : 'false');

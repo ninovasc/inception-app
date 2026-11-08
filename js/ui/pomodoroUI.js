@@ -2,9 +2,10 @@
 import { state } from '../state.js';
 import { t } from '../i18n.js';
 import { updateTimerDisplay } from '../modes/uiUpdater.js';
+import * as browser from '../browser.js';
 
 export function createPomodoroUI() {
-  const container = document.createElement('div');
+  const container = browser.createElement('div');
   container.id = 'pomodoroUI';
   container.innerHTML = `
     <div style="margin-bottom: 12px;">
@@ -71,7 +72,7 @@ export function updatePomodoroUI() {
   if (!pomodoro.enabled) return;
   
   // Atualiza label da fase
-  const phaseLabel = document.getElementById('pomodoroPhaseLabel');
+  const phaseLabel = browser.getElement('pomodoroPhaseLabel');
   if (phaseLabel) {
     const labels = {
       activity: 'Atividade',
@@ -87,14 +88,14 @@ export function updatePomodoroUI() {
   }
   
   // Atualiza ciclos
-  const cyclesEl = document.getElementById('pomodoroCycles');
+  const cyclesEl = browser.getElement('pomodoroCycles');
   if (cyclesEl) {
     cyclesEl.textContent = `${pomodoro.cyclesCompleted}/${pomodoro.cyclesUntilLongBreak}`;
   }
   
   // Atualiza botão play/pause
-  const playPauseBtn = document.getElementById('pomodoroPlayPause');
-  const playPauseText = document.getElementById('pomodoroPlayPauseText');
+  const playPauseBtn = browser.getElement('pomodoroPlayPause');
+  const playPauseText = browser.getElement('pomodoroPlayPauseText');
   if (playPauseBtn && playPauseText) {
     const isRunning = state.pomodoro.isRunning;
     playPauseText.textContent = state.pomodoro.isRunning ? 'Pausar' : 'Iniciar';
@@ -103,8 +104,8 @@ export function updatePomodoroUI() {
 }
 
 export function togglePomodoroConfig() {
-  const config = document.getElementById('pomodoroConfig');
-  const arrow = document.getElementById('pomodoroConfigArrow');
+  const config = browser.getElement('pomodoroConfig');
+  const arrow = browser.getElement('pomodoroConfigArrow');
   if (!config) return;
   
   const isOpen = config.style.maxHeight !== '0px' && config.style.maxHeight !== '';
@@ -112,17 +113,17 @@ export function togglePomodoroConfig() {
   if (isOpen) {
     config.style.maxHeight = '0px';
     config.style.opacity = '0';
-    document.getElementById('pomodoroConfigArrow').style.transform = 'rotate(0deg)';
+    browser.getElement('pomodoroConfigArrow').style.transform = 'rotate(0deg)';
   } else {
     config.style.maxHeight = config.scrollHeight + 'px';
     config.style.opacity = '1';
-    document.getElementById('pomodoroConfigArrow').style.transform = 'rotate(90deg)';
+    browser.getElement('pomodoroConfigArrow').style.transform = 'rotate(90deg)';
   }
 }
 
 // Handlers de configuração
 export function updatePomodoroActivityDuration(val) {
-  document.getElementById('pomodoroActivityVal').textContent = `${val} min`;
+  browser.getElement('pomodoroActivityVal').textContent = `${val} min`;
   state.pomodoro.activityDuration = parseInt(val) * 60;
   if (state.pomodoro.phase === 'activity') {
     state.pomodoro.totalTime = state.pomodoro.activityDuration;
@@ -134,17 +135,17 @@ export function updatePomodoroActivityDuration(val) {
 };
 
 export function updatePomodoroShortBreakDuration(val) {
-  document.getElementById('pomodoroShortBreakVal').textContent = `${val} min`;
+  browser.getElement('pomodoroShortBreakVal').textContent = `${val} min`;
   state.pomodoro.shortBreakDuration = parseInt(val) * 60;
 };
 
 export function updatePomodoroLongBreakDuration(val) {
-  document.getElementById('pomodoroLongBreakVal').textContent = `${val} min`;
+  browser.getElement('pomodoroLongBreakVal').textContent = `${val} min`;
   state.pomodoro.longBreakDuration = parseInt(val) * 60;
 };
 
 export function updatePomodoroCyclesUntilLongBreak(val) {
-  document.getElementById('pomodoroCyclesVal').textContent = val;
+  browser.getElement('pomodoroCyclesVal').textContent = val;
   state.pomodoro.cyclesUntilLongBreak = parseInt(val);
 };
 
@@ -156,7 +157,7 @@ export function loadPomodoroActivityMp3(file) {
     
     audioModule.loadWorldMp3(idx, file).then(() => {
       state.pomodoro.activityMp3 = file.name;
-      document.getElementById('pomodoroActivityMp3Label').textContent = file.name.slice(0, 30);
+      browser.getElement('pomodoroActivityMp3Label').textContent = file.name.slice(0, 30);
     });
   });
 };
@@ -169,7 +170,7 @@ export function loadPomodoroBreakMp3(file) {
     
     audioModule.loadWorldMp3(idx, file).then(() => {
       state.pomodoro.breakMp3 = file.name;
-      document.getElementById('pomodoroBreakMp3Label').textContent = file.name.slice(0, 30);
+      browser.getElement('pomodoroBreakMp3Label').textContent = file.name.slice(0, 30);
     });
   });
 };

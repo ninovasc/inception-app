@@ -53,7 +53,8 @@ export async function loadWorldMp3(worldIdx, file) {
 // por menos-recentemente-usada. Ao chegar ao fim, a faixa não termina:
 // com ~3s de antecedência salta para uma nova âncora com fade curto.
 // ou sem envelope usam o comportamento antigo (loop do início).
-const mp3Meta = new Map(); // worldIdx -> { buffer, anchors, used, jumpTimer, src, gain, curOffset }
+const mp3Meta = new Map();
+export { mp3Meta }; // worldIdx -> { buffer, anchors, used, jumpTimer, src, gain, curOffset }
 
 // Calcula âncoras musicais do buffer (RMS por janelas de 1s; exporta para testes).
 export function computeAnchors(buffer) {
@@ -109,20 +110,21 @@ export function computeAnchors(buffer) {
 
 // Escolhe a próxima âncora: entre as 4 menos usadas, uma aleatória
 // (aleatório com lógica). avoidSec evita repetir o ponto atual.
-function pickAnchor(idx, avoidSec) {
+export function pickAnchor(idx, avoidSec) {
   const meta = mp3Meta.get(idx);
   if (!meta || !meta.anchors.length) return null;
   const order = meta.anchors.map((sec, i) => ({ i, sec, u: meta.used[i] || 0 }))
     .sort((a, b) => a.u - b.u);
   let pool = order.slice(0, Math.min(4, order.length));
   const filtered = pool.filter(c => Math.abs(c.sec - (avoidSec == null ? -999 : avoidSec)) > 1);
+  // FIX: fallback to pool if filter removes everything (avoidSec too close to all)
   pool = filtered.length ? filtered : pool;
   const chosen = pool[Math.floor(Math.random() * pool.length)];
   meta.used[chosen.i] = Date.now();
   return chosen.sec;
 }
 
-function startMp3Source(idx, offsetSec, smart) {
+export function startMp3Source(idx, offsetSec, smart) {
   const buf = state.worldMp3Buffers[idx];
   if (!buf || !state.audioCtx) return;
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
@@ -154,7 +156,7 @@ function startMp3Source(idx, offsetSec, smart) {
 }
 
 // Agenda o salto de fim de faixa: crossfade sobreposto (overlap) para evitar clique
-function scheduleMp3Continue(idx, buf, offsetSec, speed) {
+export function scheduleMp3Continue(idx, buf, offsetSec, speed) {
   const meta = mp3Meta.get(idx);
   if (!meta) return;
   if (meta.jumpTimer) clearTimeout(meta.jumpTimer);

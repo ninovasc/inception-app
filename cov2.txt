@@ -1,0 +1,32 @@
+﻿Γû╢ Audio Module - Code Path Tests
+  Γ£ö toggleMasterPlay starts playback (4.1803ms)
+  Γ£ö toggleMasterPlay stops playback (2.6562ms)
+  Γ£ö selectLevel changes current level (2.2895ms)
+  Γ£ö setSourceMode changes source type (1.3233ms)
+  Γ£ö triggerKick does not throw (0.8977ms)
+  Γ£ö restartWorldAudio does not throw (0.2745ms)
+Γ£ö Audio Module - Code Path Tests (15.1153ms)
+Γû╢ Sensors Module - Code Path Tests
+  Γ£ö toggleMotion toggles motion state (1.2143ms)
+  Γ£ö toggleGPS toggles GPS state (1.0607ms)
+  Γ£ö setSensorStatus updates status element (0.2589ms)
+  Γ£ö syncSensorsUI does not throw (0.501ms)
+  Γ£ö motionHandler does not throw with valid event (0.7301ms)
+Γ£ö Sensors Module - Code Path Tests (4.38ms)
+Γû╢ Mechanics Module - Code Path Tests
+  Γ£ö toggleMemoryCatcher toggles state (0.6997ms)
+  Γ£ö toggleAutoKick toggles state (1.5095ms)
+  Γ£ö toggleGyroSliders toggles state (0.3398ms)
+  Γ£ö setLucidTimerMinutes sets timer (0.8969ms)
+  Γ£ö syncMechanicsUI does not throw (0.6025ms)
+Γ£ö Mechanics Module - Code Path Tests (4.5976ms)
+Γû╢ Config Module - Code Path Tests
+  Γ£ö normalizeSourceType handles all types (1.2234ms)
+  Γ£ö getCurrentModeWorlds returns correct worlds (0.5503ms)
+  Γ£ö normalizeWorldTriggers handles null (0.5637ms)
+  Γ£ö normalizeWorldTriggers handles valid input (0.487ms)
+Γ£ö Config Module - Code Path Tests (3.4905ms)
+Γû╢ State Module - Code Path Tests
+  Γ£ö state has required properties (0.3673ms)
+  Γ£ö state can be modified (0.2067ms)
+Γ£ö State Module - Code Path Tests (0.8553ms)
