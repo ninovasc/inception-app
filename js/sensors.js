@@ -6,6 +6,7 @@ import {
   MIC_RAIN_INTENSE_DB, MIC_RAIN_INTENSE_HOLD_SEC, TRIGGER_CLAP_WINDOW_SEC,
   TRIGGER_INVERTED_DEG, TRIGGER_INVERTED_HOLD_SEC, TRIGGER_FLAT_DEG, TRIGGER_FLAT_HOLD_SEC
 } from './config.js';
+import { updateFromSliders, setMicParam } from './audio.js';
 
 let lastMotionTs = 0;
 let lastGyroTs = 0;
@@ -177,19 +178,19 @@ export function orientationHandler(e) {
         if (filterEl) filterEl.value = Math.round(Math.max(160, Math.min(18000, filter)));
         if (delayEl) delayEl.value = Math.max(0, Math.min(0.85, delay)).toFixed(2);
         if (reverbEl) reverbEl.value = Math.max(0, Math.min(1, reverb)).toFixed(2);
-        if (typeof window.updateFromSliders === 'function') window.updateFromSliders(false);
+        updateFromSliders(false);
         // Voice sliders (non-linear combos of 3 axes)
         const gate = -60 + 50 * Math.abs(Math.sin(beta * Math.PI / 180) * Math.cos(gamma * Math.PI / 90));
         const delayV = Math.abs(Math.sin(beta * gn * Math.PI)) * 1;
         const fb = bn * gn * 0.8;
         const rev = (1 - Math.cos(gn * Math.PI)) / 2;
         const dw = (Math.abs(alpha) / 360) * 0.5 + 0.5;
-        if (typeof window.setMicParam === 'function') {
-          window.setMicParam('gate', Math.max(-60, Math.min(-10, gate)));
-          window.setMicParam('delay', Math.max(0, Math.min(1, delayV)));
-          window.setMicParam('feedback', Math.max(0, Math.min(0.8, fb)));
-          window.setMicParam('reverb', Math.max(0, Math.min(1, rev)));
-          window.setMicParam('dw', Math.max(0, Math.min(1, dw)));
+        if (typeof setMicParam === 'function') {
+          setMicParam('gate', Math.max(-60, Math.min(-10, gate)));
+          setMicParam('delay', Math.max(0, Math.min(1, delayV)));
+          setMicParam('feedback', Math.max(0, Math.min(0.8, fb)));
+          setMicParam('reverb', Math.max(0, Math.min(1, rev)));
+          setMicParam('dw', Math.max(0, Math.min(1, dw)));
         }
       }
     }

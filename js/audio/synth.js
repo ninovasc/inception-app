@@ -313,6 +313,5 @@ export function applyParameters() {
       if (!s.isLfo && s.osc.frequency) s.osc.frequency.setTargetAtTime(s.base * speed, now, 0.05);
     });
   }
-
-  if (typeof window.setYouTubeRate === 'function') window.setYouTubeRate(speed);
 }
+

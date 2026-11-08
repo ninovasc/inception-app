@@ -1,8 +1,11 @@
 // Cria a interface visual do Pomodoro (timer, controles, config)
+import { state } from '../state.js';
+import { t } from '../i18n.js';
+import { updateTimerDisplay } from '../modes/uiUpdater.js';
+
 export function createPomodoroUI() {
   const container = document.createElement('div');
   container.id = 'pomodoroUI';
-  
   container.innerHTML = `
     <div style="margin-bottom: 12px;">
       <!-- Timer principal -->
@@ -23,10 +26,10 @@ export function createPomodoroUI() {
         <button id="pomodoroPlayPause" class="menu-item" style="flex:1; max-width:100px; justify-content:center;" data-action="togglePomodoro">
           <span id="pomodoroPlayPauseText">${t('pomodoro.start') || 'Iniciar'}</span>
         </button>
-        <button class="menu-item" style="flex:1; max-width:100px; justify-content:center;" onclick="window.skipPomodoroPhase()">
+        <button class="menu-item" style="flex:1; max-width:100px; justify-content:center;" data-action="skipPomodoroPhase">
           <span>${t('pomodoro.skip') || 'Pular'}</span>
         </button>
-        <button class="menu-item" style="flex:1; max-width:100px; justify-content:center;" onclick="window.resetPomodoro()">
+        <button class="menu-item" style="flex:1; max-width:100px; justify-content:center;" data-action="resetPomodoro">
           <span>${t('pomodoro.reset') || 'Reset'}</span>
         </button>
       </div>
@@ -79,8 +82,8 @@ export function updatePomodoroUI() {
   }
   
   // Atualiza timer (delegated to uiUpdater)
-  if (typeof window.updateTimerDisplay === 'function') {
-    window.updateTimerDisplay();
+  if (typeof updateTimerDisplay === 'function') {
+    updateTimerDisplay();
   }
   
   // Atualiza ciclos
@@ -125,7 +128,7 @@ updatePomodoroActivityDuration = function(val) {
     state.pomodoro.totalTime = state.pomodoro.activityDuration;
     if (!state.pomodoro.isRunning) {
       state.pomodoro.timeRemaining = state.pomodoro.totalTime;
-      if (typeof window.updateTimerDisplay === 'function') window.updateTimerDisplay();
+      if (updateTimerDisplay) updateTimerDisplay();
     }
   }
 };

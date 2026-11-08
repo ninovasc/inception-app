@@ -11,7 +11,7 @@ export function createModeSelector() {
   
   container.innerHTML = `
     <label style="font-size:0.6rem; color:var(--muted); margin-bottom:4px; display:block; font-family:monospace;">${t('mode.label') || 'Modo'}</label>
-    <select id="modeSelector" onchange="window.setMode(this.value)" 
+    <select id="modeSelector" data-action="setMode" 
       style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 10px;font-size:0.75rem;border-radius:6px;width:100%;">
       ${MODE_ORDER.map(id => {
         const mode = MODES.find(m => m.id === id);

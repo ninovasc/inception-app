@@ -4,6 +4,7 @@
 import { state } from '../state.js';
 import { POMODORO_LEVELS, POMODORO_WORLD_NAMES, POMODORO_WORLD_SYNTH, POMODORO_DEFAULTS, POMODORO_CHORD_PROGRESSIONS } from '../config.js';
 import * as audio from '../audio.js';
+import { updatePomodoroUI, updateTimerDisplay } from '../modes/uiUpdater.js';
 
 let timerInterval = null;
 
@@ -26,7 +27,7 @@ export async function activate() {
     }
   } catch (e) {}
   
-  if (typeof window.updatePomodoroUI === 'function') window.updatePomodoroUI();
+  updatePomodoroUI();
 }
 
 // Inicia o timer (chamado ao clicar em "Iniciar")
@@ -34,7 +35,7 @@ export function start() {
   if (state.pomodoro.isRunning) return;
   state.pomodoro.isRunning = true;
   startTimer();
-  if (typeof window.updatePomodoroUI === 'function') window.updatePomodoroUI();
+  updatePomodoroUI();
 }
 
 export function deactivate() {
@@ -55,14 +56,14 @@ function startTimer() {
     }
     
     state.pomodoro.timeRemaining--;
-    if (typeof window.updateTimerDisplay === 'function') window.updateTimerDisplay();
+    updateTimerDisplay();
     
     if (state.pomodoro.timeRemaining <= 0) {
       nextPhase();
     }
   }, 1000);
   
-  if (typeof window.updateTimerDisplay === 'function') window.updateTimerDisplay();
+  updateTimerDisplay();
 }
 
 export function stopTimer() {
@@ -91,12 +92,12 @@ export function resumeTimer() {
       return;
     }
     state.pomodoro.timeRemaining--;
-    if (typeof window.updateTimerDisplay === 'function') window.updateTimerDisplay();
+    updateTimerDisplay();
     if (state.pomodoro.timeRemaining <= 0) {
       nextPhase();
     }
   }, 1000);
-  if (typeof window.updateTimerDisplay === 'function') window.updateTimerDisplay();
+  updateTimerDisplay();
 }
 
 export function skipPhase() {
@@ -160,8 +161,8 @@ async function transitionToPhase(newPhase) {
     state.worldSynth[worldIndex] = 0; // Usa síntese padrão do Pomodoro
   }
   
-  if (typeof window.updateTimerDisplay === 'function') window.updateTimerDisplay();
-  if (typeof window.updatePomodoroUI === 'function') window.updatePomodoroUI();
+  updateTimerDisplay();
+  updatePomodoroUI();
 
   // Aplica preset de microfone conforme a fase (atividade = mais baixo + eco; pausa = mais presente)
   try {
@@ -226,19 +227,9 @@ export function resetPomodoro() {
   state.pomodoro.timeRemaining = state.pomodoro.activityDuration;
   state.pomodoro.totalTime = state.pomodoro.activityDuration;
   state.pomodoro.cyclesCompleted = 0;
-  if (typeof window.updatePomodoroUI === 'function') window.updatePomodoroUI();
-  if (typeof window.updateTimerDisplay === 'function') window.updateTimerDisplay();
+  updatePomodoroUI();
+  updateTimerDisplay();
 }
-
-// Expor globalmente para uso inline no HTML
-window.startPomodoro = async () => {
-  if (!state.pomodoro.enabled) {
-    const { modeManager } = await import('./modeManager.js');
-    modeManager.switchMode('pomodoro');
-  } else {
-    pomodoroMode.startTimer();
-  }
-};
 
 // Funções acessíveis via import direto ou event delegation (data-action)
 // Não expostas mais em window.* para evitar poluição global

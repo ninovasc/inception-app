@@ -1,6 +1,8 @@
 import { state } from '../state.js';
 import { initCommonUI } from './commonUI.js';
 import { syncMechanicsUI } from '../mechanics.js';
+import { updateTriggerIndicator } from '../modes/uiUpdater.js';
+import { renderTriggerList } from '../features/triggerController.js';
 
 // ============================================================
 // UI Modo Narrativo - Gatilhos + Mecânicas
@@ -19,11 +21,9 @@ export function updateNarrativeUI() {
   initCommonUI();
   
   // Específico do Narrativo
-  if (typeof window.updateTriggerIndicator === 'function') window.updateTriggerIndicator();
-  if (typeof syncMechanicsUI === 'function') syncMechanicsUI();
+  updateTriggerIndicator();
+  if (syncMechanicsUI) syncMechanicsUI();
   
   // Renderiza lista de gatilhos
-  if (typeof window.renderTriggerList === 'function') {
-    window.renderTriggerList();
-  }
+  renderTriggerList();
 }

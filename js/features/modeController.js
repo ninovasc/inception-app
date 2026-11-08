@@ -5,7 +5,9 @@ import * as audio from '../audio.js';
 import * as narrativeMode from '../modes/narrativeMode.js';
 import { updateGenerativeUIVisibility } from '../ui/generativeUI.js';
 import { pauseScreensaver, resumeScreensaver } from '../screensaver.js';
+import { toggleMic, toggleMotion, toggleGPS } from '../sensors.js';
 import { t } from '../i18n.js';
+import { updateFromSliders } from '../audio.js';
 
 // Wake Lock: mantém a tela acesa durante a reprodução (iOS/Android)
 async function requestWakeLock() {
@@ -83,7 +85,7 @@ export function startCurrentMode() {
   mechanics.activateDreamDefaults();
 
   // Atualiza UI
-  if (typeof window.updateFromSliders === 'function') window.updateFromSliders(true);
+  if (typeof updateFromSliders === 'function') updateFromSliders(true);
 
   // Esconde botão Iniciar, mostra botão Parar
   const startBtn = document.getElementById('startModeBtn');
@@ -115,9 +117,9 @@ export function stopCurrentMode() {
   }
 
   // Para os sensores em uso
-  if (state.isMicOn && typeof window.toggleMic === 'function') window.toggleMic();
-  if (state.isMotionOn && typeof window.toggleMotion === 'function') window.toggleMotion();
-  if (state.isGpsOn && typeof window.toggleGPS === 'function') window.toggleGPS();
+  if (state.isMicOn) toggleMic();
+  if (state.isMotionOn) toggleMotion();
+  if (state.isGpsOn) toggleGPS();
 
   state.isPlaying = false;
 

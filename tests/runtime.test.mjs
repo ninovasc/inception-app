@@ -187,7 +187,9 @@ describe('Runtime: Pomodoro', () => {
   test('pomodoroMode activate does not start timer automatically', () => {
     const content = readFile('js/modes/pomodoroMode.js');
     const idx = content.indexOf('export async function activate');
-    const end = content.indexOf('if (typeof window.updatePomodoroUI ===', idx) + 'if (typeof window.updatePomodoroUI ==='.length;
+    // Find next exported function after activate
+    const nextExport = content.indexOf('\nexport ', idx + 1);
+    const end = nextExport > 0 ? nextExport : content.length;
     const body = content.slice(idx, end);
     assert.ok(!body.includes('startTimer()') && !body.includes('start()'), 'activate should not call startTimer/start');
     assert.ok(body.includes('state.pomodoro.isRunning = false'), 'activate should set isRunning false');
@@ -252,7 +254,7 @@ describe('Runtime: Sound Source', () => {
 
   test('audio.js setSourceMode re-renders source list', () => {
     const content = readFile('js/audio.js');
-    assert.ok(content.includes('window.renderSourceList'), 'Should re-render source list');
+    assert.ok(content.includes('renderSourceList'), 'Should re-render source list');
   });
 
   test('source select has onchange handler', () => {

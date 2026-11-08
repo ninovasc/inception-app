@@ -1,4 +1,8 @@
 import { state } from '../state.js';
+import { renderWorldSelect } from '../ui/commonUI.js';
+import { updateFromSliders } from '../audio.js';
+import { renderSourceList } from '../ui/commonUI.js';
+import { renderTriggerList } from '../features/triggerController.js';
 
 // Atualiza visibilidade dos painéis baseado no modo atual
 export function updatePanelVisibility() {
@@ -13,22 +17,16 @@ export function updatePanelVisibility() {
 // Atualiza UI específica do mundo (dropdown, sliders, etc)
 export function updateWorldUI() {
   // Re-renderiza dropdown de mundos
-  if (typeof window.renderWorldSelect === 'function') {
-    window.renderWorldSelect();
-  }
+  renderWorldSelect();
 
   // Atualiza sliders baseado no nível atual
-  if (typeof window.updateFromSliders === 'function') {
-    window.updateFromSliders(true);
-  }
+  updateFromSliders(true);
 
   // Atualiza painel de fonte sonora
-  if (typeof window.renderSourceList === 'function') {
-    window.renderSourceList();
-  }
+  renderSourceList();
 
   // Atualiza gatilhos se no modo narrativo
-  if (state.currentMode === 'narrative' && typeof window.renderTriggerList === 'function') {
-    window.renderTriggerList();
+  if (state.currentMode === 'narrative') {
+    renderTriggerList();
   }
 }

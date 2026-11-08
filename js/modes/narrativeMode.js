@@ -6,6 +6,9 @@ import {
   SESSION_START_WINDOW_SEC, SESSION_LONG_SEC, TIME_REWARD_SEC,
   MIC_RAIN_INTENSE_HOLD_SEC
 } from '../config.js';
+import * as audio from '../audio.js';
+import * as sensors from '../sensors.js';
+import { updateTriggerIndicator, syncAutoUI } from '../modes/uiUpdater.js';
 
 const AUTO_INTERVAL_MS = 10000;
 const FREEFALL_WINDOW_MS = 15000;
@@ -19,7 +22,7 @@ let lastDecision = { key: null, world: null };
 
 export function activate() {
   state.autoMode = true;
-  if (typeof window.syncAutoUI === 'function') window.syncAutoUI();
+  syncAutoUI();
 }
 
 export function start() {
@@ -105,13 +108,13 @@ export function evaluateAutoMode() {
   const w = decideWorld();
   if (!(w >= 0 && w < WORLD_NAMES.length)) return null;
 
-  if (w !== state.currentLevel && typeof window.selectLevel === 'function') {
-    window.selectLevel(w);
+  if (w !== state.currentLevel) {
+    audio.selectLevel(w);
   }
-  if (state.micPreset !== WORLD_NAMES[w] && typeof window.applyMicPreset === 'function') {
-    window.applyMicPreset(WORLD_NAMES[w]);
+  if (state.micPreset !== WORLD_NAMES[w]) {
+    sensors.applyMicPreset(WORLD_NAMES[w]);
   }
-  if (typeof window.updateTriggerIndicator === 'function') window.updateTriggerIndicator();
+  updateTriggerIndicator();
   return w;
 }
 
@@ -124,14 +127,14 @@ export function startAutoMode() {
       evaluateAutoMode();
     }, AUTO_INTERVAL_MS);
   }
-  if (typeof window.syncAutoUI === 'function') window.syncAutoUI();
+  syncAutoUI();
   if (state.isPlaying) evaluateAutoMode();
 }
 
 export function stopAutoMode() {
   state.autoMode = false;
   if (autoInterval) { clearInterval(autoInterval); autoInterval = null; }
-  if (typeof window.syncAutoUI === 'function') window.syncAutoUI();
+  syncAutoUI();
 }
 
 export function setAutoModeEnabled(enabled) {

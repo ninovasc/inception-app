@@ -1,7 +1,8 @@
 import { state } from '../state.js';
-import { SYNTH_PRESETS, WORLD_SYNTH } from '../config.js';
+import { SYNTH_PRESETS, WORLD_SYNTH, WORLD_NAMES } from '../config.js';
 import { getGenerativeEngine, generateSynthVariation, applyGenerativeVariation } from '../synth/generativeEngine.js';
 import { t } from '../i18n.js';
+import { renderSourceList } from '../ui/commonUI.js';
 
 // Cria a interface do motor generativo
 export function createGenerativeUI() {
@@ -149,7 +150,7 @@ async function getNewVariation(seed = null) {
     drift: baseSynth.drift || 0,
     binaural: baseSynth.binaural || 0,
     bpm: baseSynth.bpm || 60,
-    worldName: window.WORLD_NAMES?.[state.currentLevel] || 'Unknown',
+    worldName: WORLD_NAMES?.[state.currentLevel] || 'Unknown',
     worldBgColor: document.body.style.backgroundColor || '#000000',
     targetMood: getCurrentMood(),
     variationIntensity: parseInt(document.getElementById('generativeVariation')?.value || 50) / 100,
@@ -162,7 +163,7 @@ async function getNewVariation(seed = null) {
 
 // Determina mood baseado no mundo atual
 function getCurrentMood() {
-  const state = window.state || {};
+  const state = state || {};
   const moodMap = {
     0: 'neutral',    // Half Remembered Dream
     1: 'energy',     // We Built Our Own World
@@ -250,8 +251,7 @@ export async function saveGenerativeVariation() {
   state.currentSynthType = SYNTH_PRESETS.length - 1;
   
   // Atualiza UI
-  if (typeof window.renderSourceList === 'function') window.renderSourceList();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed(true);
+  if (typeof renderSourceList === 'function') renderSourceList();
   
   alert(`Preset "${name}" salvo!`);
 }
@@ -277,8 +277,7 @@ export async function resetGenerative() {
     setTimeout(() => audio.startSynth(0, 100), 60);
   }
   
-  if (typeof window.renderSourceList === 'function') window.renderSourceList();
-  if (typeof window.generateFullSeed === 'function') window.generateFullSeed(true);
+  if (typeof renderSourceList === 'function') renderSourceList();
 }
 
 // Aplica seed manual

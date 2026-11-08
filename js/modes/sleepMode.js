@@ -1,6 +1,7 @@
 import { state } from '../state.js';
 import { SLEEP_LEVELS, SLEEP_WORLD_NAMES, SLEEP_WORLD_SYNTH, SLEEP_DEFAULTS, SLEEP_SYNTH_PRESETS, SLEEP_CHORD_PROGRESSIONS } from '../config.js';
 import * as audio from '../audio.js';
+import { updateAlarmTimerDisplay } from '../modes/uiUpdater.js';
 
 let alarmTimer = null;
 let alarmCheckInterval = null;
@@ -80,13 +81,9 @@ function scheduleAlarm() {
   
   // Atualiza timer display a cada segundo
   alarmCheckInterval = setInterval(() => {
-    if (typeof window.updateAlarmTimerDisplay === 'function') {
-      window.updateAlarmTimerDisplay();
-    }
+    updateAlarmTimerDisplay();
   }, 1000);
-  if (typeof window.updateAlarmTimerDisplay === 'function') {
-    window.updateAlarmTimerDisplay();
-  }
+  updateAlarmTimerDisplay();
 }
 
 export function cancelAlarm() {

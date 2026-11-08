@@ -4,6 +4,9 @@ import { updatePanelVisibility } from './panelManager.js';
 import { updateNarrativeUI } from '../ui/narrativeUI.js';
 import { updateFreeUI } from '../ui/freeUI.js';
 import { updatePomodoroUI } from '../ui/pomodoroUI.js';
+import { syncScreensaverPomodoroTimer } from '../screensaver.js';
+import { t } from '../i18n.js';
+import { getActiveTrigger } from '../modes/narrativeMode.js';
 
 // Atualiza UI do seletor de modo
 export function updateModeUI() {
@@ -78,9 +81,7 @@ export function updateTimerDisplay() {
   }
 
   // Sincroniza timer do screensaver (modo Pomodoro)
-  if (typeof window.syncScreensaverPomodoroTimer === 'function') {
-    window.syncScreensaverPomodoroTimer();
-  }
+  syncScreensaverPomodoroTimer();
 }
 
 // Atualiza display do timer Sono
@@ -180,7 +181,7 @@ export function updateTriggerIndicator() {
   const el = document.getElementById('triggerActive');
   if (!el) return;
 
-  const t = window.t || ((k) => k);
+  const t = t;
 
   // Modo Livre: gatilhos desativados
   if (state.currentMode === 'free') {
@@ -193,7 +194,7 @@ export function updateTriggerIndicator() {
   let activeKey = 'none';
   let activeWorld = -1;
   try {
-    const getter = window.getActiveTrigger;
+    const getter = getActiveTrigger;
     if (typeof getter === 'function') {
       const ad = getter();
       if (ad && ad.key) { activeKey = ad.key; activeWorld = ad.world; }

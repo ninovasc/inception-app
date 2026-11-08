@@ -2,6 +2,7 @@ import { state } from '../state.js';
 import { t } from '../i18n.js';
 import { SYNTH_PRESETS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES } from '../config.js';
 import { getCurrentModeWorlds } from '../config.js';
+import { updateTriggerIndicator } from '../modes/uiUpdater.js';
 
 // ============================================================
 // UI Base Comum - Funções compartilhadas entre todos os modos
@@ -116,5 +117,5 @@ export function initCommonUI() {
   renderVoicePresets();
   renderSourceList();
   syncSlidersFromState();
-  if (typeof window.updateTriggerIndicator === 'function') window.updateTriggerIndicator();
+  updateTriggerIndicator();
 }

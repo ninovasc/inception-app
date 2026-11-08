@@ -9,6 +9,8 @@ import * as stems from './audio/stems.js';
 import * as world from './audio/world.js';
 import * as effects from './audio/effects.js';
 import * as mechanics from './mechanics.js';
+import { renderSourceList } from './ui/commonUI.js';
+import { startCapture, stopCapture } from './capture.js';
 
 // Re-exports from split modules
 export { initAudio } from './audio/core.js';
@@ -29,7 +31,7 @@ export function setSourceMode(worldIdx, mode) {
   state.worldSourceType[worldIdx] = normalized;
   state.sourceMode = normalized;
   restartWorldAudio();
-  if (typeof window.renderSourceList === 'function') window.renderSourceList();
+  renderSourceList();
 }
 
 export function triggerKick(withPiafCue) {
@@ -142,7 +144,7 @@ export function toggleMasterPlay() {
     synth.stopSynth();
     synth.stopChordProgression();
     mp3.stopAllMp3World();
-    if (window.stopCapture) window.stopCapture();
+    stopCapture();
     stopDeprivationHeartbeat();
     if (btn) btn.classList.remove('active');
     if (btn) btn.setAttribute('aria-pressed', 'false');
@@ -216,8 +218,7 @@ export function selectLevel(idx, preserveParams = false) {
       } else {
         // Transição normal (MP3 -> synth, synth -> MP3, etc)
         mp3.stopAllMp3World();
-        if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
-        if (window.stopCapture) window.stopCapture();
+        stopCapture();
       }
 
       if (state.sourceMode === 'synth') {
@@ -225,11 +226,10 @@ export function selectLevel(idx, preserveParams = false) {
       } else if (state.sourceMode === 'mp3') {
         mp3.startMp3World();
       } else if (state.sourceMode === 'capture') {
-        if (window.startCapture) window.startCapture();
+        startCapture();
       }
     }
 
-    if (typeof window.syncSourceRow === 'function') window.syncSourceRow(idx);
   };
 
   // Crossfade: fade out, apply, fade in
@@ -255,8 +255,7 @@ export function restartWorldAudio() {
   synth.stopSynth();
   synth.stopChordProgression();
   mp3.stopAllMp3World();
-  if (window.stopAllYouTubeWorld) window.stopAllYouTubeWorld();
-  if (window.stopCapture) window.stopCapture();
+  stopCapture();
 
   if (!state.isPlaying) return;
   const rawType = (state.worldSourceType && state.worldSourceType[state.currentLevel]) || 'synth';
@@ -272,6 +271,6 @@ export function restartWorldAudio() {
   } else if (type === 'mp3') {
     mp3.startMp3World();
   } else if (type === 'capture') {
-    if (window.startCapture) window.startCapture();
+    startCapture();
   }
 }

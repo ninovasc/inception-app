@@ -2,6 +2,7 @@ import { state } from '../state.js';
 import { t } from '../i18n.js';
 import { initCommonUI } from './commonUI.js';
 import { syncMechanicsUI } from '../mechanics.js';
+import { updateTriggerIndicator } from '../modes/uiUpdater.js';
 
 // ============================================================
 // UI Modo Livre - Apenas Mecânicas (sem Gatilhos)
@@ -23,7 +24,5 @@ export function updateFreeUI() {
   if (typeof syncMechanicsUI === 'function') syncMechanicsUI();
   
   // Limpa gatilho ativo no modo livre (usa função centralizada)
-  if (typeof window.updateTriggerIndicator === 'function') {
-    window.updateTriggerIndicator();
-  }
+  updateTriggerIndicator();
 }
