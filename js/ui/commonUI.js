@@ -104,10 +104,10 @@ export function syncSlidersFromState() {
     const delay = document.getElementById('sliderDelay');
     const reverb = document.getElementById('sliderReverb');
     
-    if (speed) speed.value = state.xyState?.x || 1.0;
-    if (filter) filter.value = state.masterFilter?.frequency?.value || 18000;
-    if (delay) delay.value = state.delayWet || 0.12;
-    if (reverb) reverb.value = state.reverbWet || 0.3;
+    if (speed) /** @type {HTMLInputElement} */ (speed).value = String(state.xyState?.x || 1.0);
+    if (filter) /** @type {HTMLInputElement} */ (filter).value = String(state.masterFilter?.frequency?.value || 18000);
+    if (delay) /** @type {HTMLInputElement} */ (delay).value = String(state.delayWet || 0.12);
+    if (reverb) /** @type {HTMLInputElement} */ (reverb).value = String(state.reverbWet || 0.3);
   }
 }
 

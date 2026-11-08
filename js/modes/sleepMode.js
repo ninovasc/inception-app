@@ -30,7 +30,7 @@ export function activate() {
   scheduleAlarm();
   
   // Inicia áudio do modo sono
-  if (!audio.audioCtx) audio.initAudio();
+  if (!state.audioCtx) audio.initAudio();
   state.isPlaying = true;
   audio.restartWorldAudio();
   
@@ -44,7 +44,7 @@ export function deactivate() {
   cancelAlarm();
   }
 
-function scheduleAlarm() {
+export function scheduleAlarm() {
   if (alarmTimer) clearTimeout(alarmTimer);
   if (alarmCheckInterval) clearInterval(alarmCheckInterval);
   
@@ -128,10 +128,10 @@ function startWakeFadeIn() {
     const volume = Math.min((currentStep / 30) * (state.worldVolume ? state.worldVolume[state.sleep.wakeWorldIndex] : 0.3), (state.worldVolume ? state.worldVolume[state.sleep.wakeWorldIndex] : 0.3));
     
     if (state.worldMp3Gains && state.worldMp3Gains[state.sleep.wakeWorldIndex]) {
-      state.worldMp3Gains[state.sleep.wakeWorldIndex].gain.setTargetAtTime(volume, audio.audioCtx.currentTime, 0.1);
+      state.worldMp3Gains[state.sleep.wakeWorldIndex].gain.setTargetAtTime(volume, state.audioCtx.currentTime, 0.1);
     }
     if (state.synthMasterGain) {
-      state.synthMasterGain.gain.setTargetAtTime(volume, audio.audioCtx.currentTime, 0.1);
+      state.synthMasterGain.gain.setTargetAtTime(volume, state.audioCtx.currentTime, 0.1);
     }
     
     if (currentStep >= 30) {
@@ -159,7 +159,7 @@ function triggerAlarm() {
 }
 
 export function playAlarmSound() {
-  const now = audio.audioCtx.currentTime;
+  const now = state.audioCtx.currentTime;
   
   // Sequência ascendente suave
   const notes = [
@@ -171,15 +171,15 @@ export function playAlarmSound() {
   ];
   
   notes.forEach(n => {
-    const osc = audio.audioCtx.createOscillator();
-    const gain = audio.audioCtx.createGain();
+    const osc = state.audioCtx.createOscillator();
+    const gain = state.audioCtx.createGain();
     osc.type = 'sine';
     osc.frequency.setValueAtTime(n.f, now + n.t);
     gain.gain.setValueAtTime(0, now + n.t);
     gain.gain.linearRampToValueAtTime(0.15, now + n.t + 0.05);
     gain.gain.exponentialRampToValueAtTime(0.001, now + n.t + n.dur);
     osc.connect(gain);
-    gain.connect(audio.masterFilter);
+    gain.connect(state.masterFilter);
     osc.start(now + n.t);
     osc.stop(now + n.t + n.dur + 0.1);
   });
@@ -219,7 +219,7 @@ function renderSleepUI() {
   }
   
   // Atualiza time picker se existir
-  const alarmTimeInput = document.getElementById('sleepAlarmTime');
+  const alarmTimeInput = /** @type {HTMLInputElement} */ (document.getElementById('sleepAlarmTime'));
   if (alarmTimeInput) {
     alarmTimeInput.value = state.sleep.alarmTime;
   }

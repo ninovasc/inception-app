@@ -94,7 +94,7 @@ export function clearDirty() {
 }
 
 function updateExportButtonState() {
-  const btn = document.getElementById('btnExportPasiv');
+  const btn = /** @type {HTMLButtonElement} */ (document.getElementById('btnExportPasiv'));
   if (btn) btn.disabled = !_isDirty;
 }
 
@@ -108,7 +108,7 @@ export function collectPasivState() {
     schema: 'PASIV-1',
     version: 1,
     exportedAt: new Date().toISOString(),
-    appVersion: window.APP_VERSION || 50000,
+    appVersion: /** @type {any} */ (window).APP_VERSION || 50000,
     state: snapshot
   };
 }
@@ -127,10 +127,10 @@ export function validatePasivJson(json) {
 }
 
 async function exportViaFileSystemAccess(pasivObj, filename) {
-  if (!window.showSaveFilePicker) return false;
+  if (!/** @type {any} */ (window).showSaveFilePicker) return false;
   
   try {
-    const handle = await window.showSaveFilePicker({
+    const handle = await /** @type {any} */ (window).showSaveFilePicker({
       suggestedName: filename,
       types: [{
         description: 'PASIV Config',

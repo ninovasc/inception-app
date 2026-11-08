@@ -24,7 +24,7 @@ const mockWindow = {
     createElement: () => ({ style: {}, classList: { add: () => {}, remove: () => {}, contains: () => false }, appendChild: () => {}, querySelector: () => null, querySelectorAll: () => [], getElementById: () => null, addEventListener: () => {}, body: { appendChild: () => {} } }),
     querySelector: () => null,
     querySelectorAll: () => [],
-    getElementById: () => null,
+    getElementById: (id) => ({ value: '0.5', textContent: '', style: {}, dataset: {}, setAttribute: () => {}, classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => {} } }),
     addEventListener: () => {},
     body: { appendChild: () => {} }
   },

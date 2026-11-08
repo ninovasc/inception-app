@@ -153,7 +153,7 @@ async function getNewVariation(seed = null) {
     worldName: WORLD_NAMES?.[state.currentLevel] || 'Unknown',
     worldBgColor: document.body.style.backgroundColor || '#000000',
     targetMood: getCurrentMood(),
-    variationIntensity: parseInt(document.getElementById('generativeVariation')?.value || 50) / 100,
+    variationIntensity: parseInt(/** @type {HTMLInputElement} */ (document.getElementById('generativeVariation'))?.value || '50') / 100,
     seed: finalSeed
   };
   
@@ -163,7 +163,6 @@ async function getNewVariation(seed = null) {
 
 // Determina mood baseado no mundo atual
 function getCurrentMood() {
-  const state = state || {};
   const moodMap = {
     0: 'neutral',    // Half Remembered Dream
     1: 'energy',     // We Built Our Own World
@@ -189,7 +188,7 @@ export async function applyGenerativeToCurrentSynth() {
   const { state } = await import('../state.js');
   const { SYNTH_PRESETS, WORLD_SYNTH } = await import('../config.js');
   const { applyGenerativeVariation } = await import('../synth/generativeEngine.js');
-  const { audio } = await import('../audio.js');
+  const audio = await import('../audio.js');
   
   const synthIdx = (state.currentSynthType != null && SYNTH_PRESETS[state.currentSynthType] != null)
     ? state.currentSynthType
@@ -200,7 +199,7 @@ export async function applyGenerativeToCurrentSynth() {
   
   if (!baseSynth || !_currentVariation) return;
   
-  const intensity = parseInt(document.getElementById('generativeVariation')?.value || 50) / 100;
+  const intensity = parseInt(/** @type {HTMLInputElement} */ (document.getElementById('generativeVariation'))?.value || '50') / 100;
   const varied = applyGenerativeVariation(baseSynth, _currentVariation, _currentVariation ? 1 : 0);
   
   // Aplica ao audio engine
@@ -233,7 +232,7 @@ export async function saveGenerativeVariation() {
   const { applyGenerativeVariation } = await import('../synth/generativeEngine.js');
   const synthIdx = state.currentSynthType;
   const baseSynth = SYNTH_PRESETS[synthIdx];
-  const intensity = parseInt(document.getElementById('generativeVariation')?.value || 50) / 100;
+  const intensity = parseInt(/** @type {HTMLInputElement} */ (document.getElementById('generativeVariation'))?.value || '50') / 100;
   const varied = applyGenerativeVariation(SYNTH_PRESETS[synthIdx], _currentVariation, intensity);
   
   const newPreset = {
@@ -266,7 +265,7 @@ export async function resetGenerative() {
   
   // Recarrega synth original
   const { state } = await import('../state.js');
-  const { audio } = await import('../audio.js');
+  const audio = await import('../audio.js');
   const { WORLD_SYNTH, SYNTH_PRESETS } = await import('../config.js');
   
   const synthIdx = WORLD_SYNTH[state.currentLevel];
@@ -283,7 +282,7 @@ export async function resetGenerative() {
 // Aplica seed manual
 export function applyGenerativeSeed() {
   const seedInput = document.getElementById('generativeSeedInput');
-  const seed = parseInt(seedInput?.value) || Date.now();
+  const seed = parseInt(/** @type {HTMLInputElement} */ (seedInput)?.value) || Date.now();
   
   // Gera variação usando o seed fornecido pelo usuário
   generateNewVariation(seed).then(() => {

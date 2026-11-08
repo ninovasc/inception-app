@@ -7,7 +7,7 @@ export function startPomodoro() {
   if (!state.pomodoro.enabled) {
     switchMode('pomodoro');
   } else {
-    pomodoroMode.startTimer();
+    pomodoroMode.start();
   }
 }
 

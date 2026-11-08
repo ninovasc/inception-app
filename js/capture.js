@@ -15,7 +15,8 @@ export async function startCapture() {
     captureStream = await navigator.mediaDevices.getDisplayMedia({
       video: { displaySurface: 'browser' },
       audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false },
-      preferCurrentTab: false,
+      // @ts-ignore - preferCurrentTab is a non-standard but supported property
+    preferCurrentTab: false,
       selfBrowserSurface: 'exclude',
       surfaceSwitching: 'include'
     });
@@ -33,7 +34,7 @@ export async function startCapture() {
     const audioCtx = state.audioCtx;
     captureSource = audioCtx.createMediaStreamSource(captureStream);
     captureGain = audioCtx.createGain();
-    captureGain.gain.value = parseFloat(document.getElementById('capVol')?.value || 0.5);
+    captureGain.gain.value = parseFloat(/** @type {HTMLInputElement} */ (document.getElementById('capVol'))?.value || '0.5');
     captureSource.connect(captureGain);
     captureGain.connect(state.masterFilter);
 

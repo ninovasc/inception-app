@@ -47,9 +47,9 @@ export function renderTriggerList() {
   const sEl = document.getElementById('triggerSilence');
   const mVal = document.getElementById('triggerMotionVal');
   const sVal = document.getElementById('triggerSilenceVal');
-  if (mEl) mEl.value = state.triggerMotion;
+  if (mEl) /** @type {HTMLInputElement} */ (mEl).value = String(state.triggerMotion);
   if (mVal) mVal.textContent = Math.round(state.triggerMotion * 100) + '%';
-  if (sEl) sEl.value = state.triggerSilenceSec;
+  if (sEl) /** @type {HTMLInputElement} */ (sEl).value = String(state.triggerSilenceSec);
   if (sVal) sVal.textContent = state.triggerSilenceSec + 's';
 }
 

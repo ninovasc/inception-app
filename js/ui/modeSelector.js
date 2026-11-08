@@ -25,7 +25,7 @@ export function createModeSelector() {
 
 // Atualiza o seletor baseado no modo atual
 export function updateModeSelector() {
-  const selector = document.getElementById('modeSelector');
+  const selector = /** @type {HTMLSelectElement} */ (document.getElementById('modeSelector'));
   if (selector) {
     selector.value = state.currentMode;
   }

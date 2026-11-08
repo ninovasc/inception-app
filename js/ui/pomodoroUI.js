@@ -98,7 +98,7 @@ export function updatePomodoroUI() {
   if (playPauseBtn && playPauseText) {
     const isRunning = state.pomodoro.isRunning;
     playPauseText.textContent = state.pomodoro.isRunning ? 'Pausar' : 'Iniciar';
-    playPauseBtn.setAttribute('aria-pressed', state.pomodoro.isRunning);
+    playPauseBtn.setAttribute('aria-pressed', String(state.pomodoro.isRunning));
   }
 }
 
@@ -151,10 +151,10 @@ export function updatePomodoroCyclesUntilLongBreak(val) {
 // Carregar MP3 para Atividade
 export function loadPomodoroActivityMp3(file) {
   if (!file) return;
-  import('../audio.js').then(({ audio }) => {
+  import('../audio.js').then((audioModule) => {
     const idx = 0; // Atividade = índice 0
     
-    audio.loadWorldMp3(idx, file).then(() => {
+    audioModule.loadWorldMp3(idx, file).then(() => {
       state.pomodoro.activityMp3 = file.name;
       document.getElementById('pomodoroActivityMp3Label').textContent = file.name.slice(0, 30);
     });
@@ -164,10 +164,10 @@ export function loadPomodoroActivityMp3(file) {
 // Carregar MP3 para Pausa
 export function loadPomodoroBreakMp3(file) {
   if (!file) return;
-  import('../audio.js').then(({ audio }) => {
+  import('../audio.js').then((audioModule) => {
     const idx = 1; // Descanso = índice 1
     
-    audio.loadWorldMp3(idx, file).then(() => {
+    audioModule.loadWorldMp3(idx, file).then(() => {
       state.pomodoro.breakMp3 = file.name;
       document.getElementById('pomodoroBreakMp3Label').textContent = file.name.slice(0, 30);
     });

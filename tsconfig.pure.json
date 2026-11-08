@@ -10,6 +10,29 @@
     "skipLibCheck": true,
     "lib": ["ES2022", "DOM"]
   },
-  "files": ["js/state.js", "js/config.js"],
+  "files": [
+    "js/state.js",
+    "js/config.js",
+    "js/modes/modeManager.js",
+    "js/modes/modeSwitcher.js",
+    "js/modes/panelManager.js",
+    "js/modes/uiUpdater.js",
+    "js/modes/pomodoroMode.js",
+    "js/modes/sleepMode.js",
+    "js/ui/commonUI.js",
+    "js/ui/modeSelector.js",
+    "js/ui/pomodoroUI.js",
+    "js/ui/narrativeUI.js",
+    "js/ui/freeUI.js",
+    "js/ui/generativeUI.js",
+    "js/ui/sleepUI.js",
+    "js/features/triggerController.js",
+    "js/features/modeController.js",
+    "js/features/pomodoroController.js",
+    "js/features/sleepController.js",
+    "js/features/accordionController.js",
+    "js/capture.js",
+    "js/pasivFile.js"
+  ],
   "exclude": ["node_modules"]
 }

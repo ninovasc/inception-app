@@ -184,7 +184,7 @@ class GenerativeEngine {
   }
 
   // Converte saída do modelo para deltas aplicáveis
-  _parseOutput(outputTensor, intensity) {
+  _parseOutput(output, intensity) {
     const t = Math.min(Math.max(intensity, 0), 1);
     const out = {};
     

@@ -2,6 +2,7 @@ import { state } from '../state.js';
 import { SLEEP_LEVELS, SLEEP_WORLD_NAMES } from '../config.js';
 import { t } from '../i18n.js';
 import { updateAlarmTimerDisplay } from '../modes/uiUpdater.js';
+import { cancelAlarm, scheduleAlarm, playAlarmSound } from '../modes/sleepMode.js';
 
 // Cria a interface visual do Modo Sono
 export function createSleepUI() {
@@ -59,13 +60,13 @@ export function updateSleepUI() {
   if (!sleep.enabled) return;
   
   // Atualiza seletor de mundo
-  const worldSelect = document.getElementById('sleepWorldSelect');
+  const worldSelect = /** @type {HTMLSelectElement} */ (document.getElementById('sleepWorldSelect'));
   if (worldSelect) {
-    worldSelect.value = sleep.currentWorld;
+    worldSelect.value = String(sleep.currentWorld);
   }
   
   // Atualiza time picker
-  const alarmTimeInput = document.getElementById('sleepAlarmTime');
+  const alarmTimeInput = /** @type {HTMLInputElement} */ (document.getElementById('sleepAlarmTime'));
   if (alarmTimeInput) {
     alarmTimeInput.value = sleep.alarmTime;
   }

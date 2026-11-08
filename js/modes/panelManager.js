@@ -8,9 +8,10 @@ import { renderTriggerList } from '../features/triggerController.js';
 export function updatePanelVisibility() {
   const sections = document.querySelectorAll('.menu-section[data-mode]');
   sections.forEach(section => {
-    const modes = section.dataset.mode?.split(' ') || [];
+    const el = /** @type {HTMLElement} */ (section);
+    const modes = (el.dataset.mode || '').split(' ');
     const show = modes.includes(state.currentMode);
-    section.style.display = show ? '' : 'none';
+    el.style.display = show ? '' : 'none';
   });
 }
 

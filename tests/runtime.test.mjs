@@ -43,7 +43,7 @@ describe('Runtime: Panel Visibility', () => {
   test('updatePanelVisibility hides all when no mode selected', () => {
     const content = readFile('js/modes/panelManager.js');
     assert.ok(content.includes("const show = modes.includes(state.currentMode)"), 'Should check mode inclusion');
-    assert.ok(content.includes("section.style.display = show ? '' : 'none'"), 'Should set display');
+    assert.ok(content.includes("el.style.display = show ? '' : 'none'"), 'Should set display');
   });
 
   test('Narrative mode shows correct panels', () => {

@@ -11,7 +11,7 @@ import { getActiveTrigger } from '../modes/narrativeMode.js';
 // Atualiza UI do seletor de modo
 export function updateModeUI() {
   // Atualiza seletor no header/painel
-  const selector = document.getElementById('modeSelector');
+  const selector = /** @type {HTMLSelectElement} */ (document.getElementById('modeSelector'));
   if (selector) {
     selector.value = state.currentMode;
   }
@@ -21,7 +21,7 @@ export function updateModeUI() {
   if (autoBtn) {
     const isNarrative = state.currentMode === 'narrative';
     autoBtn.classList.toggle('active', isNarrative);
-    autoBtn.setAttribute('aria-pressed', isNarrative);
+    autoBtn.setAttribute('aria-pressed', String(isNarrative));
     const sub = document.getElementById('autoSub');
     if (sub) sub.textContent = isNarrative ? 'ON' : 'OFF';
   }
@@ -77,7 +77,7 @@ export function updateTimerDisplay() {
     const progress = 1 - (pomodoro.timeRemaining / pomodoro.totalTime);
     const circumference = 2 * Math.PI * 45;
     const offset = circumference * (1 - progress);
-    progressRing.style.strokeDashoffset = offset;
+    progressRing.style.strokeDashoffset = String(offset);
   }
 
   // Sincroniza timer do screensaver (modo Pomodoro)
@@ -131,13 +131,13 @@ export function updateSleepUI() {
   if (!state.currentMode || state.currentMode !== 'sleep') return;
 
   // Atualiza seletor de mundo
-  const worldSelect = document.getElementById('sleepWorldSelect');
+  const worldSelect = /** @type {HTMLSelectElement} */ (document.getElementById('sleepWorldSelect'));
   if (worldSelect) {
-    worldSelect.value = state.sleep.currentWorld;
+    worldSelect.value = String(state.sleep.currentWorld);
   }
 
   // Atualiza time picker
-  const alarmTimeInput = document.getElementById('sleepAlarmTime');
+  const alarmTimeInput = /** @type {HTMLInputElement} */ (document.getElementById('sleepAlarmTime'));
   if (alarmTimeInput) {
     alarmTimeInput.value = state.sleep.alarmTime;
   }
