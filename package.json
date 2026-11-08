@@ -1,6 +1,6 @@
 {
   "name": "inception-app",
-  "version": "4.5.9",
+  "version": "5.0.0",
   "description": "Motor de áudio psicoacústico inspirado nos níveis de sonho de *A Origem (Inception)*.\r App web estático, mobile-first, instalável como PWA, publicado via GitHub Pages.",
   "main": "sw.js",
   "directories": {
@@ -47,10 +47,12 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.64.1",
-    "typescript": "^5.5.3"
+    "typescript": "^5.5.3",
+    "c8": "^10.1.2"
   },
   "scripts": {
     "test": "npx tsc --noEmit -p tsconfig.pure.json && node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs",
+    "test:coverage": "npx tsc --noEmit -p tsconfig.pure.json && c8 --reporter=text --reporter=html --reporter=lcov --lines=95 --branches=95 --functions=95 --statements=95 node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs tests/functional.test.mjs",
     "test:e2e": "npx playwright test",
     "test:all": "npm test && npm run test:e2e",
     "lint": "npx eslint js/ tests/ scripts/ --ext .js,.mjs"
