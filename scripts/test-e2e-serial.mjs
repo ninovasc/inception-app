@@ -52,6 +52,12 @@ async function runTest(file) {
   });
 }
 
+// Handle unhandled rejections to ensure clean exit
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection:', reason);
+  process.exit(1);
+});
+
 async function main() {
   console.log(`\n📋 Running ${files.length} e2e tests sequentially...\n`);
   

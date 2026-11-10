@@ -85,9 +85,8 @@ export function renderSourceList() {
           ` : ''}
           
           <input type="range" min="0" max="1" step="0.01" value="${volume}" 
-            oninput="setWorldMp3Volume(${i}, this.value); document.getElementById('worldVolVal${i}').textContent = Math.round(this.value * 100) + '%'" 
-            style="flex:1; max-width:120px;"
-            ${sourceType === 'synth' ? 'disabled' : ''}>
+            oninput="setWorldVolume(${i}, this.value); document.getElementById('worldVolVal${i}').textContent = Math.round(this.value * 100) + '%'" 
+            style="flex:1; max-width:120px;">
           <span id="worldVolVal${i}" style="font-size:0.6rem; color:var(--muted); font-family:monospace; min-width:35px;">${Math.round(volume*100)}%</span>
         </div>
       </div>
