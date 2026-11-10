@@ -51,13 +51,20 @@
     "c8": "^10.1.2"
   },
   "scripts": {
-    "test": "npx tsc --noEmit -p tsconfig.pure.json && node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs && npm run test:e2e:serial",
-    "test:coverage": "npx tsc --noEmit -p tsconfig.pure.json && c8 --reporter=text --reporter=html --reporter=lcov --lines=95 --branches=95 --functions=95 --statements=95 node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs tests/functional.test.mjs",
+    "test:tsc": "npx tsc --noEmit -p tsconfig.pure.json",
+    "test:unit": "node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs",
+    "test:unit:file": "node --test",
+    "test:functional": "node --test tests/functional.test.mjs",
+    "test:e2e:serial": "node scripts/test-e2e-serial.mjs",
+    "test:e2e:file": "npx playwright test",
+    "test:all:sequential": "npm run test:tsc && npm run test:unit && npm run test:functional && npm run test:e2e:serial",
+    "test": "npm run test:all:sequential",
+    "test:coverage": "npm run test:tsc && c8 --reporter=text --reporter=html --reporter=lcov --lines=95 --branches=95 --functions=95 --statements=95 node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs tests/functional.test.mjs",
     "test:coverage:core": "npx tsc --noEmit -p tsconfig.pure.json && c8 --reporter=text --reporter=html --reporter=lcov node --test tests/comprehensive.test.mjs tests/runtime.test.mjs tests/unit.test.mjs tests/functional.test.mjs",
     "test:e2e": "npx playwright test",
     "test:e2e:serial": "node scripts/test-e2e-serial.mjs",
     "test:e2e:coverage": "npx playwright test --project=chromium --reporter=line",
-    "test:all": "npm test && npm run test:e2e",
+    "test:all": "npm run test:all:sequential",
     "lint": "npx eslint js/ tests/ scripts/ --ext .js,.mjs"
   },
   "repository": {
