@@ -3,7 +3,12 @@ import * as modeSwitcher from './modeSwitcher.js';
 import * as panelManager from './panelManager.js';
 import * as uiUpdater from './uiUpdater.js';
 
-export const modeModules = modeSwitcher.modeModules;
+// Use a proxy to lazily access modeSwitcher.modeModules (avoids circular dependency)
+export const modeModules = new Proxy({}, {
+  get(target, prop) {
+    return modeSwitcher.modeModules[prop];
+  }
+});
 
 export function initModeManager() { return modeSwitcher.initModeManager(); }
 export function switchMode(modeId) { return modeSwitcher.switchMode(modeId); }

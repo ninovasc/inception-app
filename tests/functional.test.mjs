@@ -4,43 +4,8 @@
 import { test, describe, mock } from 'node:test';
 import { strict as assert } from 'node:assert';
 
-// Mock browser globals for modules that need them
-const mockWindow = {
-  localStorage: {
-    getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
-    clear: () => {}
-  },
-  sessionStorage: {
-    getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
-    clear: () => {}
-  },
-  AudioContext: class {},
-  webkitAudioContext: class {},
-  document: {
-    createElement: () => ({ style: {}, classList: { add: () => {}, remove: () => {}, contains: () => false }, appendChild: () => {}, querySelector: () => null, querySelectorAll: () => [], getElementById: () => null, addEventListener: () => {}, body: { appendChild: () => {} } }),
-    querySelector: () => null,
-    querySelectorAll: () => [],
-    getElementById: (id) => ({ value: '0.5', textContent: '', style: {}, dataset: {}, setAttribute: () => {}, classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => {} } }),
-    addEventListener: () => {},
-    body: { appendChild: () => {} }
-  },
-  getComputedStyle: () => ({ display: 'none' }),
-  setTimeout: setTimeout,
-  clearTimeout: clearTimeout,
-  location: { href: '' }
-};
-
-global.window = mockWindow;
-global.localStorage = mockWindow.localStorage;
-global.sessionStorage = mockWindow.sessionStorage;
-// navigator is read-only in Node.js - modules should handle missing gracefully
-global.document = mockWindow.document;
-global.AudioContext = mockWindow.AudioContext;
-global.webkitAudioContext = mockWindow.webkitAudioContext;
+// Import mock browser first to set up globals
+import './mock-browser.mjs';
 
 // Import the modules we want to test
 import { 
@@ -384,5 +349,22 @@ describe('Functional: Generative Engine', () => {
     assert.ok(typeof generativeEngine.applyGenerativeVariation === 'function');
   });
 });
+
+// Import new unit test files for coverage
+import './unit/modes-narrativeMode-pure.test.mjs';
+import './unit/modes-pomodoroMode-pure.test.mjs';
+import './unit/modes-sleepMode-pure.test.mjs';
+import './unit/modes-panelManager-pure.test.mjs';
+import './unit/modes-modeSwitcher-pure.test.mjs';
+import './unit/modes-uiUpdater-pure.test.mjs';
+import './unit/ui-commonUI-pure.test.mjs';
+import './unit/ui-pomodoroUI-pure.test.mjs';
+import './unit/ui-sleepUI-pure.test.mjs';
+import './unit/ui-narrativeUI-pure.test.mjs';
+import './unit/ui-freeUI-pure.test.mjs';
+import './unit/audio-effects-pure.test.mjs';
+import './unit/audio-synth-pure.test.mjs';
+import './unit/audio-stems-pure.test.mjs';
+import './integration/mechanics-integration.test.mjs';
 
 console.log('\n✅ All functional tests defined!');

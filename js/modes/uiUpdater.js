@@ -6,7 +6,7 @@ import { updateFreeUI } from '../ui/freeUI.js';
 import { updatePomodoroUI } from '../ui/pomodoroUI.js';
 import { syncScreensaverPomodoroTimer } from '../screensaver.js';
 import { t } from '../i18n.js';
-import { getActiveTrigger } from '../modes/narrativeMode.js';
+import { TRIGGER_DEFS } from '../config.js';
 
 // Atualiza UI do seletor de modo
 export function updateModeUI() {
@@ -194,7 +194,7 @@ export function updateTriggerIndicator() {
   let activeKey = 'none';
   let activeWorld = -1;
   try {
-    const getter = getActiveTrigger;
+    const getter = getActiveTriggerLocal;
     if (typeof getter === 'function') {
       const ad = getter();
       if (ad && ad.key) { activeKey = ad.key; activeWorld = ad.world; }
@@ -242,4 +242,15 @@ export function updateTriggerIndicator() {
 
   el.textContent = t('trigger.none') || 'gatilho ativo: nenhum';
   el.dataset.activeTrigger = 'none';
+}
+
+// Implementação local de getActiveTrigger para evitar dependência circular
+let lastDecision = { key: null, world: null };
+
+function getActiveTriggerLocal() {
+  return lastDecision;
+}
+
+export function setLastDecision(key, world) {
+  lastDecision = { key, world };
 }

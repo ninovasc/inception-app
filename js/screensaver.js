@@ -145,20 +145,23 @@ export function resetScreensaverTimer() {
   }
 }
 
-// Eventos de atividade do usuário
-const activityEvents = ['mousedown', 'mousemove', 'keydown', 'touchstart', 'touchmove', 'wheel', 'click'];
-activityEvents.forEach(evt => {
-  document.addEventListener(evt, resetScreensaverTimer, { passive: true });
-});
+// Inicializa listeners de atividade (deve ser chamado após DOM estar pronto)
+export function initScreensaverListeners() {
+  // Eventos de atividade do usuário
+  const activityEvents = ['mousedown', 'mousemove', 'keydown', 'touchstart', 'touchmove', 'wheel', 'click'];
+  activityEvents.forEach(evt => {
+    document.addEventListener(evt, resetScreensaverTimer, { passive: true });
+  });
 
-// Pausar timer quando tab não visível (evita screensaver em background)
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    if (screensaverTimer) clearTimeout(screensaverTimer);
-  } else {
-    resetScreensaverTimer();
-  }
-});
+  // Pausar timer quando tab não visível (evita screensaver em background)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (screensaverTimer) clearTimeout(screensaverTimer);
+    } else {
+      resetScreensaverTimer();
+    }
+  });
+}
 
 // Iniciar timer
 resetScreensaverTimer();

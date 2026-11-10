@@ -300,7 +300,7 @@ export function applyParameters() {
 
   if (state.audioCtx) {
     const now = state.audioCtx.currentTime;
-    if (state.masterFilter) state.masterFilter.frequency.setTargetAtTime(filter, now, 0.05);
+    if (state.masterFilter?.frequency?.setTargetAtTime) state.masterFilter.frequency.setTargetAtTime(filter, now, 0.05);
     // Slider vira quantidade de eco (wet). O feedback permanece fixo e estável.
     if (state.delayWet) state.delayWet.gain.setTargetAtTime(Math.min(0.45, delay * 0.5), now, 0.08);
     if (state.reverbGain) state.reverbGain.gain.setTargetAtTime(Math.min(0.5, reverb * 0.5), now, 0.08);

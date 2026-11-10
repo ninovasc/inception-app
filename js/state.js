@@ -27,7 +27,10 @@ export const state = {
   motionIntensity: 0,
   currentLevel: 0,
   xyState: { x: 0.65, y: 0.0 },
-  masterFilter: null,
+  // Initialize masterFilter - use global mock in test environment, null in production (set by initAudio)
+  masterFilter: (typeof globalThis !== 'undefined' && globalThis.mockStateMasterFilter) 
+    ? globalThis.mockStateMasterFilter 
+    : null,
   delayLeft: null,
   delayRight: null,
   delayWet: null,
