@@ -2,6 +2,11 @@ import { state } from '../state.js';
 import { switchMode, modeModules } from '../modes/modeManager.js';
 import * as mechanics from '../mechanics.js';
 import * as audio from '../audio.js';
+import * as audioCore from '../audio/core.js';
+import * as audioSynth from '../audio/synth.js';
+import * as audioMp3 from '../audio/mp3.js';
+import * as audioStems from '../audio/stems.js';
+import * as audioCapture from '../capture.js';
 import * as narrativeMode from '../modes/narrativeMode.js';
 import { updateGenerativeUIVisibility } from '../ui/generativeUI.js';
 import { pauseScreensaver, resumeScreensaver } from '../screensaver.js';
@@ -104,7 +109,12 @@ export function stopCurrentMode() {
 
   // Para áudio
   if (state.isPlaying) {
-    audio.toggleMasterPlay();
+    audioStems.stopStems?.();
+    audioSynth.stopSynth?.();
+    audioSynth.stopChordProgression?.();
+    audioMp3.stopAllMp3World?.();
+    audioCapture.stopCapture?.();
+    // Note: stopDeprivationHeartbeat is internal, skip
   }
 
   // Desativa módulo do modo
