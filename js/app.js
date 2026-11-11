@@ -111,6 +111,8 @@ registerAction('updateGenerativeVariation', function () { updateGenerativeVariat
 registerAction('generateNewVariation', function () { generateNewVariation(); });
 registerAction('saveGenerativeVariation', function () { saveGenerativeVariation(); });
 registerAction('resetGenerative', function () { resetGenerative(); });
+registerAction('loadSavedPreset', function () { loadSavedPreset(parseInt(this.dataset.arg)); });
+registerAction('deleteSavedPreset', function () { deleteSavedPreset(parseInt(this.dataset.arg)); });
 registerAction('toggleHelpBackdrop', function (e) { if (e.target === this) ui.toggleHelp(); });
 
 // PASIV file actions

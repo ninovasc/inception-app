@@ -160,6 +160,7 @@ const translations = {
     'generative.applySeed': 'Apply',
     'generative.currentSeed': 'Current seed: {seed}',
     'generative.applied': 'Variation applied (seed: {seed})',
+    'generative.savedPresets': 'Saved Presets for this World:',
 
     // PASIV File
     'pasiv.title': 'Export / Import Configurations',
@@ -477,6 +478,7 @@ const translations = {
     'generative.applySeed': 'Aplicar',
     'generative.currentSeed': 'Seed actual: {seed}',
     'generative.applied': 'Variación aplicada (seed: {seed})',
+    'generative.savedPresets': 'Presets Guardados para este Mundo:',
 
     // PASIV File
     'pasiv.title': 'Exportar / Importar Configuraciones',
@@ -708,6 +710,7 @@ const translations = {
     'generative.applySeed': 'Aplicar',
     'generative.currentSeed': 'Seed atual: {seed}',
     'generative.applied': 'Variação aplicada (seed: {seed})',
+    'generative.savedPresets': 'Presets Salvos para este Mundo:',
 
     // PASIV File
     'pasiv.title': 'Exportar / Importar Configurações',

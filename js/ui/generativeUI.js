@@ -54,6 +54,14 @@ export function createGenerativeUI() {
         </div>
         <div id="generativeCurrentSeed" style="font-size:0.55rem; color:var(--muted); font-family:monospace; margin-top:4px; width:100%;"></div>
       </div>
+      
+      <!-- Presets salvos -->
+      <div style="margin-top:16px; padding-top:12px; border-top:1px solid var(--border);">
+        <div style="font-size:0.6rem; color:var(--muted); font-family:monospace; margin-bottom:6px; width:100%;">${t('generative.savedPresets') || 'Presets Salvos para este Mundo:'}</div>
+        <div id="savedPresetsList" style="min-height:40px;">
+          <div style="font-size:0.6rem; color:var(--muted); font-family:monospace; text-align:center; padding:8px;">Carregando presets salvos...</div>
+        </div>
+      </div>
     </div>
   `;
   
@@ -245,14 +253,119 @@ export async function saveGenerativeVariation() {
     lfo: varied.lfo
   };
   
-  // Adiciona à lista de presets (apenas na sessão atual)
+  // Adiciona à lista de presets (sessão atual)
   SYNTH_PRESETS.push(newPreset);
-  state.currentSynthType = SYNTH_PRESETS.length - 1;
+  const newPresetIdx = SYNTH_PRESETS.length - 1;
+  state.currentSynthType = newPresetIdx;
+  
+  // Salva no localStorage para persistir entre sessões
+  savePresetToStorage(newPreset, state.currentLevel);
+  
+  // Atualiza UI
+  if (typeof renderSourceList === 'function') renderSourceList();
+  updateSavedPresetsList();
+  
+  alert(`Preset "${name}" salvo! Ele aparecerá no dropdown de sintetizadores do mundo atual.`);
+}
+
+// Salva preset no localStorage
+function savePresetToStorage(preset, worldIdx) {
+  try {
+    const key = 'generativePresets';
+    const stored = localStorage.getItem(key);
+    const presets = stored ? JSON.parse(stored) : {};
+    if (!presets[worldIdx]) presets[worldIdx] = [];
+    presets[worldIdx].push(preset);
+    localStorage.setItem(key, JSON.stringify(presets));
+  } catch (e) {
+    console.warn('Erro ao salvar preset no localStorage:', e);
+  }
+}
+
+// Carrega presets do localStorage para o mundo atual
+function loadPresetsFromStorage(worldIdx) {
+  try {
+    const key = 'generativePresets';
+    const stored = localStorage.getItem(key);
+    const presets = stored ? JSON.parse(stored) : {};
+    return presets[worldIdx] || [];
+  } catch (e) {
+    console.warn('Erro ao carregar presets do localStorage:', e);
+    return [];
+  }
+}
+
+// Atualiza a lista de presets salvos na UI
+export async function updateSavedPresetsList() {
+  const container = document.getElementById('savedPresetsList');
+  if (!container) return;
+  
+  const { state } = await import('../state.js');
+  const savedPresets = loadPresetsFromStorage(state.currentLevel);
+  
+  if (savedPresets.length === 0) {
+    container.innerHTML = '<div style="font-size:0.6rem; color:var(--muted); font-family:monospace; text-align:center; padding:8px;">Nenhum preset salvo para este mundo</div>';
+    return;
+  }
+  
+  container.innerHTML = savedPresets.map((preset, idx) => `
+    <div style="display:flex; align-items:center; gap:8px; padding:6px 8px; background:#1a1a1a; border:1px solid var(--border); border-radius:4px; margin-bottom:4px;">
+      <span style="flex:1; font-size:0.65rem; color:#fff; font-family:monospace; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${preset.name}</span>
+      <button data-action="loadSavedPreset" data-arg="${idx}" style="padding:2px 8px; font-size:0.6rem; background:var(--accent); color:#000; border:none; border-radius:3px; cursor:pointer;">Carregar</button>
+      <button data-action="deleteSavedPreset" data-arg="${idx}" style="padding:2px 8px; font-size:0.6rem; background:#330000; color:#f88; border:none; border-radius:3px; cursor:pointer;">Excluir</button>
+    </div>
+  `).join('');
+}
+
+// Carrega um preset salvo
+export async function loadSavedPreset(idx) {
+  const { state } = await import('../state.js');
+  const { SYNTH_PRESETS } = await import('../config.js');
+  const audio = await import('../audio.js');
+  
+  const savedPresets = loadPresetsFromStorage(state.currentLevel);
+  const preset = savedPresets[idx];
+  if (!preset) return;
+  
+  // Adiciona ao array de presets se não estiver lá
+  let presetIdx = SYNTH_PRESETS.findIndex(p => p.name === preset.name && p.freqs?.join() === preset.freqs?.join());
+  if (presetIdx === -1) {
+    SYNTH_PRESETS.push(preset);
+    presetIdx = SYNTH_PRESETS.length - 1;
+  }
+  
+  state.currentSynthType = presetIdx;
   
   // Atualiza UI
   if (typeof renderSourceList === 'function') renderSourceList();
   
-  alert(`Preset "${name}" salvo!`);
+  // Se está tocando, reinicia o synth
+  if (state.isPlaying && state.sourceMode === 'synth') {
+    audio.stopSynth(50);
+    setTimeout(() => audio.startSynth(0, 100), 60);
+  }
+  
+  alert(`Preset "${preset.name}" carregado!`);
+}
+
+// Exclui um preset salvo
+export function deleteSavedPreset(idx) {
+  if (!confirm('Tem certeza que deseja excluir este preset?')) return;
+  
+  try {
+    const key = 'generativePresets';
+    const { state } = require('../state.js');
+    const stored = localStorage.getItem(key);
+    const presets = stored ? JSON.parse(stored) : {};
+    if (presets[state.currentLevel]) {
+      presets[state.currentLevel].splice(idx, 1);
+      localStorage.setItem(key, JSON.stringify(presets));
+    }
+  } catch (e) {
+    console.warn('Erro ao excluir preset:', e);
+  }
+  
+  updateSavedPresetsList();
 }
 
 // Reseta para original
@@ -315,13 +428,17 @@ export function initGenerativeUI() {
 }
 
 // Atualiza visibilidade baseado no modo
-export function updateGenerativeUIVisibility() {
+export async function updateGenerativeUIVisibility() {
   const container = document.getElementById('generativeUI');
   if (!container) return;
   
   // Mostra apenas nos modos que suportam (narrative, free, pomodoro)
   const show = ['narrative', 'free', 'pomodoro'].includes(state.currentMode);
   container.style.display = show ? 'block' : 'none';
+  
+  if (show) {
+    await updateSavedPresetsList();
+  }
 }
 
 // Expor funções para uso por outros módulos via import direto

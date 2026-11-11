@@ -4,6 +4,7 @@ import { SYNTH_PRESETS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES } from '..
 import { getCurrentModeWorlds } from '../config.js';
 import { updateTriggerIndicator } from '../modes/uiUpdater.js';
 import * as browser from '../browser.js';
+import { updateSavedPresetsList } from '../ui/generativeUI.js';
 
 // ============================================================
 // UI Base Comum - Funções compartilhadas entre todos os modos
@@ -39,7 +40,7 @@ export function renderVoicePresets() {
 }
 
 // Renderiza a lista de fontes sonoras por mundo
-export function renderSourceList() {
+export async function renderSourceList() {
   const container = browser.getElement('sourceList');
   if (!container) return;
   
@@ -94,6 +95,8 @@ export function renderSourceList() {
   }
   
   container.innerHTML = html;
+  // Atualiza lista de presets salvos da IA generativa para o mundo atual
+  await updateSavedPresetsList();
 }
 
 // Sincroniza sliders com estado atual
@@ -112,10 +115,10 @@ export function syncSlidersFromState() {
 }
 
 // Função principal para inicializar UI comum
-export function initCommonUI() {
+export async function initCommonUI() {
   renderWorldSelect();
   renderVoicePresets();
-  renderSourceList();
+  await renderSourceList();
   syncSlidersFromState();
   updateTriggerIndicator();
 }

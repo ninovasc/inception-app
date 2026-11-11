@@ -295,10 +295,10 @@ describe('UI Components', () => {
 
   test('commonUI.js exports required functions', () => {
     const content = readFile('js/ui/commonUI.js');
-    assert.ok(content.includes('export function initCommonUI'), 'Should export initCommonUI');
+    assert.ok(content.includes('export async function initCommonUI'), 'Should export initCommonUI');
     assert.ok(content.includes('export function renderWorldSelect'), 'Should export renderWorldSelect');
     assert.ok(content.includes('export function renderVoicePresets'), 'Should export renderVoicePresets');
-    assert.ok(content.includes('export function renderSourceList'), 'Should export renderSourceList');
+    assert.ok(content.includes('export async function renderSourceList'), 'Should export renderSourceList');
   });
 
   test('narrativeUI.js exports required functions', () => {
