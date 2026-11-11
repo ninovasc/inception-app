@@ -154,6 +154,12 @@ const translations = {
     'generative.generating': 'Generating...',
     'generative.error': 'Error generating',
     'generative.off': 'OFF',
+    'generative.generated': 'Variation generated (seed: {seed})',
+    'generative.seedLabel': 'Play variation by seed (optional):',
+    'generative.seedPlaceholder': 'ex: 12345',
+    'generative.applySeed': 'Apply',
+    'generative.currentSeed': 'Current seed: {seed}',
+    'generative.applied': 'Variation applied (seed: {seed})',
 
     // PASIV File
     'pasiv.title': 'Export / Import Configurations',
@@ -465,6 +471,12 @@ const translations = {
     'generative.generating': 'Generando...',
     'generative.error': 'Error al generar',
     'generative.off': 'OFF',
+    'generative.generated': 'Variación generada (seed: {seed})',
+    'generative.seedLabel': 'Reproducir variación por seed (opcional):',
+    'generative.seedPlaceholder': 'ej: 12345',
+    'generative.applySeed': 'Aplicar',
+    'generative.currentSeed': 'Seed actual: {seed}',
+    'generative.applied': 'Variación aplicada (seed: {seed})',
 
     // PASIV File
     'pasiv.title': 'Exportar / Importar Configuraciones',
@@ -690,6 +702,12 @@ const translations = {
     'generative.generating': 'Gerando...',
     'generative.error': 'Erro ao gerar',
     'generative.off': 'OFF',
+    'generative.generated': 'Variação gerada (seed: {seed})',
+    'generative.seedLabel': 'Reproduzir variação por seed (opcional):',
+    'generative.seedPlaceholder': 'ex: 12345',
+    'generative.applySeed': 'Aplicar',
+    'generative.currentSeed': 'Seed atual: {seed}',
+    'generative.applied': 'Variação aplicada (seed: {seed})',
 
     // PASIV File
     'pasiv.title': 'Exportar / Importar Configurações',
