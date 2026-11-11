@@ -80,6 +80,19 @@ registerAction('togglePomodoroConfig', function () { togglePomodoroConfig(); });
 registerAction('toggleAccordion', function () { toggleAccordion(this.dataset.arg); });
 registerAction('selectLevel', function () { audio.selectLevel(parseInt(this.value), false, audioCtx); });
 registerAction('setSourceMode', function () { audio.setSourceMode(parseInt(this.dataset.arg), this.value); });
+registerAction('setWorldSynth', function () { audio.setWorldSynth(parseInt(this.dataset.arg), parseInt(this.value)); });
+registerAction('setWorldVolume', function () { 
+  const worldIdx = parseInt(this.dataset.arg);
+  const val = parseFloat(this.value);
+  audio.setWorldVolume(worldIdx, val);
+  const label = document.getElementById('worldVolVal' + worldIdx);
+  if (label) label.textContent = Math.round(val * 100) + '%';
+});
+registerAction('loadWorldMp3', function () { 
+  const worldIdx = parseInt(this.dataset.arg);
+  const file = this.files[0];
+  if (file) audio.loadWorldMp3(worldIdx, file);
+});
 registerAction('updateFromSliders', function () { audio.updateFromSliders(this.dataset.arg === 'true'); });
 registerAction('applyMicPreset', function () { sensors.applyMicPreset(this.value, sensorsCtx); });
 registerAction('setMicParam', function () { sensors.setMicParam(this.dataset.param, this.value, sensorsCtx); });

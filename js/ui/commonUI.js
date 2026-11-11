@@ -70,7 +70,7 @@ export function renderSourceList() {
           </select>
           
           ${sourceType === 'synth' ? `
-            <select onchange="setWorldSynth(${i}, parseInt(this.value))" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px; flex:1;">
+            <select data-action="setWorldSynth" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px; flex:1;">
               ${SYNTH_PRESETS.map((s, idx) => 
                 `<option value="${idx}" ${idx === synthIdx ? 'selected' : ''}>${s.name}</option>`
               ).join('')}
@@ -80,12 +80,12 @@ export function renderSourceList() {
           ${sourceType === 'mp3' ? `
             <label class="file-btn" for="sourceMp3_${i}" style="margin:0; padding:4px 8px; font-size:0.65rem; position:relative; cursor:pointer;">
               <span id="mp3Label_${i}">${mp3Name ? mp3Name.slice(0,20) : (t('source.selectMp3') || '[Selecionar MP3]')}</span><span>📁</span>
-              <input type="file" id="sourceMp3_${i}" onchange="const f=this.files[0]; if(f) loadWorldMp3(${i}, f)" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
+              <input type="file" id="sourceMp3_${i}" data-action="loadWorldMp3" data-arg="${i}" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
             </label>
           ` : ''}
           
           <input type="range" min="0" max="1" step="0.01" value="${volume}" 
-            oninput="setWorldVolume(${i}, this.value); document.getElementById('worldVolVal${i}').textContent = Math.round(this.value * 100) + '%'" 
+            data-action="setWorldVolume" data-arg="${i}" 
             style="flex:1; max-width:120px;">
           <span id="worldVolVal${i}" style="font-size:0.6rem; color:var(--muted); font-family:monospace; min-width:35px;">${Math.round(volume*100)}%</span>
         </div>
