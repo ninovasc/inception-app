@@ -20,6 +20,34 @@ function handleEvent(event) {
   handler.call(target, event);
 }
 
+// Attach direct event listener to select elements for iOS Safari compatibility
+// iOS Safari has a known bug where change events don't fire on dynamically added select elements
+function attachSelectListener(select) {
+  if (select.dataset.actionAttached) return;
+  select.dataset.actionAttached = 'true';
+  select.addEventListener('change', handleEvent);
+}
+
+// Observe DOM for dynamically added select elements with data-action
+if (typeof document !== 'undefined' && typeof MutationObserver !== 'undefined') {
+  const observer = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (node.nodeType === Node.ELEMENT_NODE) {
+          // Check the added element itself
+          if (node.matches && node.matches('select[data-action]')) {
+            attachSelectListener(node);
+          }
+          // Check descendants
+          const selects = node.querySelectorAll ? node.querySelectorAll('select[data-action]') : [];
+          selects.forEach(attachSelectListener);
+        }
+      }
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 // Registra listeners delegados (uma vez).
 if (typeof document !== 'undefined') {
   document.addEventListener('click', handleEvent, true);
