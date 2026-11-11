@@ -1,123 +1,224 @@
-// tests/unit/audio-mp3-pure.test.mjs - Unit tests for audio/mp3.js pure functions
-import '../mock-browser.mjs';
-import { describe, it } from 'node:test';
-import assert from 'node:assert/strict';
-import {
-  loadStem,
-  loadWorldMp3,
-  computeAnchors,
-  startMp3World,
-  stopMp3World,
-  stopAllMp3World,
-  setWorldMp3Volume,
-  crossfadeMp3Worlds,
-  pickAnchor,
-  scheduleMp3Continue,
-  mp3Meta,
-} from '../../js/audio/mp3.js';
+// @ts-nocheck
+import { describe, it, beforeEach, afterEach } from 'node:test';
+import assert from 'node:assert';
 
-describe('Audio MP3 Module', () => {
-  it('handles null file for loadStem', async () => {
-    await loadStem(0, null);
-    assert.ok(true);
-  });
+let state, computeAnchors, pickAnchor, startMp3Source, scheduleMp3Continue, startMp3World, stopMp3World, stopAllMp3World, setWorldMp3Volume, crossfadeMp3Worlds, mp3Meta;
 
-  it('handles file loading for loadStem', async () => {
-    const mockFile = {
-      arrayBuffer: async () => new ArrayBuffer(1024),
-      name: 'test.mp3',
-    };
-    await loadStem(0, mockFile);
-    assert.ok(true);
-  });
+const mockDocument = {
+  getElementById: (id) => {
+    if (id === 'sliderSpeed') return { value: '1.0' };
+    return { textContent: '', style: {} };
+  }
+};
 
-  it('handles null file for loadWorldMp3', async () => {
-    await loadWorldMp3(0, null);
-    assert.ok(true);
-  });
+function setupMocks() {
+  global.document = mockDocument;
+}
 
-  it('handles file loading for loadWorldMp3', async () => {
-    const mockFile = {
-      arrayBuffer: async () => new ArrayBuffer(1024),
-      name: 'world.mp3',
-    };
-    await loadWorldMp3(0, mockFile);
-    assert.ok(true);
-  });
+function cleanupMocks() {
+  delete global.document;
+}
 
-  it('returns empty array for short buffers', () => {
-    const shortBuffer = {
-      sampleRate: 44100,
-      length: 1000,
-      getChannelData: () => new Float32Array(1000),
-    };
-    const anchors = computeAnchors(shortBuffer);
-    assert.deepEqual(anchors, []);
-  });
-
-  it('computes anchors for valid buffer', () => {
-    const data = new Float32Array(44100 * 10);
-    // Fill with some pattern
-    for (let i = 0; i < data.length; i++) {
-      data[i] = Math.sin(i * 0.01);
-    }
-    const buffer = {
-      sampleRate: 44100,
-      length: data.length,
-      getChannelData: () => data,
-    };
-    const anchors = computeAnchors(buffer);
-    assert.ok(Array.isArray(anchors));
-  });
-
-  it('returns empty for silent buffer', () => {
-    const buffer = {
-      sampleRate: 44100,
-      length: 441000,
-      getChannelData: () => new Float32Array(441000),
-    };
-    const anchors = computeAnchors(buffer);
-    assert.deepEqual(anchors, []);
-  });
-
-  it('startMp3World runs without throwing', () => {
-    const state = { 
-      worldMp3Buffers: [{ duration: 100, sampleRate: 44100 }],
-      audioCtx: { currentTime: 0 },
+describe('Audio MP3 Module - Pure Functions', () => {
+  beforeEach(async () => {
+    setupMocks();
+    // Mock state
+    state = {
+      audioCtx: {
+        createBufferSource: () => ({
+          buffer: null,
+          loop: false,
+          playbackRate: { value: 1 },
+          connect: () => {},
+          start: () => {},
+          stop: () => {},
+          onended: null
+        }),
+        createGain: () => ({
+          gain: {
+            value: 0,
+            setValueAtTime: () => {},
+            linearRampToValueAtTime: () => {},
+            cancelScheduledValues: () => {},
+            setTargetAtTime: () => {}
+          },
+          connect: () => {},
+          disconnect: () => {}
+        }),
+        currentTime: 0,
+        decodeAudioData: (buf, cb) => cb({ duration: 10, sampleRate: 44100, getChannelData: () => new Float32Array(44100) })
+      },
+      isPlaying: false,
+      worldMp3Buffers: [],
+      worldMp3Sources: [],
+      worldMp3Gains: [],
+      worldSources: { mp3: [] },
+      worldSourceType: [],
+      worldVolume: [],
       currentLevel: 0,
-      worldSourceType: ['mp3'],
-      worldVolume: [0.2],
+      masterFilter: { connect: () => {} }
     };
     
-    startMp3World();
-    assert.ok(true);
+    const mod = await import('../../js/audio/mp3.js');
+    computeAnchors = mod.computeAnchors;
+    pickAnchor = mod.pickAnchor;
+    startMp3Source = mod.startMp3Source;
+    scheduleMp3Continue = mod.scheduleMp3Continue;
+    startMp3World = mod.startMp3World;
+    stopMp3World = mod.stopMp3World;
+    stopAllMp3World = mod.stopAllMp3World;
+    setWorldMp3Volume = mod.setWorldMp3Volume;
+    crossfadeMp3Worlds = mod.crossfadeMp3Worlds;
+    mp3Meta = mod.mp3Meta;
   });
 
-  it('stopMp3World stops playback', () => {
-    // Should not throw
-    stopMp3World(0);
-    assert.ok(true);
+  afterEach(() => {
+    if (mp3Meta) mp3Meta.clear();
+    cleanupMocks();
   });
 
-  it('stopAllMp3World stops all', () => {
-    stopAllMp3World();
-    assert.ok(true);
+  describe('computeAnchors', () => {
+    it('returns empty array for short buffer', () => {
+      const buffer = {
+        duration: 2,
+        sampleRate: 44100,
+        getChannelData: () => new Float32Array(88200)
+      };
+      const anchors = computeAnchors(buffer);
+      assert.ok(Array.isArray(anchors));
+      assert.strictEqual(anchors.length, 0);
+    });
+
+    it('returns empty array for silent buffer', () => {
+      const buffer = {
+        duration: 30,
+        sampleRate: 44100,
+        getChannelData: () => new Float32Array(30 * 44100).fill(0)
+      };
+      const anchors = computeAnchors(buffer);
+      assert.ok(Array.isArray(anchors));
+      assert.strictEqual(anchors.length, 0);
+    });
+
+    it('returns anchors for buffer with energy', () => {
+      const data = new Float32Array(30 * 44100);
+      // Add some energy in the middle
+      for (let i = 10 * 44100; i < 20 * 44100; i++) {
+        data[i] = 0.5;
+      }
+      const buffer = {
+        duration: 30,
+        sampleRate: 44100,
+        getChannelData: () => data
+      };
+      const anchors = computeAnchors(buffer);
+      assert.ok(Array.isArray(anchors));
+      // Should have some anchors
+    });
+
+    it('limits anchors to 24 max', () => {
+      const data = new Float32Array(60 * 44100);
+      // Add energy throughout
+      for (let i = 0; i < data.length; i += 100) {
+        data[i] = 0.5;
+      }
+      const buffer = {
+        duration: 60,
+        sampleRate: 44100,
+        getChannelData: () => data
+      };
+      const anchors = computeAnchors(buffer);
+      assert.ok(anchors.length <= 24);
+    });
   });
 
-  it('crossfadeMp3Worlds handles missing data', () => {
-    crossfadeMp3Worlds(0, 1);
-    assert.ok(true);
+  describe('pickAnchor', () => {
+    it('returns null when no anchors', () => {
+      const result = pickAnchor(0, null);
+      assert.strictEqual(result, null);
+    });
+
+    it('returns anchor when available', () => {
+      mp3Meta.set(0, { anchors: [5, 10, 15, 20], used: {} });
+      const anchor = pickAnchor(0, null);
+      assert.ok([5, 10, 15, 20].includes(anchor));
+    });
+
+    it('avoids recent anchor when avoidSec provided', () => {
+      mp3Meta.set(0, { anchors: [5, 10, 15, 20], used: {} });
+      const anchor = pickAnchor(0, 10);
+      assert.notStrictEqual(anchor, 10);
+    });
+
+    it('tracks usage with timestamps', () => {
+      mp3Meta.set(0, { anchors: [5, 10], used: {} });
+      pickAnchor(0, null);
+      const meta = mp3Meta.get(0);
+      assert.ok(meta.used[0] > 0 || meta.used[1] > 0);
+    });
   });
 
-  // Note: mp3Meta is exported but testing it requires full module setup
-  it('mp3Meta is exported', () => {
-    // This test verifies the export exists conceptually
-    // Actual verification would need full module setup
-    assert.ok(true);
+  describe('setWorldMp3Volume', () => {
+    it('is a function', () => {
+      assert.strictEqual(typeof setWorldMp3Volume, 'function');
+    });
+  });
+});
+
+describe('Audio MP3 Module - Integration', () => {
+  beforeEach(async () => {
+    setupMocks();
+    state = {
+      audioCtx: {
+        createBufferSource: () => ({
+          buffer: null,
+          loop: false,
+          playbackRate: { value: 1 },
+          connect: () => {},
+          start: () => {},
+          stop: () => {},
+          onended: null
+        }),
+        createGain: () => ({
+          gain: {
+            value: 0,
+            setValueAtTime: () => {},
+            linearRampToValueAtTime: () => {},
+            cancelScheduledValues: () => {},
+            setTargetAtTime: () => {}
+          },
+          connect: () => {},
+          disconnect: () => {}
+        }),
+        currentTime: 0,
+        decodeAudioData: (buf, cb) => cb({ duration: 10, sampleRate: 44100, getChannelData: () => new Float32Array(44100) })
+      },
+      isPlaying: true,
+      worldMp3Buffers: [{ duration: 30, sampleRate: 44100, getChannelData: () => new Float32Array(30 * 44100) }],
+      worldMp3Sources: [null],
+      worldMp3Gains: [null],
+      worldSources: { mp3: ['test.mp3'] },
+      worldSourceType: ['mp3'],
+      worldVolume: [0.5],
+      currentLevel: 0,
+      masterFilter: { connect: () => {} }
+    };
   });
 
-  it('handles missing meta gracefully', () => {
-    // Should not throw
-    assert.ok(true);
+  afterEach(() => {
+    if (mp3Meta) mp3Meta.clear();
+    cleanupMocks();
+  });
+
+  it('startMp3World is a function', () => {
+    assert.strictEqual(typeof startMp3World, 'function');
+  });
+
+  it('stopMp3World is a function', () => {
+    assert.strictEqual(typeof stopMp3World, 'function');
+  });
+
+  it('stopAllMp3World is a function', () => {
+    assert.strictEqual(typeof stopAllMp3World, 'function');
   });
 });

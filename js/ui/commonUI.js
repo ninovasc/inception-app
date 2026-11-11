@@ -64,13 +64,13 @@ export function renderSourceList() {
           <span style="font-size:0.6rem; color:var(--muted); font-family:monospace;">${isActive ? '● ATIVO' : ''}</span>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-          <select data-action="setSourceMode" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px;">
+          <select data-action="setSourceMode" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:12px 16px;font-size:1rem;border-radius:8px;min-height:44px;-webkit-appearance:none;appearance:none;">
             <option value="synth" ${sourceType === 'synth' ? 'selected' : ''}>${t('source.synth') || 'Synth'}</option>
             <option value="mp3" ${sourceType === 'mp3' ? 'selected' : ''}>${t('source.mp3') || 'MP3'}</option>
           </select>
           
           ${sourceType === 'synth' ? `
-            <select data-action="setWorldSynth" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px; flex:1;">
+            <select data-action="setWorldSynth" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:12px 16px;font-size:1rem;border-radius:8px;min-height:44px;flex:1;-webkit-appearance:none;appearance:none;">
               ${SYNTH_PRESETS.map((s, idx) => 
                 `<option value="${idx}" ${idx === synthIdx ? 'selected' : ''}>${s.name}</option>`
               ).join('')}
@@ -86,7 +86,7 @@ export function renderSourceList() {
           
           <input type="range" min="0" max="1" step="0.01" value="${volume}" 
             data-action="setWorldVolume" data-arg="${i}" 
-            style="flex:1; max-width:120px;">
+            style="flex:1; max-width:120px; height:44px;-webkit-appearance:slider;">
           <span id="worldVolVal${i}" style="font-size:0.6rem; color:var(--muted); font-family:monospace; min-width:35px;">${Math.round(volume*100)}%</span>
         </div>
       </div>
