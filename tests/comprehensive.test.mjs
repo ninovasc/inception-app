@@ -386,7 +386,7 @@ describe('Audio Engine', () => {
   });
   test('audio core module exports initAudio', () => {
     const content = readFile('js/audio/core.js');
-    assert.ok(content.includes('export function initAudio'), 'Should export initAudio');
+    assert.ok(content.includes('export async function initAudio'), 'Should export initAudio');
   });
   test('audio synth module exports synth functions', () => {
     const content = readFile('js/audio/synth.js');

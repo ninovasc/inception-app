@@ -2,9 +2,11 @@
 import { state } from '../state.js';
 import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from '../config.js';
 
-export function initAudio() {
+export async function initAudio() {
   if (state.audioCtx) {
-    if (state.audioCtx.state === 'suspended') state.audioCtx.resume();
+    if (state.audioCtx.state === 'suspended') {
+      await state.audioCtx.resume();
+    }
     return;
   }
   const AudioCtx = window.AudioContext || window.webkitAudioContext;

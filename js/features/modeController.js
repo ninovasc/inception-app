@@ -59,11 +59,11 @@ export function setMode(modeId) {
 }
 
 // Inicia o modo atual selecionado
-export function startCurrentMode() {
+export async function startCurrentMode() {
   if (!state.currentMode) return;
 
   // Inicia áudio se necessário
-  if (!state.audioCtx) audio.initAudio();
+  await audio.initAudio();
 
   // Marca como tocando ANTES de ativar o modo, para que o áudio do mundo
   // (synth/MP3) comece imediatamente ao trocar de modo via gatilho
