@@ -1,7 +1,7 @@
 // js/audio.js - Audio Engine Orchestrator with Dependency Injection
 // @ts-nocheck
-import { state } from './state.js';
-import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from './config.js';
+import { state, getWorldVolume, getModeWorldCount, getWorldSourceType, setWorldSourceType, getWorldMp3Name, setWorldMp3Name, getWorldMp3Buffer, setWorldMp3Buffer, getWorldMp3Source, setWorldMp3Source, getWorldMp3Gain, setWorldMp3Gain, setWorldVolume } from './state.js';
+import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType, POMODORO_WORLD_COUNT, SLEEP_WORLD_COUNT } from './config.js';
 import { t } from './i18n.js';
 import * as core from './audio/core.js';
 import * as synth from './audio/synth.js';
@@ -19,7 +19,8 @@ export { initAudio } from './audio/core.js';
 export { selectSynthType, setSynthVolume, startSynth, stopSynth, restartSynth, startChordProgression, stopChordProgression, syncXYPadFromSliders, updateFromSliders, applyParameters } from './audio/synth.js';
 export { loadStem, loadWorldMp3, computeAnchors, startMp3World, stopMp3World, stopAllMp3World, setWorldMp3Volume, crossfadeMp3Worlds } from './audio/mp3.js';
 export { startStems, stopStems, setVolume } from './audio/stems.js';
-export { setWorldSynth, setWorldVolume } from './audio/world.js';
+export { setWorldSynth } from './audio/world.js';
+export { setWorldVolume } from './state.js';
 export { playHeartbeatPulse, captureAndPlaySubconsciousMemory } from './audio/effects.js';
 
 // Create dependency context for injection
@@ -61,14 +62,6 @@ export function normalizeLevelIndex(idx, maxLevels) {
   return Math.max(0, Math.min(idx, maxLevels - 1));
 }
 
-export function getWorldVolume(worldVolume, idx, defaultVol = 0.2) {
-  return (worldVolume && worldVolume[idx] != null) ? worldVolume[idx] : defaultVol;
-}
-
-export function getSourceMode(worldSourceType, idx, defaultMode = 'synth') {
-  return (worldSourceType && worldSourceType[idx]) || defaultMode;
-}
-
 // Orchestrator functions with dependency injection
 export function setSourceMode(worldIdx, mode, ctx) {
   const context = ctx || createAudioContext();
@@ -80,8 +73,11 @@ export function setSourceMode(worldIdx, mode, ctx) {
     worldIdx = state.currentLevel;
   }
   const normalized = normalizeSourceType(mode);
-  if (!state.worldSourceType) state.worldSourceType = Array(WORLD_NAMES.length).fill('synth');
-  state.worldSourceType[worldIdx] = normalized;
+  const modeName = state.currentMode || 'narrative';
+  
+  // Use mode-specific array
+  if (!state.worldSourceType[modeName]) state.worldSourceType[modeName] = Array(getModeWorldCount(modeName)).fill('synth');
+  state.worldSourceType[modeName][worldIdx] = normalized;
   state.sourceMode = normalized;
   restartWorldAudio(context);
   renderSourceList();
@@ -221,9 +217,11 @@ export function selectLevel(idx, preserveParams = false, ctx = createAudioContex
     state.currentSynthType = (state.worldSynth && state.worldSynth[idx] != null)
       ? state.worldSynth[idx]
       : WORLD_SYNTH[idx];
-    const rawType = (state.worldSourceType && state.worldSourceType[idx]) || 'synth';
-    state.sourceMode = normalizeSourceType(rawType);
-    if (state.worldSourceType) state.worldSourceType[idx] = state.sourceMode;
+    const modeName = state.currentMode || 'narrative';
+    const rawType = state.worldSourceType[modeName] ? state.worldSourceType[modeName][idx] : 'synth';
+    const normalizedType = normalizeSourceType(rawType);
+    state.sourceMode = normalizedType;
+    if (state.worldSourceType[modeName]) state.worldSourceType[modeName][idx] = state.sourceMode;
 
     if (state.synthMasterGain && state.audioCtx) {
       const vol = getWorldVolume(state.worldVolume, idx);
@@ -261,7 +259,10 @@ export function selectLevel(idx, preserveParams = false, ctx = createAudioContex
       synth.stopSynth(500);
       synth.stopChordProgression();
       const oldMp3Idx = state.currentLevel !== idx ? state.currentLevel : -1;
-      if (oldMp3Idx >= 0 && state.worldSourceType[oldMp3Idx] === 'mp3' && state.worldSourceType[idx] === 'mp3') {
+      const modeName = state.currentMode || 'narrative';
+      const oldSourceType = state.worldSourceType[modeName] ? state.worldSourceType[modeName][oldMp3Idx] : 'synth';
+      const newSourceType = state.worldSourceType[modeName] ? state.worldSourceType[modeName][idx] : 'synth';
+      if (oldMp3Idx >= 0 && oldSourceType === 'mp3' && newSourceType === 'mp3') {
         mp3.crossfadeMp3Worlds(oldMp3Idx, idx);
       } else {
         mp3.stopAllMp3World();
@@ -305,14 +306,15 @@ export function restartWorldAudio(ctx = createAudioContext()) {
   stopCapture();
 
   if (!state.isPlaying) return;
-  const rawType = (state.worldSourceType && state.worldSourceType[state.currentLevel]) || 'synth';
+  const modeName = state.currentMode || 'narrative';
+  const rawType = state.worldSourceType[modeName] ? state.worldSourceType[modeName][state.currentLevel] : 'synth';
   const type = normalizeSourceType(rawType);
-  state.worldSourceType[state.currentLevel] = type;
+  state.worldSourceType[modeName][state.currentLevel] = type;
   state.sourceMode = type;
   if (type === 'synth') {
     if (state.synthMasterGain && state.audioCtx) {
       state.synthMasterGain.gain.setTargetAtTime(
-        state.worldVolume[state.currentLevel], state.audioCtx.currentTime, 0.1);
+        state.worldVolume[modeName][state.currentLevel], state.audioCtx.currentTime, 0.1);
     }
     synth.startChordProgression();
   } else if (type === 'mp3') {
@@ -335,5 +337,4 @@ export default {
   calculateCrossfadeGain,
   normalizeLevelIndex,
   getWorldVolume,
-  getSourceMode,
 };

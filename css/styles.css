@@ -167,6 +167,10 @@ header {
   gap: 12px;
 }
 
+.menu-section[data-mode] {
+  display: none;
+}
+
 .menu-title {
   font-size: 0.7rem;
   text-transform: uppercase;

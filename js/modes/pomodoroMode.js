@@ -14,6 +14,12 @@ export async function activate() {
   state.pomodoro.isRunning = false;
   state.autoMode = false; // Pomodoro não usa autoMode narrativo
   
+  // Reset timer values
+  state.pomodoro.phase = 'activity';
+  state.pomodoro.timeRemaining = state.pomodoro.activityDuration;
+  state.pomodoro.totalTime = state.pomodoro.activityDuration;
+  state.pomodoro.cyclesCompleted = 0;
+  
   // Garante que está no mundo Atividade (0) ao selecionar o modo
   if (state.currentLevel !== 0) {
     audio.selectLevel(0);

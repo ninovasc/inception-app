@@ -17,6 +17,7 @@ import { testSleepAlarm } from './features/sleepController.js';
 import './features/accordionController.js';
 import { setMode, startCurrentMode, stopCurrentMode } from './features/modeController.js';
 import { togglePomodoro } from './features/pomodoroController.js';
+import { skipPomodoroPhase, resetPomodoro } from './features/pomodoroController.js';
 import { setWorldTrigger, setWorldTriggerMotion, setWorldTriggerSilence } from './features/triggerController.js';
 import { toggleAccordion } from './features/accordionController.js';
 import './eventDelegate.js';
@@ -24,7 +25,7 @@ import { registerAction } from './eventDelegate.js';
 import { initI18n, t, setLang } from './i18n.js';
 import { initModeManager, switchMode, isMode, isPomodoroMode, isSleepMode, isNarrativeMode, isFreeMode, updateModeSpecificUI, modeModules, updateTriggerIndicator, syncAutoUI, updatePanelVisibility } from './modes/modeManager.js';
 import { initModeSelector } from './ui/modeSelector.js';
-import { createPomodoroUI, updatePomodoroUI, togglePomodoroConfig } from './ui/pomodoroUI.js';
+import { createPomodoroUI, updatePomodoroUI, togglePomodoroConfig, updatePomodoroActivityDuration, updatePomodoroShortBreakDuration, updatePomodoroLongBreakDuration, updatePomodoroCyclesUntilLongBreak } from './ui/pomodoroUI.js';
 import { createSleepUI } from './ui/sleepUI.js';
 import { createNarrativeUI, updateNarrativeUI } from './ui/narrativeUI.js';
 import { createFreeUI, updateFreeUI } from './ui/freeUI.js';
@@ -40,7 +41,7 @@ const sensorsCtx = sensors.createSensorsContext({ state });
 window.__lucidModes = LUCID_MODES;
 
 // App version for cache busting verification
-window.APP_VERSION = 50007;
+window.APP_VERSION = 50009;
 
 // App version for cache busting verification
 console.log('[PASIV] App version:', window.APP_VERSION);
@@ -77,6 +78,32 @@ registerAction('startCurrentMode', function () { startCurrentMode(); });
 registerAction('stopCurrentMode', function () { stopCurrentMode(); });
 registerAction('togglePomodoro', function () { togglePomodoro(); });
 registerAction('togglePomodoroConfig', function () { togglePomodoroConfig(); });
+registerAction('skipPomodoroPhase', function () { skipPomodoroPhase(); });
+registerAction('resetPomodoro', function () { resetPomodoro(); });
+registerAction('updatePomodoroActivityDuration', function () { 
+  const val = parseInt(this.value);
+  updatePomodoroActivityDuration(val);
+  const label = document.getElementById('pomodoroActivityVal');
+  if (label) label.textContent = val + ' min';
+});
+registerAction('updatePomodoroShortBreakDuration', function () { 
+  const val = parseInt(this.value);
+  updatePomodoroShortBreakDuration(val);
+  const label = document.getElementById('pomodoroShortBreakVal');
+  if (label) label.textContent = val + ' min';
+});
+registerAction('updatePomodoroLongBreakDuration', function () { 
+  const val = parseInt(this.value);
+  updatePomodoroLongBreakDuration(val);
+  const label = document.getElementById('pomodoroLongBreakVal');
+  if (label) label.textContent = val + ' min';
+});
+registerAction('updatePomodoroCyclesUntilLongBreak', function () { 
+  const val = parseInt(this.value);
+  updatePomodoroCyclesUntilLongBreak(val);
+  const label = document.getElementById('pomodoroCyclesVal');
+  if (label) label.textContent = val;
+});
 registerAction('toggleAccordion', function () { toggleAccordion(this.dataset.arg); });
 registerAction('selectLevel', function () { audio.selectLevel(parseInt(this.value), false, audioCtx); });
 registerAction('setSourceMode', function () { audio.setSourceMode(parseInt(this.dataset.arg), this.value); });
@@ -149,7 +176,11 @@ try {
 
 // YouTube removido: mundos salvos como YouTube voltam para Synth.
 if (state.worldSourceType) {
-  state.worldSourceType = state.worldSourceType.map(normalizeSourceType);
+  Object.keys(state.worldSourceType).forEach(mode => {
+    if (Array.isArray(state.worldSourceType[mode])) {
+      state.worldSourceType[mode] = state.worldSourceType[mode].map(normalizeSourceType);
+    }
+  });
 }
 
 // Desabilitar presets de voz inicialmente (mic off)
@@ -181,8 +212,7 @@ updateGenerativeUIVisibility();
 // Initialize mode-specific UIs
 const pomodoroContainer = document.getElementById('pomodoroUI');
 if (pomodoroContainer) {
-  pomodoroContainer.innerHTML = '';
-  pomodoroContainer.appendChild(createPomodoroUI());
+  pomodoroContainer.innerHTML = createPomodoroUI().innerHTML;
 }
 
 const sleepContainer = document.getElementById('sleepUI');

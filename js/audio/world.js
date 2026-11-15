@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { state } from '../state.js';
+import { state, getWorldVolume, getModeWorldCount } from '../state.js';
 import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from '../config.js';
 import { restartSynth } from './synth.js';
 import { startMp3World, stopMp3World, stopAllMp3World, crossfadeMp3Worlds } from './mp3.js';
@@ -22,13 +22,15 @@ export function setWorldVolume(worldIdx, val) {
   if (val === undefined) { val = worldIdx; worldIdx = state.currentLevel; }
   const v = parseFloat(val);
   if (isNaN(v)) return;
-  if (!state.worldVolume) state.worldVolume = Array(WORLD_NAMES.length).fill(0.2);
-  state.worldVolume[worldIdx] = v;
+  const modeName = state.currentMode || 'narrative';
+  if (!state.worldVolume[modeName]) state.worldVolume[modeName] = Array(getModeWorldCount(modeName)).fill(0.5);
+  state.worldVolume[modeName][worldIdx] = v;
 
   const label = document.getElementById(`worldVolVal${worldIdx}`);
   if (label) label.textContent = Math.round(v * 100) + '%';
 
-  if (worldIdx === state.currentLevel && state.audioCtx) {
+  if (state.audioCtx) {
+    const modeName = state.currentMode || 'narrative';
     if (state.worldMp3Gains[worldIdx]) {
       state.worldMp3Gains[worldIdx].gain.setTargetAtTime(v, state.audioCtx.currentTime, 0.1);
     }

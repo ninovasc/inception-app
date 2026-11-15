@@ -40,6 +40,9 @@ describe('Sleep Mode Module', () => {
   describe('activate/deactivate', () => {
     it('activate enables sleep mode and sets defaults', () => {
       state.sleep.enabled = false;
+      state.currentMode = 'sleep';
+      console.log('state.worldMp3Sources:', Object.keys(state.worldMp3Sources));
+      console.log('state.worldMp3Sources.sleep:', state.worldMp3Sources.sleep);
       activate();
       assert.equal(state.sleep.enabled, true);
       assert.equal(state.sleep.isWaking, false);

@@ -50,10 +50,34 @@ function getStateSnapshot() {
     worldTriggers: { ...state.worldTriggers },
     triggerMotion: state.triggerMotion,
     triggerSilenceSec: state.triggerSilenceSec,
-    worldSourceType: [...state.worldSourceType],
+    // worldSourceType is now mode-specific, serialize all modes
+    worldSourceType: {
+      narrative: [...state.worldSourceType.narrative],
+      pomodoro: [...state.worldSourceType.pomodoro],
+      sleep: [...state.worldSourceType.sleep],
+      free: [...state.worldSourceType.free]
+    },
     worldSynth: [...state.worldSynth],
-    worldVolume: [...state.worldVolume],
-    worldSources: { mp3: [...state.worldSources.mp3] },
+    worldVolume: {
+      narrative: [...state.worldVolume.narrative],
+      pomodoro: [...state.worldVolume.pomodoro],
+      sleep: [...state.worldVolume.sleep],
+      free: [...state.worldVolume.free]
+    },
+    worldSources: {
+      mp3: {
+        narrative: [...state.worldSources.mp3.narrative],
+        pomodoro: [...state.worldSources.mp3.pomodoro],
+        sleep: [...state.worldSources.mp3.sleep],
+        free: [...state.worldSources.mp3.free]
+      },
+      youtube: {
+        narrative: [...state.worldSources.youtube.narrative],
+        pomodoro: [...state.worldSources.youtube.pomodoro],
+        sleep: [...state.worldSources.youtube.sleep],
+        free: [...state.worldSources.youtube.free]
+      }
+    },
     gpsRain: state.gpsRain,
     gpsNight: state.gpsNight,
     gpsSpeedMps: state.gpsSpeedMps,
@@ -226,10 +250,41 @@ function applyPasivState(savedState) {
   
   // Arrays e objetos
   if (savedState.worldTriggers) state.worldTriggers = { ...savedState.worldTriggers };
-  if (savedState.worldSourceType) state.worldSourceType = [...savedState.worldSourceType];
+  
+  // worldSourceType - modo específico
+  if (savedState.worldSourceType) {
+    if (savedState.worldSourceType.narrative) state.worldSourceType.narrative = [...savedState.worldSourceType.narrative];
+    if (savedState.worldSourceType.pomodoro) state.worldSourceType.pomodoro = [...savedState.worldSourceType.pomodoro];
+    if (savedState.worldSourceType.sleep) state.worldSourceType.sleep = [...savedState.worldSourceType.sleep];
+    if (savedState.worldSourceType.free) state.worldSourceType.free = [...savedState.worldSourceType.free];
+  }
+  
   if (savedState.worldSynth) state.worldSynth = [...savedState.worldSynth];
-  if (savedState.worldVolume) state.worldVolume = [...savedState.worldVolume];
-  if (savedState.worldSources?.mp3) state.worldSources.mp3 = [...savedState.worldSources.mp3];
+  
+  // worldVolume - modo específico
+  if (savedState.worldVolume) {
+    if (savedState.worldVolume.narrative) state.worldVolume.narrative = [...savedState.worldVolume.narrative];
+    if (savedState.worldVolume.pomodoro) state.worldVolume.pomodoro = [...savedState.worldVolume.pomodoro];
+    if (savedState.worldVolume.sleep) state.worldVolume.sleep = [...savedState.worldVolume.sleep];
+    if (savedState.worldVolume.free) state.worldVolume.free = [...savedState.worldVolume.free];
+  }
+  
+  // worldSources - modo específico
+  if (savedState.worldSources) {
+    if (savedState.worldSources.mp3) {
+      if (savedState.worldSources.mp3.narrative) state.worldSources.mp3.narrative = [...savedState.worldSources.mp3.narrative];
+      if (savedState.worldSources.mp3.pomodoro) state.worldSources.mp3.pomodoro = [...savedState.worldSources.mp3.pomodoro];
+      if (savedState.worldSources.mp3.sleep) state.worldSources.mp3.sleep = [...savedState.worldSources.mp3.sleep];
+      if (savedState.worldSources.mp3.free) state.worldSources.mp3.free = [...savedState.worldSources.mp3.free];
+    }
+    if (savedState.worldSources.youtube) {
+      if (savedState.worldSources.youtube.narrative) state.worldSources.youtube.narrative = [...savedState.worldSources.youtube.narrative];
+      if (savedState.worldSources.youtube.pomodoro) state.worldSources.youtube.pomodoro = [...savedState.worldSources.youtube.pomodoro];
+      if (savedState.worldSources.youtube.sleep) state.worldSources.youtube.sleep = [...savedState.worldSources.youtube.sleep];
+      if (savedState.worldSources.youtube.free) state.worldSources.youtube.free = [...savedState.worldSources.youtube.free];
+    }
+  }
+  
   if (savedState.xyState) state.xyState = { ...savedState.xyState };
   
   // Pomodoro

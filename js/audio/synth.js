@@ -308,7 +308,8 @@ export function applyParameters() {
     if (state.sourceMode === 'capture') {
       state.stemSources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
     }
-    state.worldMp3Sources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
+    const mp3Sources = state.worldMp3Sources[state.currentMode] || [];
+mp3Sources.forEach(s => { if (s) s.playbackRate.setTargetAtTime(speed, now, 0.05); });
     state.synthNodes.forEach(s => {
       if (!s.isLfo && s.osc.frequency) s.osc.frequency.setTargetAtTime(s.base * speed, now, 0.05);
     });

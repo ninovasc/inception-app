@@ -151,8 +151,11 @@ export function exitFullscreen() {
 
 // Orientation
 export async function lockOrientation(orientation) {
-  if (screen.orientation && screen.orientation.lock) {
-    return screen.orientation.lock(orientation);
+  const orientationApi = screen.orientation;
+  // @ts-expect-error lock is not in TypeScript types but exists in browsers
+  if (orientationApi && orientationApi.lock) {
+    // @ts-expect-error lock is not in TypeScript types but exists in browsers
+    return orientationApi.lock(orientation);
   }
   return Promise.reject(new Error('Orientation lock not supported'));
 }

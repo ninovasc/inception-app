@@ -1,6 +1,35 @@
-import { WORLD_SYNTH, DEFAULT_WORLD_TRIGGERS, POMODORO_DEFAULTS, SLEEP_DEFAULTS, DEFAULT_MODE, POMODORO_WORLD_COUNT, SLEEP_WORLD_COUNT } from './config.js';
+import { WORLD_SYNTH, DEFAULT_WORLD_TRIGGERS, POMODORO_DEFAULTS, SLEEP_DEFAULTS, DEFAULT_MODE, POMODORO_WORLD_COUNT, SLEEP_WORLD_COUNT, WORLD_NAMES, POMODORO_WORLD_NAMES, SLEEP_WORLD_NAMES } from './config.js';
 
 const N = 13; // mundos narrativo (v3.0.0)
+const MODE_WORLD_COUNTS = {
+  narrative: 13,
+  pomodoro: 2,
+  sleep: 8,
+  free: 13
+};
+
+function createModeArrays(fillValue) {
+  return {
+    narrative: Array(13).fill(fillValue),
+    pomodoro: Array(2).fill(fillValue),
+    sleep: Array(8).fill(fillValue),
+    free: Array(13).fill(fillValue)
+  };
+}
+
+function getModeArray(modeObj, mode) {
+  return modeObj[mode] || modeObj.narrative;
+}
+
+function getModeArrayAt(modeObj, mode, idx) {
+  const arr = modeObj[mode] || modeObj.narrative;
+  return arr[idx];
+}
+
+function setModeArrayAt(modeObj, mode, idx, value) {
+  const arr = modeObj[mode] || modeObj.narrative;
+  if (arr) arr[idx] = value;
+}
 
 export const state = {
   audioCtx: null,
@@ -17,10 +46,13 @@ export const state = {
   worldTriggers: { ...DEFAULT_WORLD_TRIGGERS },
   triggerMotion: 0.6,
   triggerSilenceSec: 30,
-  worldSourceType: Array(N).fill('synth'),
+  worldSourceType: createModeArrays('synth'),
   worldSynth: [...WORLD_SYNTH],
-  worldVolume: Array(N).fill(0.5),
-  worldSources: { mp3: Array(N).fill('') },
+  worldVolume: createModeArrays(0.5),
+  worldSources: { 
+    mp3: createModeArrays(''),
+    youtube: createModeArrays('')
+  },
   gpsRain: false,
   gpsNight: false,
   gpsSpeedMps: 0,
@@ -45,9 +77,9 @@ export const state = {
   stemBuffers: [null, null, null],
   stemSources: [null, null, null],
   stemGains: [null, null, null],
-  worldMp3Buffers: Array(N).fill(null),
-  worldMp3Sources: Array(N).fill(null),
-  worldMp3Gains: Array(N).fill(null),
+  worldMp3Buffers: createModeArrays(null),
+  worldMp3Sources: createModeArrays(null),
+  worldMp3Gains: createModeArrays(null),
   synthNodes: [],
   chordIndex: 0,
   chordInterval: null,
@@ -134,3 +166,68 @@ export const state = {
     isWaking: false
   }
 };
+
+// Export helpers for backward compatibility and mode-specific access
+export function getModeWorldCount(mode) {
+  return MODE_WORLD_COUNTS[mode] || 13;
+}
+
+export function getWorldSourceType(mode, idx) {
+  const arr = state.worldSourceType[mode] || state.worldSourceType.narrative;
+  return arr[idx];
+}
+
+export function setWorldSourceType(mode, idx, value) {
+  const arr = state.worldSourceType[mode] || state.worldSourceType.narrative;
+  if (arr) arr[idx] = value;
+}
+
+export function getWorldVolume(mode, idx) {
+  const arr = state.worldVolume[mode] || state.worldVolume.narrative;
+  return arr[idx];
+}
+
+export function setWorldVolume(mode, idx, value) {
+  const arr = state.worldVolume[mode] || state.worldVolume.narrative;
+  if (arr) arr[idx] = value;
+}
+
+export function getWorldMp3Name(mode, idx) {
+  const arr = state.worldSources.mp3[mode] || state.worldSources.mp3.narrative;
+  return arr[idx];
+}
+
+export function setWorldMp3Name(mode, idx, value) {
+  const arr = state.worldSources.mp3[mode] || state.worldSources.mp3.narrative;
+  if (arr) arr[idx] = value;
+}
+
+export function getWorldMp3Buffer(mode, idx) {
+  const arr = state.worldMp3Buffers[mode] || state.worldMp3Buffers.narrative;
+  return arr[idx];
+}
+
+export function setWorldMp3Buffer(mode, idx, value) {
+  const arr = state.worldMp3Buffers[mode] || state.worldMp3Buffers.narrative;
+  if (arr) arr[idx] = value;
+}
+
+export function getWorldMp3Source(mode, idx) {
+  const arr = state.worldMp3Sources[mode] || state.worldMp3Sources.narrative;
+  return arr[idx];
+}
+
+export function setWorldMp3Source(mode, idx, value) {
+  const arr = state.worldMp3Sources[mode] || state.worldMp3Sources.narrative;
+  if (arr) arr[idx] = value;
+}
+
+export function getWorldMp3Gain(mode, idx) {
+  const arr = state.worldMp3Gains[mode] || state.worldMp3Gains.narrative;
+  return arr[idx];
+}
+
+export function setWorldMp3Gain(mode, idx, value) {
+  const arr = state.worldMp3Gains[mode] || state.worldMp3Gains.narrative;
+  if (arr) arr[idx] = value;
+}

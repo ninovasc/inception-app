@@ -5,7 +5,7 @@ import * as narrativeMode from './narrativeMode.js';
 import * as pomodoroMode from './pomodoroMode.js';
 import * as sleepMode from './sleepMode.js';
 import { updateModeUI, updateModeSpecificUI } from './uiUpdater.js';
-import { updateWorldUI } from './panelManager.js';
+import { updateWorldUI, updatePanelVisibility } from './panelManager.js';
 
 export const modeModules = {
   narrative: narrativeMode,
@@ -68,6 +68,7 @@ export function switchMode(modeId) {
   // Atualiza UI
   updateModeUI();
   updateWorldUI();
+  updatePanelVisibility(); // Ensure panels are shown/hidden correctly
 
   // Atualiza UI específica do modo
   updateModeSpecificUI(modeId);

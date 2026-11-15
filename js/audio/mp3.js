@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { state } from '../state.js';
+import { state, getWorldVolume, getWorldMp3Name, setWorldMp3Name, getWorldMp3Buffer, setWorldMp3Buffer, getWorldMp3Source, setWorldMp3Source, getWorldMp3Gain, setWorldMp3Gain, getModeWorldCount } from '../state.js';
 import { LEVELS, SYNTH_PRESETS, CHORD_PROGRESSIONS, WORLD_SYNTH, WORLD_VOICE_PRESETS, WORLD_NAMES, normalizeSourceType } from '../config.js';
 import { initAudio } from './core.js';
 import { startStems, stopStems } from './stems.js';
@@ -27,16 +27,18 @@ export async function loadStem(index, file) {
 export async function loadWorldMp3(worldIdx, file) {
   if (!file) return;
   initAudio();
+  const modeName = state.currentMode || 'narrative';
   const label = document.getElementById(`mp3Label_${worldIdx}`);
   if (label) label.textContent = t('source.loading');
   try {
     const buf = await file.arrayBuffer();
     state.audioCtx.decodeAudioData(buf, (decoded) => {
-      state.worldMp3Buffers[worldIdx] = decoded;
-      state.worldSources.mp3[worldIdx] = file.name;
+      const modeName = state.currentMode || 'narrative';
+      setWorldMp3Buffer(modeName, worldIdx, decoded);
+      setWorldMp3Name(modeName, worldIdx, file.name);
       if (label) label.textContent = file.name.slice(0, 20);
       if (state.isPlaying && state.currentLevel === worldIdx &&
-          state.worldSourceType[worldIdx] === 'mp3') {
+          state.worldSourceType[state.currentMode] && state.worldSourceType[state.currentMode][worldIdx] === 'mp3') {
         startMp3World();
       }
     }, () => {
@@ -125,7 +127,8 @@ export function pickAnchor(idx, avoidSec) {
 }
 
 export function startMp3Source(idx, offsetSec, smart) {
-  const buf = state.worldMp3Buffers[idx];
+  const modeName = state.currentMode || 'narrative';
+  const buf = getWorldMp3Buffer(modeName, idx);
   if (!buf || !state.audioCtx) return;
   const speed = parseFloat(document.getElementById('sliderSpeed').value);
   const now = state.audioCtx.currentTime;
@@ -134,7 +137,7 @@ export function startMp3Source(idx, offsetSec, smart) {
   src.loop = !smart;
   src.playbackRate.value = speed;
   const gain = state.audioCtx.createGain();
-  const vol = (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2;
+  const vol = getWorldVolume(state.worldVolume, idx);
   // Fade-in mais longo (200ms) para evitar clique no iOS
   gain.gain.setValueAtTime(0, now);
   gain.gain.linearRampToValueAtTime(Math.max(0, vol), now + 0.25);
@@ -144,8 +147,8 @@ export function startMp3Source(idx, offsetSec, smart) {
   // Tenta iniciar em zero-crossing para evitar clique
   src.start(now, safeOffset);
   src.onended = () => { try { gain.disconnect(); } catch (e) {} };
-  state.worldMp3Sources[idx] = src;
-  state.worldMp3Gains[idx] = gain;
+  state.worldMp3Sources[modeName][idx] = src;
+  state.worldMp3Gains[modeName][idx] = gain;
   if (smart) {
     const meta = mp3Meta.get(idx);
     meta.src = src;
@@ -157,6 +160,7 @@ export function startMp3Source(idx, offsetSec, smart) {
 
 // Agenda o salto de fim de faixa: crossfade sobreposto (overlap) para evitar clique
 export function scheduleMp3Continue(idx, buf, offsetSec, speed) {
+  const modeName = state.currentMode || 'narrative';
   const meta = mp3Meta.get(idx);
   if (!meta) return;
   if (meta.jumpTimer) clearTimeout(meta.jumpTimer);
@@ -165,8 +169,8 @@ export function scheduleMp3Continue(idx, buf, offsetSec, speed) {
   const overlapSec = 2.0;
   const waitMs = Math.max(1000, (remainingSec - overlapSec) * 1000);
   meta.jumpTimer = setTimeout(() => {
-    if (!state.isPlaying || state.worldMp3Sources[idx] !== meta.src) return;
-    if (state.currentLevel !== idx || (state.worldSourceType[idx] !== 'mp3')) return;
+    if (!state.isPlaying || state.worldMp3Sources[modeName][idx] !== meta.src) return;
+    if (state.currentLevel !== idx || (state.worldSourceType[state.currentMode] && state.worldSourceType[state.currentMode][idx] !== 'mp3')) return;
     const nextOffset = pickAnchor(idx, meta.curOffset);
     if (nextOffset == null) return;
     // Crossfade sobreposto: inicia novo enquanto faz fade-out do antigo
@@ -179,7 +183,7 @@ export function scheduleMp3Continue(idx, buf, offsetSec, speed) {
     nextSrc.loop = false;
     nextSrc.playbackRate.value = parseFloat(document.getElementById('sliderSpeed').value);
     const nextGain = state.audioCtx.createGain();
-    const vol = (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2;
+    const vol = getWorldVolume(state.worldVolume, idx);
     const safeOffset = Math.max(0, Math.min(meta.curOffset, Math.max(0, nextBuf.duration - 0.5)));
     nextSrc.connect(nextGain);
     nextGain.connect(state.masterFilter);
@@ -195,7 +199,7 @@ export function scheduleMp3Continue(idx, buf, offsetSec, speed) {
     // Fade-in do novo (começa do zero)
     nextGain.gain.setValueAtTime(0, now2);
     nextGain.gain.linearRampToValueAtTime(
-      (state.worldVolume && state.worldVolume[idx] != null) ? state.worldVolume[idx] : 0.2,
+      getWorldVolume(state.worldVolume, idx),
       now2 + fadeDur
     );
     // Inicia novo source
@@ -216,9 +220,10 @@ export function scheduleMp3Continue(idx, buf, offsetSec, speed) {
 }
 
 export function startMp3World() {
+  const modeName = state.currentMode || 'narrative';
   stopMp3World(state.currentLevel, 80);
   const idx = state.currentLevel;
-  const buf = state.worldMp3Buffers[idx];
+  const buf = getWorldMp3Buffer(modeName, idx);
   if (!buf || !state.audioCtx) return;
   // Âncoras calculadas uma única vez por buffer (lazy, no primeiro play).
   let meta = mp3Meta.get(idx);
@@ -236,6 +241,7 @@ export function startMp3World() {
 // worldIdx opcional: por padrão aplica ao mundo atual (compatibilidade).
 
 export function stopMp3World(index, fadeMs = 300) {
+  const modeName = state.currentMode || 'narrative';
   const idx = (index === undefined) ? state.currentLevel : index;
   const meta = mp3Meta.get(idx);
   if (meta) {
@@ -243,12 +249,12 @@ export function stopMp3World(index, fadeMs = 300) {
     meta.src = null;
     meta.gain = null;
   }
-  const src = state.worldMp3Sources[idx];
+  const src = state.worldMp3Sources[modeName][idx];
   if (!src) return;
-  const gain = state.worldMp3Gains ? state.worldMp3Gains[idx] : null;
-  state.worldMp3Sources[idx] = null;
+  const gain = state.worldMp3Gains ? state.worldMp3Gains[modeName][idx] : null;
+  state.worldMp3Sources[modeName][idx] = null;
   if (gain && state.audioCtx) {
-    state.worldMp3Gains[idx] = null;
+    state.worldMp3Gains[modeName][idx] = null;
     const now = state.audioCtx.currentTime;
     try {
       const p = gain.gain;
@@ -266,20 +272,24 @@ export function stopMp3World(index, fadeMs = 300) {
 }
 
 export function stopAllMp3World() {
-  for (let i = 0; i < WORLD_NAMES.length; i++) stopMp3World(i);
+  const modeName = state.currentMode || 'narrative';
+  const worldCount = getModeWorldCount(modeName);
+  for (let i = 0; i < worldCount; i++) stopMp3World(i);
 }
 
 export function setWorldMp3Volume(worldIdx, val) {
-  setWorldVolume(worldIdx, val);
+  const modeName = state.currentMode || 'narrative';
+  setWorldVolume(modeName, worldIdx, val);
 }
 
 // Aplica volume por mundo: synth, MP3 e YouTube.
 
 export function crossfadeMp3Worlds(fromIdx, toIdx) {
+  const modeName = state.currentMode || 'narrative';
   const fromMeta = mp3Meta.get(fromIdx);
-  const fromSrc = state.worldMp3Sources[fromIdx];
-  const fromGain = state.worldMp3Gains ? state.worldMp3Gains[fromIdx] : null;
-  const toBuf = state.worldMp3Buffers[toIdx];
+  const fromSrc = state.worldMp3Sources[modeName][fromIdx];
+  const fromGain = state.worldMp3Gains ? state.worldMp3Gains[modeName][fromIdx] : null;
+  const toBuf = getWorldMp3Buffer(modeName, toIdx);
   if (!fromSrc || !fromGain || !toBuf || !state.audioCtx) {
     // Fallback se não tiver tudo
     stopMp3World(fromIdx);
@@ -295,7 +305,7 @@ export function crossfadeMp3Worlds(fromIdx, toIdx) {
   toSrc.loop = false;
   toSrc.playbackRate.value = parseFloat(document.getElementById('sliderSpeed').value);
   const toGain = state.audioCtx.createGain();
-  const vol = (state.worldVolume && state.worldVolume[toIdx] != null) ? state.worldVolume[toIdx] : 0.2;
+  const vol = getWorldVolume(state.worldVolume, toIdx);
 
   // Obtém âncora para o novo mundo
   const toMeta = mp3Meta.get(toIdx);
@@ -319,7 +329,7 @@ export function crossfadeMp3Worlds(fromIdx, toIdx) {
   } catch (e) {}
   toGain.gain.setValueAtTime(0, state.audioCtx.currentTime);
   toGain.gain.linearRampToValueAtTime(
-    (state.worldVolume && state.worldVolume[toIdx] != null) ? state.worldVolume[toIdx] : 0.2,
+    getWorldVolume(state.worldVolume, toIdx),
     state.audioCtx.currentTime + 2.0
   );
 

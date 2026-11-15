@@ -44,19 +44,19 @@ export function createPomodoroUI() {
         <div id="pomodoroConfig" style="max-height:0; overflow:hidden; transition:max-height 0.3s ease; opacity:0; transition:opacity 0.2s, max-height 0.3s;">
           <div class="slider-group" style="margin-bottom:10px;">
             <div class="slider-header"><span>${t('pomodoro.activityDuration') || 'Atividade'}</span><span id="pomodoroActivityVal">25 min</span></div>
-            <input type="range" id="pomodoroActivityDuration" min="5" max="60" step="1" value="25" oninput="updatePomodoroActivityDuration(this.value)">
+            <input type="range" id="pomodoroActivityDuration" min="5" max="60" step="1" value="25" data-action="updatePomodoroActivityDuration">
           </div>
           <div class="slider-group" style="margin-bottom:10px;">
             <div class="slider-header"><span>${t('pomodoro.shortBreakDuration') || 'Pausa Curta'}</span><span id="pomodoroShortBreakVal">5 min</span></div>
-            <input type="range" id="pomodoroShortBreakDuration" min="1" max="15" step="1" value="5" oninput="updatePomodoroShortBreakDuration(this.value)">
+            <input type="range" id="pomodoroShortBreakDuration" min="1" max="15" step="1" value="5" data-action="updatePomodoroShortBreakDuration">
           </div>
           <div class="slider-group" style="margin-bottom:10px;">
             <div class="slider-header"><span>${t('pomodoro.longBreakDuration') || 'Pausa Longa'}</span><span id="pomodoroLongBreakVal">15 min</span></div>
-            <input type="range" id="pomodoroLongBreakDuration" min="5" max="30" step="1" value="15" oninput="updatePomodoroLongBreakDuration(this.value)">
+            <input type="range" id="pomodoroLongBreakDuration" min="5" max="30" step="1" value="15" data-action="updatePomodoroLongBreakDuration">
           </div>
           <div class="slider-group" style="margin-bottom:10px;">
             <div class="slider-header"><span>${t('pomodoro.cyclesUntilLongBreak') || 'Ciclos p/ Pausa Longa'}</span><span id="pomodoroCyclesVal">4</span></div>
-            <input type="range" id="pomodoroCyclesUntilLongBreak" min="2" max="8" step="1" value="4" oninput="updatePomodoroCyclesUntilLongBreak(this.value)">
+            <input type="range" id="pomodoroCyclesUntilLongBreak" min="2" max="8" step="1" value="4" data-action="updatePomodoroCyclesUntilLongBreak">
           </div>
         </div>
       </div>

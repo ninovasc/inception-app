@@ -45,16 +45,17 @@ export async function renderSourceList() {
   if (!container) return;
   
   const worlds = getCurrentModeWorlds(state.currentMode);
+  const modeName = state.currentMode || 'narrative';
   let html = '';
   
   for (let i = 0; i < worlds.length; i++) {
     const worldName = worlds[i];
-    const sourceType = state.worldSourceType?.[i] || 'synth';
+    const sourceType = state.worldSourceType[modeName] ? state.worldSourceType[modeName][i] : 'synth';
     const synthIdx = state.worldSynth?.[i] || 0;
     const synthName = SYNTH_PRESETS[synthIdx]?.name || `Synth ${synthIdx}`;
-    const volume = state.worldVolume?.[i] || 0.2;
-    const mp3Name = state.worldSources?.mp3?.[i];
-    const ytLink = state.worldSources?.mp3?.[i];
+    const volume = state.worldVolume[modeName] ? state.worldVolume[modeName][i] : 0.5;
+    const mp3Name = state.worldSources.mp3[modeName] ? state.worldSources.mp3[modeName][i] : '';
+    const ytLink = state.worldSources.mp3[modeName] ? state.worldSources.mp3[modeName][i] : '';
     
     const isActive = i === state.currentLevel;
     

@@ -350,21 +350,4 @@ describe('Functional: Generative Engine', () => {
   });
 });
 
-// Import new unit test files for coverage
-import './unit/modes-narrativeMode-pure.test.mjs';
-import './unit/modes-pomodoroMode-pure.test.mjs';
-import './unit/modes-sleepMode-pure.test.mjs';
-import './unit/modes-panelManager-pure.test.mjs';
-import './unit/modes-modeSwitcher-pure.test.mjs';
-import './unit/modes-uiUpdater-pure.test.mjs';
-import './unit/ui-commonUI-pure.test.mjs';
-import './unit/ui-pomodoroUI-pure.test.mjs';
-import './unit/ui-sleepUI-pure.test.mjs';
-import './unit/ui-narrativeUI-pure.test.mjs';
-import './unit/ui-freeUI-pure.test.mjs';
-import './unit/audio-effects-pure.test.mjs';
-import './unit/audio-synth-pure.test.mjs';
-import './unit/audio-stems-pure.test.mjs';
-import './integration/mechanics-integration.test.mjs';
-
 console.log('\n✅ All functional tests defined!');

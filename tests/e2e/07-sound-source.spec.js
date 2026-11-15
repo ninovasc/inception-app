@@ -94,7 +94,7 @@ test.describe('PASIV Engine - Sound Source', () => {
     await page.waitForTimeout(500);
 
     // Verify state was updated
-    const worldSourceType = await page.evaluate(() => window.__getAppState()?.worldSourceType);
+    const worldSourceType = await page.evaluate(() => window.__getAppState()?.worldSourceType?.narrative);
     expect(worldSourceType).toBeDefined();
     expect(worldSourceType[0]).toBe('mp3');
   });
@@ -125,7 +125,7 @@ test.describe('PASIV Engine - Sound Source', () => {
     await page.waitForTimeout(500);
 
     // Verify state was updated back to synth
-    const worldSourceType = await page.evaluate(() => window.__getAppState()?.worldSourceType);
+    const worldSourceType = await page.evaluate(() => window.__getAppState()?.worldSourceType?.narrative);
     expect(worldSourceType).toBeDefined();
     expect(worldSourceType[0]).toBe('synth');
   });
@@ -177,7 +177,7 @@ test.describe('PASIV Engine - Sound Source', () => {
     await page.waitForTimeout(500);
 
     // Verify state was updated
-    const worldVolume = await page.evaluate(() => window.__getAppState()?.worldVolume);
+    const worldVolume = await page.evaluate(() => window.__getAppState()?.worldVolume?.narrative);
     expect(worldVolume).toBeDefined();
     expect(worldVolume[0]).toBeCloseTo(0.5, 1);
   });

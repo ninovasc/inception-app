@@ -11,7 +11,7 @@ export function updatePanelVisibility() {
     const el = /** @type {HTMLElement} */ (section);
     const modes = (el.dataset.mode || '').split(' ');
     const show = modes.includes(state.currentMode);
-    el.style.display = show ? '' : 'none';
+    el.style.display = show ? 'flex' : 'none';
   });
 }
 
