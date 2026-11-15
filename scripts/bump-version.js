@@ -1,41 +1,44 @@
-// Sincroniza a versão do package.json com window.APP_VERSION em js/app.js e versão no index.html
-import fs from 'fs';
+#!/usr/bin/env node
+// Version bump script - increments patch version in package.json and app.js
 
-const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-const version = pkg.version; // ex: 1.0.1
-const major = parseInt(version.split('.')[0]) || 0;
-const minor = parseInt(version.split('.')[1]) || 0;
-const patch = parseInt(version.split('.')[2]) || 0;
+const fs = require('fs');
+const path = require('path');
 
-// Converte semver para número inteiro: major*10000 + minor*100 + patch
-const appVersion = major * 10000 + minor * 100 + patch;
+const packageJsonPath = path.join(__dirname, '..', 'package.json');
+const appJsPath = path.join(__dirname, '..', 'js', 'app.js');
 
-// Atualizar js/app.js
-const appJsPath = 'js/app.js';
-let appJs = fs.readFileSync(appJsPath, 'utf8');
-const newAppJs = appJs.replace(
-  /window\.APP_VERSION = \d+/,
-  `window.APP_VERSION = ${appVersion}`
-);
-
-if (newAppJs === appJs) {
-  console.log('⚠️  window.APP_VERSION não encontrado em js/app.js');
-  process.exit(1);
+function bumpVersion() {
+  // Read package.json
+  const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  const currentVersion = packageJson.version;
+  const [major, minor, patch] = currentVersion.split('.').map(Number);
+  
+  // Increment patch version
+  const newPatch = patch + 1;
+  const newVersion = `${major}.${minor}.${newPatch}`;
+  
+  // Update package.json
+  packageJson.version = newVersion;
+  fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2) + '\n');
+  
+  // Update app.js - APP_VERSION = major * 10000 + minor * 100 + patch
+  const appJsContent = fs.readFileSync(appJsPath, 'utf8');
+  const newAppVersion = major * 10000 + minor * 100 + newPatch;
+  const newAppJsContent = appJsContent.replace(
+    /window\.APP_VERSION\s*=\s*\d+/,
+    `window.APP_VERSION = ${newAppVersion}`
+  );
+  fs.writeFileSync(appJsPath, newAppJsContent);
+  
+  console.log(`Version bumped: ${currentVersion} -> ${newVersion}`);
+  console.log(`APP_VERSION: ${major * 10000 + minor * 100 + patch} -> ${newAppVersion}`);
+  
+  return newVersion;
 }
 
-fs.writeFileSync(appJsPath, newAppJs);
-console.log(`✅ window.APP_VERSION atualizado para ${appVersion} (package.json v${version})`);
-
-// Atualizar index.html versão exibida
-const indexHtml = fs.readFileSync('index.html', 'utf8');
-const newIndexHtml = indexHtml.replace(
-  /v\d+\.\d+\.\d+/,
-  `v${version}`
-);
-
-if (newIndexHtml === indexHtml) {
-  console.log('⚠️  Versão não encontrada em index.html');
-} else {
-  fs.writeFileSync('index.html', newIndexHtml);
-  console.log(`✅ Versão no index.html atualizada para v${version}`);
+try {
+  bumpVersion();
+} catch (err) {
+  console.error('Error bumping version:', err);
+  process.exit(1);
 }

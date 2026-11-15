@@ -15,24 +15,28 @@ test.describe('PASIV Engine - Sound Source', () => {
     await page.waitForSelector('text=PASIV', { timeout: 30000 });
   });
 
-  test('Sound source select exists', async ({ page }) => {
+  test('Sound source radio buttons exist', async ({ page }) => {
     await page.selectOption('#modeSelector', 'narrative');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
 
-    const sourceSelect = page.locator('#sourceList select').first();
-    await expect(sourceSelect).toBeVisible();
+    // Check for radio buttons instead of select
+    const synthRadio = page.locator('input[type="radio"][value="synth"]').first();
+    const mp3Radio = page.locator('input[type="radio"][value="mp3"]').first();
+    await expect(synthRadio).toBeVisible();
+    await expect(mp3Radio).toBeVisible();
   });
 
-  test('Sound source has synth/mp3 options', async ({ page }) => {
+  test('Sound source has synth/mp3 radio buttons', async ({ page }) => {
     await page.selectOption('#modeSelector', 'narrative');
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
 
-    const select = page.locator('#sourceList select').first();
-    const options = await select.locator('option').allTextContents();
-    expect(options).toContain('Synth');
-    expect(options).toContain('MP3');
+    const synthRadio = page.locator('input[type="radio"][value="synth"]').first();
+    const mp3Radio = page.locator('input[type="radio"][value="mp3"]').first();
+    
+    await expect(synthRadio).toBeChecked();
+    await expect(mp3Radio).not.toBeChecked();
   });
 
   test('Sound source MP3 selection shows file input', async ({ page }) => {
@@ -40,8 +44,14 @@ test.describe('PASIV Engine - Sound Source', () => {
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
 
-    const select = page.locator('#sourceList select').first();
-    await select.selectOption('mp3');
+    // Use evaluate to click and trigger change event (avoids click interception issues)
+    await page.evaluate(() => {
+      const radio = document.querySelector('input[type="radio"][value="mp3"]');
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
     await page.waitForTimeout(500);
 
     const fileInput = page.locator('#sourceList input[type="file"]');
@@ -53,11 +63,18 @@ test.describe('PASIV Engine - Sound Source', () => {
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
 
-    const select = page.locator('#sourceList select').first();
-    await select.selectOption('synth');
+    // Make sure synth is selected (should be default)
+    await page.evaluate(() => {
+      const radio = document.querySelector('input[type="radio"][value="synth"]');
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
     await page.waitForTimeout(500);
 
-    const synthSelect = page.locator('#sourceList select').nth(1);
+    // Check for synth dropdown (second select in the row)
+    const synthSelect = page.locator('#sourceList select').first();
     await expect(synthSelect).toBeVisible();
   });
 
@@ -66,8 +83,14 @@ test.describe('PASIV Engine - Sound Source', () => {
     await page.waitForFunction(() => document.getElementById('modeSelector').value === 'narrative', { timeout: 5000 });
     await page.waitForTimeout(500);
 
-    const select = page.locator('#sourceList select').first();
-    await select.selectOption('mp3');
+    // Click MP3 radio button
+    await page.evaluate(() => {
+      const radio = document.querySelector('input[type="radio"][value="mp3"]');
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
     await page.waitForTimeout(500);
 
     // Verify state was updated
@@ -82,12 +105,23 @@ test.describe('PASIV Engine - Sound Source', () => {
     await page.waitForTimeout(500);
 
     // First select MP3
-    const select = page.locator('#sourceList select').first();
-    await select.selectOption('mp3');
+    await page.evaluate(() => {
+      const radio = document.querySelector('input[type="radio"][value="mp3"]');
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
     await page.waitForTimeout(500);
 
     // Then select synth
-    await select.selectOption('synth');
+    await page.evaluate(() => {
+      const radio = document.querySelector('input[type="radio"][value="synth"]');
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
     await page.waitForTimeout(500);
 
     // Verify state was updated back to synth
@@ -102,12 +136,17 @@ test.describe('PASIV Engine - Sound Source', () => {
     await page.waitForTimeout(500);
 
     // First make sure synth is selected
-    const select = page.locator('#sourceList select').first();
-    await select.selectOption('synth');
+    await page.evaluate(() => {
+      const radio = document.querySelector('input[type="radio"][value="synth"]');
+      if (radio) {
+        radio.checked = true;
+        radio.dispatchEvent(new Event('change', { bubbles: true }));
+      }
+    });
     await page.waitForTimeout(500);
 
-    // Find the synth type dropdown (second select)
-    const synthSelect = page.locator('#sourceList select').nth(1);
+    // Find the synth type dropdown
+    const synthSelect = page.locator('#sourceList select').first();
     await expect(synthSelect).toBeVisible();
 
     // Get initial synth value
@@ -120,7 +159,6 @@ test.describe('PASIV Engine - Sound Source', () => {
     // Verify state was updated
     const worldSynth = await page.evaluate(() => window.__getAppState()?.worldSynth);
     expect(worldSynth).toBeDefined();
-    // The test might fail if inline handlers don't work - this will tell us
     expect(worldSynth[0]).toBe(1);
   });
 

@@ -58,6 +58,15 @@ export async function renderSourceList() {
     
     const isActive = i === state.currentLevel;
     
+    // Radio buttons for source mode (synth/mp3)
+    const synthChecked = sourceType === 'synth' ? 'checked' : '';
+    const mp3Checked = sourceType === 'mp3' ? 'checked' : '';
+    
+    // Synth dropdown options
+    const synthOptions = SYNTH_PRESETS.map((s, idx) => 
+      `<option value="${idx}" ${idx === synthIdx ? 'selected' : ''}>${s.name}</option>`
+    ).join('');
+
     html += `
       <div class="source-row" data-world="${i}" style="margin-bottom:8px; padding:8px; background:${isActive ? 'rgba(255,255,255,0.05)' : 'transparent'}; border-radius:6px; border:1px solid ${isActive ? 'var(--accent)' : 'var(--border)'};">
         <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
@@ -65,16 +74,21 @@ export async function renderSourceList() {
           <span style="font-size:0.6rem; color:var(--muted); font-family:monospace;">${isActive ? '● ATIVO' : ''}</span>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-          <select data-action="setSourceMode" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px;">
-            <option value="synth" ${sourceType === 'synth' ? 'selected' : ''}>${t('source.synth') || 'Synth'}</option>
-            <option value="mp3" ${sourceType === 'mp3' ? 'selected' : ''}>${t('source.mp3') || 'MP3'}</option>
-          </select>
+          <!-- Radio buttons for source mode -->
+          <div style="display:flex; gap:12px; align-items:center;">
+            <label style="display:flex; align-items:center; gap:4px; cursor:pointer; font-size:0.7rem; color:#fff;">
+              <input type="radio" name="sourceMode_${i}" value="synth" ${synthChecked} data-action="setSourceMode" data-arg="${i}" style="width:16px; height:16px; accent-color:var(--accent);">
+              ${t('source.synth') || 'Synth'}
+            </label>
+            <label style="display:flex; align-items:center; gap:4px; cursor:pointer; font-size:0.7rem; color:#fff;">
+              <input type="radio" name="sourceMode_${i}" value="mp3" ${mp3Checked} data-action="setSourceMode" data-arg="${i}" style="width:16px; height:16px; accent-color:var(--accent);">
+              ${t('source.mp3') || 'MP3'}
+            </label>
+          </div>
           
           ${sourceType === 'synth' ? `
-            <select data-action="setWorldSynth" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px; flex:1;">
-              ${SYNTH_PRESETS.map((s, idx) => 
-                `<option value="${idx}" ${idx === synthIdx ? 'selected' : ''}>${s.name}</option>`
-              ).join('')}
+            <select data-action="setWorldSynth" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px; flex:1; min-width:140px;">
+              ${synthOptions}
             </select>
           ` : ''}
           
