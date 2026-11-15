@@ -38,6 +38,9 @@ function bumpVersion() {
   const newIndexHtmlContent = indexHtmlContent.replace(
     /<div class="version"[^>]*>v[\d.]+<\/div>/,
     `<div class="version" id="appVersion">v${newVersion}</div>`
+  ).replace(
+    /<script type="module" src="\.\/js\/app\.js\?v=(\d+)"><\/script>/,
+    `<script type="module" src="./js/app.js?v=${newPatch}"></script>`
   );
   fs.writeFileSync(indexHtmlPath, newIndexHtmlContent);
   
