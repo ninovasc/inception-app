@@ -73,7 +73,7 @@ export async function renderSourceList() {
           <strong style="font-size:0.75rem; color:${isActive ? 'var(--accent)' : '#fff'};">${worldName}</strong>
           <span style="font-size:0.6rem; color:var(--muted); font-family:monospace;">${isActive ? '● ATIVO' : ''}</span>
         </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <div style="display:flex; flex-direction:column; gap:8px;">
           <!-- Radio buttons for source mode -->
           <div style="display:flex; gap:12px; align-items:center;">
             <label style="display:flex; align-items:center; gap:4px; cursor:pointer; font-size:0.7rem; color:#fff;">
@@ -87,22 +87,29 @@ export async function renderSourceList() {
           </div>
           
           ${sourceType === 'synth' ? `
-            <select data-action="setWorldSynth" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px; flex:1; min-width:140px;">
-              ${synthOptions}
-            </select>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <select data-action="setWorldSynth" data-arg="${i}" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:4px 8px;font-size:0.65rem;border-radius:4px; flex:1; min-width:140px;">
+                ${synthOptions}
+              </select>
+            </div>
           ` : ''}
           
           ${sourceType === 'mp3' ? `
-            <label class="file-btn" for="sourceMp3_${i}" style="margin:0; padding:4px 8px; font-size:0.65rem; position:relative; cursor:pointer;">
-              <span id="mp3Label_${i}">${mp3Name ? mp3Name.slice(0,20) : (t('source.selectMp3') || '[Selecionar MP3]')}</span><span>📁</span>
-              <input type="file" id="sourceMp3_${i}" data-action="loadWorldMp3" data-arg="${i}" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
-            </label>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <label class="file-btn" for="sourceMp3_${i}" style="margin:0; padding:4px 8px; font-size:0.65rem; position:relative; cursor:pointer;">
+                <span id="mp3Label_${i}">${mp3Name ? mp3Name.slice(0,20) : (t('source.selectMp3') || '[Selecionar MP3]')}</span><span>📁</span>
+                <input type="file" id="sourceMp3_${i}" data-action="loadWorldMp3" data-arg="${i}" style="position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:10;">
+              </label>
+            </div>
           ` : ''}
           
-          <input type="range" min="0" max="1" step="0.01" value="${volume}" 
-            data-action="setWorldVolume" data-arg="${i}" 
-            style="flex:1; max-width:120px;">
-          <span id="worldVolVal${i}" style="font-size:0.6rem; color:var(--muted); font-family:monospace; min-width:35px;">${Math.round(volume*100)}%</span>
+          <!-- Volume slider on its own row -->
+          <div style="display:flex; align-items:center; gap:8px; width:100%;">
+            <input type="range" min="0" max="1" step="0.01" value="${volume}" 
+              data-action="setWorldVolume" data-arg="${i}" 
+              style="flex:1; min-width:0;">
+            <span id="worldVolVal${i}" style="font-size:0.6rem; color:var(--muted); font-family:monospace; min-width:35px; white-space:nowrap;">${Math.round(volume*100)}%</span>
+          </div>
         </div>
       </div>
     `;
