@@ -19,7 +19,7 @@ export const state = {
   triggerSilenceSec: 30,
   worldSourceType: Array(N).fill('synth'),
   worldSynth: [...WORLD_SYNTH],
-  worldVolume: Array(N).fill(0.2),
+  worldVolume: Array(N).fill(0.5),
   worldSources: { mp3: Array(N).fill('') },
   gpsRain: false,
   gpsNight: false,

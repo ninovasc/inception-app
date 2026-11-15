@@ -280,7 +280,7 @@ export const DEFAULTS = {
   triggerSilenceSec: DEFAULT_TRIGGER_SILENCE_SEC,
   worldSourceType: Array(WORLD_COUNT).fill('synth'),
   worldSynth: [...WORLD_SYNTH],
-  worldVolume: Array(WORLD_COUNT).fill(0.2),
+  worldVolume: Array(WORLD_COUNT).fill(0.5),
   worldSources: { mp3: Array(WORLD_COUNT).fill('') },
   gpsRain: false,
   gpsNight: false,

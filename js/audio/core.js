@@ -59,12 +59,12 @@ export async function initAudio() {
   state.compressor.release.value = 0.25;
 
   state.masterOut = state.audioCtx.createGain();
-  state.masterOut.gain.value = 0.9;
+  state.masterOut.gain.value = 1.0;
 
   state.synthMasterGain = state.audioCtx.createGain();
   state.synthMasterGain.gain.value = (state.worldVolume && state.worldVolume[state.currentLevel] != null)
     ? state.worldVolume[state.currentLevel]
-    : 0.2;
+    : 0.5;
   state.synthMasterGain.connect(state.masterFilter);
 
   for (let i = 0; i < 3; i++) {
